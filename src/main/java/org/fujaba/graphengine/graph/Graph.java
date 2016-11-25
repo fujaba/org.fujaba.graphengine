@@ -49,11 +49,6 @@ public class Graph implements Cloneable, Comparable<Graph> {
 	}
 	
 	@Override
-	public String toString() {
-		return new Gson().toJson(this);
-	}
-	
-	@Override
 	public Graph clone() {
 		Graph clone = new Graph();
 		ArrayList<Node> clonedNodes = new ArrayList<Node>();
