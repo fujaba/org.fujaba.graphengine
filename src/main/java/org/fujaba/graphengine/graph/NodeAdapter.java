@@ -9,15 +9,13 @@ import com.google.gson.stream.JsonWriter;
 public class NodeAdapter extends TypeAdapter<Node> {
 
 	@Override
-	public void write(JsonWriter out, Node value) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public void write(JsonWriter out, Node node) throws IOException {
+		throw new IOException("single nodes cannot be written. try writing the whole graph!");
 	}
 
 	@Override
 	public Node read(JsonReader in) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new IOException("single nodes cannot be read. try reading the whole graph!");
 	}
 
 }

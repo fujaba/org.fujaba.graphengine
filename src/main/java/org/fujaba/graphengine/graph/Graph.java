@@ -2,6 +2,8 @@ package org.fujaba.graphengine.graph;
 
 import java.util.ArrayList;
 
+import org.fujaba.graphengine.GraphEngine;
+
 import com.google.gson.Gson;
 
 /**
@@ -46,6 +48,11 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		}
 		this.nodes.remove(node);
 		return this;
+	}
+	
+	@Override
+	public String toString() {
+		return GraphEngine.getGson().toJson(this);
 	}
 	
 	@Override
