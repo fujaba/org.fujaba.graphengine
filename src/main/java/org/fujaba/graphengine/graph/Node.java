@@ -22,15 +22,22 @@ public class Node implements Cloneable {
 
 	public Node() {
 	}
+	
 	public Node(HashMap<String, Object> attributes) {
 		this.setAttributes(attributes);
 	}
 	
 
 	public HashMap<String, Object> getAttributes() {
+		if (this.attributes == null) {
+			this.attributes = new HashMap<String, Object>();
+		}
 		return this.attributes;
 	}
 	public Object getAttribute(String name) {
+		if (this.attributes == null) {
+			this.attributes = new HashMap<String, Object>();
+		}
 		return this.attributes.get(name);
 	}
 	public Node setAttributes(HashMap<String, Object> attributes) {
@@ -52,9 +59,15 @@ public class Node implements Cloneable {
 		return this;
 	}
 	public HashMap<String, ArrayList<Node>> getEdges() {
+		if (this.edges == null) {
+			this.edges = new HashMap<String, ArrayList<Node>>();
+		}
 		return this.edges;
 	}
 	public ArrayList<Node> getEdges(String name) {
+		if (this.edges == null) {
+			this.edges = new HashMap<String, ArrayList<Node>>();
+		}
 		return this.edges.get(name);
 	}
 	public Node addEdge(String name, Node target) {

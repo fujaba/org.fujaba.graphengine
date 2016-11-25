@@ -11,7 +11,7 @@ import com.google.gson.Gson;
 public class GraphTest {
 	
 	@Test
-	public void testGraphSerializationAndDeserialization() {
+	public void testGraph() {
 		Gson gson = GraphEngine.getGson();
 		// build ferryman's problem graph
 		Graph original = new Graph(); // originaler graph
@@ -41,7 +41,6 @@ public class GraphTest {
 		do { // hier werden nach und nach alle knoten gelöscht
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
-//			System.out.println("\n" + graph + "\nmatches\n" + subGraph);
 			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		} while (subGraph.getNodes().size() > 0);
 		// graph auf isomorphie und isomorphe teilgraphen testen (mit positiv-erwartetem ergebnis):
@@ -49,8 +48,7 @@ public class GraphTest {
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		int totalEdgeCount;
-//		System.out.println("##### TEST ISOMORPH SUBGRAPHS (DELETING EDGES) #####");
-		do {
+		do { // hier werden nach und nach alle kanten gelöscht 
 			int currentEdgeCount;
 			int randomNodeIndex;
 			do {
@@ -64,7 +62,6 @@ public class GraphTest {
 				}
 				break;
 			}
-//			System.out.println("\n" + graph + "\nmatches\n" + subGraph);
 			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 			totalEdgeCount = 0;
 			for (Node node: subGraph.getNodes()) {
@@ -73,17 +70,53 @@ public class GraphTest {
 				}
 			}
 		} while (totalEdgeCount > 0);
-		
-//		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
-//		subGraph = original.clone();
-//		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-//		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
-//		while (subGraph.getNodes().size() > 0) {
-//			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
-//			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
-//			Assert.assertTrue(graph.hasIsomorphicSubGraph(graph));
-//			System.out.println("\n" + graph + "\nmatches\n" + subGraph);
-//		}
+		// graph auf isomorphie und isomorphe teilgraphen testen (mit positiv-erwartetem ergebnis):
+		subGraph = original.clone();
+		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		int totalAttributeCount;
+		do { // hier werden nach und nach alle attribute gelöscht 
+			int currentAttributeCount;
+			int randomNodeIndex;
+			do {
+				randomNodeIndex = (int)(Math.random() * subGraph.getNodes().size());
+				currentAttributeCount = subGraph.getNodes().get(randomNodeIndex).getAttributes().keySet().size();
+			} while (currentAttributeCount < 1);
+			for (String key: subGraph.getNodes().get(randomNodeIndex).getAttributes().keySet()) {
+				subGraph.getNodes().get(randomNodeIndex).removeAttribute(key);
+				break;
+			}
+			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+			totalAttributeCount = 0;
+			for (Node node: subGraph.getNodes()) {
+				totalAttributeCount += node.getAttributes().keySet().size();
+			}
+		} while (totalAttributeCount > 0);
+
+		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
+		subGraph = original.clone();
+		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		while (subGraph.getNodes().size() > 2) { // hier werden nach und nach die meisten knoten gelöscht
+			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
+			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
+			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		}
+		// hier kommt jetzt aber ein knoten mit bisher unbekannter kante hinein:
+		subGraph.addNode(new Node().addEdge("parent", subGraph.getNodes().get(0)));
+		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
+		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
+		subGraph = original.clone();
+		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		while (subGraph.getNodes().size() > 2) { // hier werden nach und nach die meisten knoten gelöscht
+			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
+			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
+			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		}
+		// hier kommt jetzt aber ein bisher unbekanntes attribute hinein:
+		subGraph.getNodes().get(0).setAttribute("count", 2);
+		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
 	}
 	
 }
