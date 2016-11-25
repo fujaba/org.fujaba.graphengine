@@ -1,45 +1,33 @@
 package org.fujaba.graphengine.graph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+
+import com.google.gson.Gson;
 
 /**
  * This is a Node for use in graph transformation systems.
  * 
  * @author Philipp Kolodziej
  */
-public class Node {
+public class Node implements Cloneable, Comparable<Node> {
 	/**
 	 * the graph containing this node
 	 */
 	private Graph graph;
 	/**
-	 * the ID of this node
-	 */
-	private String id;
-	/**
-	 * the type of this node
-	 */
-	private String type;
-	/**
 	 * the attributes of this node
 	 */
-	private HashMap<String, String> attributes = new HashMap<String, String>();
+	private HashMap<String, Object> attributes = new HashMap<String, Object>();
 	/**
 	 * the nodes, that are connected with an outgoing edge that has a specific label
 	 */
-	private HashMap<String, HashSet<Node>> outgoingEdges = new HashMap<String, HashSet<Node>>();
-	/**
-	 * the nodes, that are connected with an ingoing edge that has a specific label
-	 */
-	private HashMap<String, HashSet<Node>> ingoingEdges = new HashMap<String, HashSet<Node>>();
+	private HashMap<String, ArrayList<Node>> edges = new HashMap<String, ArrayList<Node>>();
 	
 
 	
-	public Node(Graph graph, String id, String type, HashMap<String, String> attributes) {
+	public Node(Graph graph, HashMap<String, Object> attributes) {
 		this.setGraph(graph);
-		this.setId(id);
-		this.setType(type);
 		this.setAttributes(attributes);
 	}
 	
@@ -47,137 +35,82 @@ public class Node {
 	public Graph getGraph() {
 		return this.graph;
 	}
-	public void setGraph(Graph graph) {
+	public Node setGraph(Graph graph) {
 		this.graph = graph;
+		return this;
 	}
-	public String getId() {
-		return this.id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	public String getType() {
-		return this.type;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
-	public HashMap<String, String> getAttributes() {
+	public HashMap<String, Object> getAttributes() {
 		return this.attributes;
 	}
-	public String getAttribute(String name) {
+	public Object getAttribute(String name) {
 		return this.attributes.get(name);
 	}
-	public void setAttributes(HashMap<String, String> attributes) {
+	public Node setAttributes(HashMap<String, Object> attributes) {
 		this.attributes = attributes;
+		return this;
 	}
-	public void setAttribute(String name, String value) {
+	public Node setAttribute(String name, Object value) {
 		if (this.attributes == null) {
-			this.attributes = new HashMap<String, String>();
+			this.attributes = new HashMap<String, Object>();
 		}
 		this.attributes.put(name, value);
+		return this;
 	}
-	public void removeAttribute(String name) {
+	public Node removeAttribute(String name) {
 		if (this.attributes == null) {
-			return;
+			return this;
 		}
 		this.attributes.remove(name);
+		return this;
 	}
-	public HashMap<String, HashSet<Node>> getOutgoingEdges() {
-		return this.outgoingEdges;
+	public HashMap<String, ArrayList<Node>> getEdges() {
+		return this.edges;
 	}
-	public HashSet<Node> getOutgoingEdges(String name) {
-		return this.outgoingEdges.get(name);
+	public ArrayList<Node> getEdges(String name) {
+		return this.edges.get(name);
 	}
-//	private void setOutgoingEdges(HashMap<String, HashSet<Node>> outgoingEdges) {
-//		this.outgoingEdges = outgoingEdges;
-//	}
-	public void addOutgoingEdge(String name, Node target) {
-		if (this.outgoingEdges == null) {
-			this.outgoingEdges = new HashMap<String, HashSet<Node>>();
+	public Node addEdge(String name, Node target) {
+		if (this.edges == null) {
+			this.edges = new HashMap<String, ArrayList<Node>>();
 		}
-		if (this.outgoingEdges.get(name) == null) {
-			this.outgoingEdges.put(name, new HashSet<Node>());
+		if (this.edges.get(name) == null) {
+			this.edges.put(name, new ArrayList<Node>());
 		}
-		this.outgoingEdges.get(name).add(target);
-		this.getGraph().addNodeByOutgoingEdge(name, this);
-		target.addIngoingEdge(name, this);
+		this.edges.get(name).add(target);
+		return this;
 	}
-	public void removeOutgoingEdge(String name, Node target) {
+	public Node removeEdge(String name, Node target) {
 		if (target == null) {
-			return;
+			return this;
 		}
-		if (this.outgoingEdges == null) {
-			return;
+		if (this.edges == null) {
+			return this;
 		}
-		if (this.outgoingEdges.get(name) == null) {
-			return;
+		if (this.edges.get(name) == null) {
+			return this;
 		}
-		this.outgoingEdges.get(name).remove(target);
-		if (this.outgoingEdges.get(name).size() == 0) {
-			this.getGraph().removeNodeByOutgoingEdge(name, this);
-		}
-		target.removeIngoingEdge(name, this);
+		this.edges.get(name).remove(target);
+		return this;
 	}
-	public HashMap<String, HashSet<Node>> getIngoingEdges() {
-		return this.ingoingEdges;
-	}
-	public HashSet<Node> getIngoingEdges(String name) {
-		return this.ingoingEdges.get(name);
-	}
-//	private void setIngoingEdges(HashMap<String, HashSet<Node>> ingoingEdges) {
-//		this.ingoingEdges = ingoingEdges;
-//	}
-	private void addIngoingEdge(String name, Node source) {
-		if (this.ingoingEdges == null) {
-			this.ingoingEdges = new HashMap<String, HashSet<Node>>();
-		}
-		if (this.ingoingEdges.get(name) == null) {
-			this.ingoingEdges.put(name, new HashSet<Node>());
-		}
-		this.ingoingEdges.get(name).add(source);
-		this.getGraph().addNodeByIngoingEdge(name, this);
-	}
-	private void removeIngoingEdge(String name, Node source) {
-		if (source == null) {
-			return;
-		}
-		if (this.ingoingEdges == null) {
-			return;
-		}
-		if (this.ingoingEdges.get(name) == null) {
-			return;
-		}
-		this.ingoingEdges.get(name).remove(source);
-		if (this.ingoingEdges.get(name).size() == 0) {
-			this.getGraph().removeNodeByIngoingEdge(name, this);
-		}
+
+	@Override
+	public String toString() {
+		return new Gson().toJson(this);
 	}
 	
 	@Override
-	public String toString() {
-		String result = "{";
-		result += "\"id\":\"" + this.id + "\",";
-		result += "\"type\":\"" + this.type + "\",";
-		result += "\"attributes\":[";
-		boolean first = true;
-		for (String name: this.attributes.keySet()) {
-			result += (!first ? "," : "") + "{\"name\":\"" + name + "\",";
-			result += "\"value\":\"" + this.attributes.get(name) + "\"}";
-			first = false;
+	public Node clone() {
+		HashMap<String, Object> clonedAttributes = new HashMap<String, Object>();
+		for (String key: attributes.keySet()) {
+			clonedAttributes.put(key, attributes.get(key)); // attribute value won't be duplicated
 		}
-		result += "],";
-		result += "\"edges\":[";
-		first = true;
-		for (String name: this.outgoingEdges.keySet()) {
-			for (Node node: this.outgoingEdges.get(name)) {
-				result += (!first ? "," : "") + "{\"name\":\"" + name + "\",";
-				result += "\"target\":\"" + node.getId() + "\"}";
-				first = false;
-			}
-		}
-		result += "]";
-		return result + "}";
+		Node clone = new Node(this.graph, clonedAttributes);
+		return clone;
+	}
+
+	@Override
+	public int compareTo(Node o) {
+		return this.toString().compareTo(o.toString());
 	}
 
 }
