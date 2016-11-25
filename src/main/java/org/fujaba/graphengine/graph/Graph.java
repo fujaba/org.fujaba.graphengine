@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import org.fujaba.graphengine.GraphEngine;
 
-import com.google.gson.Gson;
-
 /**
  * This is a graph for use in graph transformation systems.
  * 
@@ -28,7 +26,7 @@ public class Graph implements Cloneable, Comparable<Graph> {
 	 * @param json the graph's JSON representation
 	 */
 	public Graph(String json) {
-		Graph that = new Gson().fromJson(json, Graph.class);
+		Graph that = GraphEngine.getGson().fromJson(json, Graph.class);
 		this.nodes = that.nodes;
 	}
 	/* METHODS TO HANDLE NODES GENERALLY */
@@ -68,7 +66,7 @@ public class Graph implements Cloneable, Comparable<Graph> {
 	
 	@Override
 	public int compareTo(Graph o) {
-		return this.toString().compareTo(o.toString());
+		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(o));
 	}
 
 }

@@ -3,14 +3,12 @@ package org.fujaba.graphengine.graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.google.gson.Gson;
-
 /**
  * This is a Node for use in graph transformation systems.
  * 
  * @author Philipp Kolodziej
  */
-public class Node implements Cloneable, Comparable<Node> {
+public class Node implements Cloneable {
 	/**
 	 * the graph containing this node
 	 */
@@ -103,11 +101,6 @@ public class Node implements Cloneable, Comparable<Node> {
 		}
 		Node clone = new Node(this.graph, clonedAttributes);
 		return clone;
-	}
-
-	@Override
-	public int compareTo(Node o) {
-		return this.toString().compareTo(o.toString());
 	}
 
 }

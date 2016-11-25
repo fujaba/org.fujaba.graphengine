@@ -14,10 +14,10 @@ public class GraphEngine {
 
 	public static Gson getGson() {
 		if (gson == null) {
-			gson = new GsonBuilder()
-//					.registerTypeAdapter(Node.class, new NodeAdapter())
-					.registerTypeAdapter(Graph.class, new GraphAdapter())
-					.create();
+			final GsonBuilder gsonBuilder = new GsonBuilder();
+			gsonBuilder.registerTypeAdapter(Node.class, new NodeAdapter());
+			gsonBuilder.registerTypeAdapter(Graph.class, new GraphAdapter());
+			gson = gsonBuilder.create();
 		}
 		return gson;
 	}
