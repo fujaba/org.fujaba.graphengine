@@ -37,7 +37,7 @@ public class GraphAdapter extends TypeAdapter<Graph> {
 		    	} else if (value instanceof String) {
 			    	out.name(key).value((String)node.getAttribute(key));
 		    	} else {
-		    		throw new IOException("invalid attribute value for key " + key + " in Node " + node + ": " + value);
+		    		throw new IOException("invalid type of attribute value for key " + key + " in Node " + node + ": " + value);
 		    	}
 		    }
 		    out.endObject();

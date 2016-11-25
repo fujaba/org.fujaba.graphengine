@@ -90,7 +90,21 @@ public class Node implements Cloneable {
 			return this;
 		}
 		this.edges.get(name).remove(target);
+		if (this.edges.get(name).size() == 0) {
+			this.edges.remove(name);
+		}
 		return this;
+	}
+	
+	@Override
+	public String toString() {
+		String result = "node with attributes " + attributes + " and edges {";
+		boolean isFirst = true;
+		for (String key: edges.keySet()) {
+			result += (isFirst ? "" : ",") + key + "=[" + edges.get(key).size() + " target" + (edges.get(key).size() == 1 ? "" : "s") + "]";
+			isFirst = false;
+		}
+		return result + "}";
 	}
 	
 	@Override
