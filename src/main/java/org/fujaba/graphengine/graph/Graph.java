@@ -205,7 +205,7 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 					edgesToAdd.get(idManager.getId(node)).get(key).add(idManager.getId(target));
 				}
 			}
-			clonedNodes.add(newNodes.get(node).setGraph(clone));
+			clonedNodes.add(newNodes.get(node));
 		}
 		for (Long sourceKey: edgesToAdd.keySet()) {
 			for (String edgeName: edgesToAdd.get(sourceKey).keySet()) {

@@ -10,10 +10,6 @@ import java.util.HashMap;
  */
 public class Node implements Cloneable {
 	/**
-	 * the graph containing this node
-	 */
-	private Graph graph;
-	/**
 	 * the attributes of this node
 	 */
 	private HashMap<String, Object> attributes = new HashMap<String, Object>();
@@ -26,19 +22,11 @@ public class Node implements Cloneable {
 
 	public Node() {
 	}
-	public Node(Graph graph, HashMap<String, Object> attributes) {
-		this.setGraph(graph);
+	public Node(HashMap<String, Object> attributes) {
 		this.setAttributes(attributes);
 	}
 	
 
-	public Graph getGraph() {
-		return this.graph;
-	}
-	public Node setGraph(Graph graph) {
-		this.graph = graph;
-		return this;
-	}
 	public HashMap<String, Object> getAttributes() {
 		return this.attributes;
 	}
@@ -113,7 +101,7 @@ public class Node implements Cloneable {
 		for (String key: attributes.keySet()) {
 			clonedAttributes.put(key, attributes.get(key)); // attribute value won't be duplicated
 		}
-		Node clone = new Node(this.graph, clonedAttributes);
+		Node clone = new Node(clonedAttributes);
 		return clone;
 	}
 
