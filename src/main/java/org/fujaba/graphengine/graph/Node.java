@@ -25,7 +25,9 @@ public class Node implements Cloneable, Comparable<Node> {
 	private HashMap<String, ArrayList<Node>> edges = new HashMap<String, ArrayList<Node>>();
 	
 
-	
+
+	public Node() {
+	}
 	public Node(Graph graph, HashMap<String, Object> attributes) {
 		this.setGraph(graph);
 		this.setAttributes(attributes);
@@ -91,11 +93,6 @@ public class Node implements Cloneable, Comparable<Node> {
 		}
 		this.edges.get(name).remove(target);
 		return this;
-	}
-
-	@Override
-	public String toString() {
-		return new Gson().toJson(this);
 	}
 	
 	@Override
