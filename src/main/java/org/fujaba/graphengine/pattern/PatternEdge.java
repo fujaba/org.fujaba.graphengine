@@ -1,57 +1,50 @@
 package org.fujaba.graphengine.pattern;
 
-/**
- * A pattern for a single edge, for matching against, creation or removal of an edge.
- * 
- * @author Philipp Kolodziej
- */
-public class PatternEdge extends org.fujaba.graphengine.pattern.Pattern {
-	
+public class PatternEdge extends PatternElement {
+
 	/**
-	 * the name of the edge
+	 * the name of this PatternEdge
 	 */
 	private String name;
 	/**
-	 * the PatternNode that is source of this PatternEdge
+	 * the source of this PatternEdge
 	 */
 	private PatternNode source;
 	/**
-	 * the PatternNode that is target of this PatternEdge
+	 * the target of this PatternEdge
 	 */
 	private PatternNode target;
-
-	protected PatternEdge(PatternNode source, PatternNode target, String name, String action) {
-		this.setSource(source);
-		this.setTarget(target);
-		this.setName(name);
-		this.setAction(action);
-	}
+	
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public PatternEdge setName(String name) {
 		this.name = name;
+		return this;
 	}
 	public PatternNode getSource() {
 		return source;
 	}
-	public void setSource(PatternNode source) {
+	public PatternEdge setSource(PatternNode source) {
 		this.source = source;
+		return this;
 	}
 	public PatternNode getTarget() {
 		return target;
 	}
-	public void setTarget(PatternNode target) {
+	public PatternEdge setTarget(PatternNode target) {
 		this.target = target;
+		return this;
 	}
-	
 	@Override
-	public String toString() {
-		String result = "{";
-		result += "\"action\":\"" + this.getAction() + "\", ";
-		result += "\"name\":\"" + this.getName() + "\", ";
-		result += "\"target\":\"" + this.getTarget().getId() + "\"";
-		return result + "}";
+	public PatternEdge setNegative(boolean negative) {
+		super.setNegative(negative);
+		return this;
 	}
-	
+	@Override
+	public PatternEdge setAction(String action) {
+		super.setAction(action);
+		return this;
+	}
+
 }

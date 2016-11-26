@@ -1,102 +1,76 @@
 package org.fujaba.graphengine.pattern;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
-/**
- * A pattern for a single node, for matching against, creation or removal of a node.
- * 
- * @author Philipp Kolodziej
- */
-public class PatternNode extends org.fujaba.graphengine.pattern.Pattern {
-
-	/**
-	 * the id of this PatternNode
-	 */
-	private String id;
-	/**
-	 * the type of this PatternNode
-	 */
-	private String type;
-	/**
-	 * the outgoing PatternEdges of this PatternNode
-	 */
-	private HashSet<PatternEdge> outgoingEdges = new HashSet<PatternEdge>();
-	/**
-	 * the ingoing PatternEdges of this PatternNode
-	 */
-	private HashSet<PatternEdge> ingoingEdges = new HashSet<PatternEdge>();
+public class PatternNode extends PatternElement {
+	
 	/**
 	 * the PatternAttributes of this PatternNode
 	 */
-	private HashSet<PatternAttribute> attributes = new HashSet<PatternAttribute>();
-	
-	protected PatternNode(String id, String type, String action) {
-		this.setId(id);
-		this.setType(type);
-		this.setAction(action);
+	private ArrayList<PatternAttribute> patternAttributes = new ArrayList<PatternAttribute>();
+	/**
+	 * the outgoing PatternEdges of this PatternNode
+	 */
+	private ArrayList<PatternEdge> patternEdges = new ArrayList<PatternEdge>();
+
+	public ArrayList<PatternAttribute> getPatternAttributes() {
+		return patternAttributes;
+	}
+	public PatternAttribute getPatternAttribute(String name) {
+		for (int i = 0; i < patternAttributes.size(); ++i) {
+			if (patternAttributes.get(i).getName() == name) {
+				return patternAttributes.get(i);
+			}
+		}
+		return null;
+	}
+	public PatternNode setPatternAttributes(ArrayList<PatternAttribute> patternAttributes) {
+		this.patternAttributes = patternAttributes;
+		return this;
+	}
+	public PatternNode setPatternAttribute(String name, String value) {
+		for (int i = 0; i < patternAttributes.size(); ++i) {
+			if (patternAttributes.get(i).getName() == name) {
+				patternAttributes.get(i).setValue(value);
+				return this;
+			}
+		}
+		patternAttributes.add(new PatternAttribute().setName(name).setValue(value));
+		return this;
+	}
+	public PatternNode addPatternAttribute(PatternAttribute patternAttribute) {
+		this.patternAttributes.add(patternAttribute);
+		return this;
+	}
+	public PatternNode removePatternAttribute(String name) {
+		for (int i = 0; i < patternAttributes.size(); ++i) {
+			if (patternAttributes.get(i).getName() == name) {
+				patternAttributes.remove(i);
+				return this;
+			}
+		}
+		return this;
+	}
+	public ArrayList<PatternEdge> getPatternEdges() {
+		return patternEdges;
+	}
+	public PatternNode setPatternEdges(ArrayList<PatternEdge> patternEdges) {
+		this.patternEdges = patternEdges;
+		return this;
+	}
+	public PatternNode addPatternEdge(PatternEdge patternEdge) {
+		this.patternEdges.add(patternEdge);
+		return this;
+	}
+	@Override
+	public PatternNode setNegative(boolean negative) {
+		super.setNegative(negative);
+		return this;
+	}
+	@Override
+	public PatternNode setAction(String action) {
+		super.setAction(action);
+		return this;
 	}
 
-	public String getId() {
-		return this.id;
-	}
-	private void setId(String id) {
-		this.id = id;
-	}
-	public String getType() {
-		return this.type;
-	}
-	private void setType(String type) {
-		this.type = type;
-	}
-	public HashSet<PatternEdge> getOutgoingEdges() {
-		return this.outgoingEdges;
-	}
-//	private void setOutgoingEdges(HashSet<PatternEdge> outgoingEdges) {
-//		this.outgoingEdges = outgoingEdges;
-//	}
-	protected void addOutgoingEdge(PatternEdge edge) {
-		if (this.outgoingEdges == null) {
-			this.outgoingEdges = new HashSet<PatternEdge>();
-		}
-		this.outgoingEdges.add(edge);
-		if (edge != null && edge.getTarget() != null) {
-			edge.getTarget().addIngoingEdge(edge);
-		}
-	}
-	public HashSet<PatternEdge> getIngoingEdges() {
-		return this.ingoingEdges;
-	}
-//	private void setIngoingEdges(HashSet<PatternEdge> ingoingEdges) {
-//		this.ingoingEdges = ingoingEdges;
-//	}
-	private void addIngoingEdge(PatternEdge edge) {
-		if (this.ingoingEdges == null) {
-			this.ingoingEdges = new HashSet<PatternEdge>();
-		}
-		this.ingoingEdges.add(edge);
-	}
-	public HashSet<PatternAttribute> getAttributes() {
-		return this.attributes;
-	}
-//	private void setAttributes(HashSet<PatternAttribute> attributes) {
-//		this.attributes = attributes;
-//	}
-	protected void addAttribute(PatternAttribute attribute) {
-		if (this.attributes == null) {
-			this.attributes = new HashSet<PatternAttribute>();
-		}
-		this.attributes.add(attribute);
-	}
-	
-	@Override
-	public String toString() {
-		String result = "{";
-		result += "\"action\":\"" + this.getAction() + "\", ";
-		result += "\"id\":\"" + this.getId() + "\", ";
-		result += "\"type\":\"" + this.getType() + "\", ";
-		result += "\"attributes\":" + this.getAttributes() + ", ";
-		result += "\"edges\":" + this.getOutgoingEdges() + "";
-		return result + "}";
-	}
-	
 }

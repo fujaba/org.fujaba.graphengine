@@ -1,24 +1,18 @@
 package org.fujaba.graphengine.pattern;
 
-/**
- * This class is superclass to all Pattern subclasses, like PatternNode, PatternEdge, PatternAttribute.
- * 
- * Patterns can be part of a match condition or things to remove or create on a match.
- * 
- * @author Philipp Kolodziej
- */
 public abstract class Pattern {
 
 	/**
-	 * the action for this action: like "match", "create", "remove"
+	 * whether this Pattern is negative or not
 	 */
-	private String action;
+	private boolean negative;
 
-	public String getAction() {
-		return action;
+	public boolean isNegative() {
+		return negative;
 	}
-	public void setAction(String action) {
-		this.action = action;
+	public Pattern setNegative(boolean negative) {
+		this.negative = negative;
+		return this;
 	}
 	
 }

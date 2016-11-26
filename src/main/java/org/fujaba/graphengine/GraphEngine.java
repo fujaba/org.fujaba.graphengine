@@ -3,8 +3,10 @@ package org.fujaba.graphengine;
 import javax.xml.soap.Node;
 
 import org.fujaba.graphengine.graph.Graph;
-import org.fujaba.graphengine.graph.GraphAdapter;
-import org.fujaba.graphengine.graph.NodeAdapter;
+import org.fujaba.graphengine.pattern.PatternEdge;
+import org.fujaba.graphengine.pattern.PatternGraph;
+import org.fujaba.graphengine.pattern.PatternNode;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -17,7 +19,11 @@ public class GraphEngine {
 			gson = new GsonBuilder()
 					.registerTypeAdapter(Node.class, new NodeAdapter())
 					.registerTypeAdapter(Graph.class, new GraphAdapter())
-					.serializeNulls()
+					.registerTypeAdapter(PatternEdge.class, new PatternEdgeAdapter())
+					.registerTypeAdapter(PatternNode.class, new PatternNodeAdapter())
+					.registerTypeAdapter(PatternGraph.class, new PatternGraphAdapter())
+//					.setPrettyPrinting()
+//					.serializeNulls()
 					.create();
 		}
 		return gson;

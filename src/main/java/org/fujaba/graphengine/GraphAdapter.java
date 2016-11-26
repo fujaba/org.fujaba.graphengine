@@ -1,10 +1,11 @@
-package org.fujaba.graphengine.graph;
+package org.fujaba.graphengine;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.fujaba.graphengine.IdManager;
+import org.fujaba.graphengine.graph.Graph;
+import org.fujaba.graphengine.graph.Node;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
