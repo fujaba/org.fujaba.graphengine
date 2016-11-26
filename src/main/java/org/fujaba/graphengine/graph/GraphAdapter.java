@@ -31,11 +31,13 @@ public class GraphAdapter extends TypeAdapter<Graph> {
 		    	} else if (value instanceof Long) {
 			    	out.name(key).value((Long)node.getAttribute(key));
 		    	} else if (value instanceof Double) {
-			    	out.name(key).value((Float)node.getAttribute(key));
+			    	out.name(key).value((Double)node.getAttribute(key));
 		    	} else if (value instanceof Boolean) {
 			    	out.name(key).value((Boolean)node.getAttribute(key));
 		    	} else if (value instanceof String) {
 			    	out.name(key).value((String)node.getAttribute(key));
+//		    	} else if (value == null) {
+//			    	out.name(key).value((Integer)null);
 		    	} else {
 		    		throw new IOException("invalid type of attribute value for key " + key + " in Node " + node + ": " + value);
 		    	}

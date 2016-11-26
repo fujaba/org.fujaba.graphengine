@@ -33,7 +33,7 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		Graph that = GraphEngine.getGson().fromJson(json, Graph.class);
 		this.nodes = that.nodes;
 	}
-	/* METHODS TO HANDLE NODES GENERALLY */
+
 	public ArrayList<Node> getNodes() {
 		return this.nodes;
 	}
@@ -63,38 +63,86 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		return this;
 	}
 	
+	/**
+	 * This function returns true if the given subGraph is isomorph to a sub-graph of this graph.
+	 * 
+	 * @param subGraph the given sub-graph to check for in this graph
+	 * @return true if the given subGraph is isomorph to a sub-graph of this graph, or else false.
+	 */
 	public boolean hasIsomorphicSubGraph(Graph subGraph) {
+		/* 
+		 * just start the recursive search for sub-graphs of this base-graph
+		 * with the same number of nodes as the given sub-graph:
+		 */
 		return hasIsomorphicSubGraph(this, subGraph, 0);
 	}
 	
-	private static boolean hasIsomorphicSubGraph(Graph graph, Graph subGraph, int currentIndex) { //TODO: finish
+	/**
+	 * Recursive helper-function to check for an isomorphic sub-graph.
+	 * @param graph the given base-graph
+	 * @param subGraph the given sub-graph
+	 * @param currentIndex the index of nodes of the base-graph to start working with
+	 * @return true if the given subGraph is isomorph to a sub-graph of this graph, or else false.
+	 */
+	private static boolean hasIsomorphicSubGraph(Graph graph, Graph subGraph, int currentIndex) {
 		try {
 			Graph versionB = graph;
 			if (versionB.getNodes() != null && versionB.getNodes().size() > currentIndex) {
+				/*
+				 * if possible, the call splits in two sub-calls,
+				 * where either the n-th node is removed or not 
+				 */
 				versionB = versionB.clone();
 				versionB.removeNode(versionB.getNodes().get(currentIndex));
-				if ((graph.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(graph, subGraph))
-						|| (versionB.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(versionB, subGraph))) {
+				if ((graph.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(graph, subGraph) != null)
+						|| (versionB.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(versionB, subGraph) != null)) {
+					/*
+					 * until a sub-graph is found that has the right number of nodes and withstands all further testing.
+					 */
 					return true;
 				} else if (graph.getNodes().size() < subGraph.getNodes().size() && versionB.getNodes().size() < subGraph.getNodes().size()) {
+					/*
+					 * if the current branch of those recursive calls
+					 * already has removed too much nodes, it's discarded
+					 */
 					return false;
 				}
 			} else {
-				return advancedIsomorphicSubGraphCheck(versionB, subGraph);
+				/*
+				 * if the call can't split, here's the call that's left over:
+				 */
+				return advancedIsomorphicSubGraphCheck(versionB, subGraph) != null;
 			}
+			/*
+			 * the actual split was just prepared earlier and happens here:
+			 */
 			return hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1) || hasIsomorphicSubGraph(versionB, subGraph, currentIndex);
-		} catch (Throwable t) {
+		} catch (IOException e) {
+			/*
+			 * the only possible IOException is when this function would be calling
+			 * advancedIsomorphicSubGraphCheck with wrong arguments.
+			 */
 			return false;
 		}
 	}
 	
-	private static boolean advancedIsomorphicSubGraphCheck(Graph graph, Graph subGraph) throws IOException {
+	/**
+	 * This helper-function checks for a given base-graph and a given sub-graph with the same number of nodes,
+	 * if the sub-graph is isomorph to a sub-graph of the base-graph.
+	 * 
+	 * @param graph the given base-graph with the same number of nodes as the sub-graph
+	 * @param subGraph the given sub-graph with the same number of nodes as the base-graph
+	 * @return true if the given subGraph is isomorph to a sub-graph of this graph, or else false.
+	 * @throws IOException is thrown if the graphs don't have the same number of nodes.
+	 */
+	private static HashMap<Node, Node> advancedIsomorphicSubGraphCheck(Graph graph, Graph subGraph) throws IOException {
 		if (graph.getNodes().size() != subGraph.getNodes().size()) {
 			throw new IOException("wrong input - both graphs need to have the same number of nodes for this check!");
 		}
 		// both graphs must have to same amount of nodes to even get here!
-		/**
-		 * zu jedem Knoten-Index aus subGraph eine Liste möglicher Knoten-Indizes aus graph:
+		/*
+		 * in the following structure there will be all possible matches of the given sub-graph's nodes
+		 * to the constructed sub-graph's nodes:
 		 */
 		ArrayList<ArrayList<Integer>> couldMatch = new ArrayList<ArrayList<Integer>>();
 		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
@@ -102,6 +150,10 @@ public class Graph implements Cloneable, Comparable<Graph> {
 			couldMatch.add(new ArrayList<Integer>());
 nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 				Node node = graph.getNodes().get(j);
+				/*
+				 * the possible match must have at least as much outgoing edges of each type,
+				 * as the original node from the given sub-graph.
+				 */
 				for (String key: subNode.getEdges().keySet()) {
 					int currentSubNodeEdgeCount = subNode.getEdges(key).size();
 					int currentNodeEdgeCount = (node.getEdges(key) == null ? 0 : node.getEdges(key).size());
@@ -109,6 +161,10 @@ nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 						continue nodeMatch;
 					}
 				}
+				/*
+				 * the possible match must also have each attribute of the given sub-graph's node,
+				 * including the same value.
+				 */
 				for (String key: subNode.getAttributes().keySet()) {
 					if (node.getAttribute(key) != subNode.getAttribute(key)) {
 						continue nodeMatch;
@@ -116,14 +172,19 @@ nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 				}
 				couldMatch.get(couldMatch.size() - 1).add(j);
 			}
+			/*
+			 * if some node has no possible match, the check already failed:
+			 */
 			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
-				return false;
+				return null;
 			}
 		}
-		// es gibt mindestens einen möglichen Kandidaten in graph für jeden Knoten aus subGraph
-		// -> Tiefensuche mit Backtracking
-		/**
-		 * zu jedem Knoten-Index aus subGraph der aktuelle Index der Liste möglicher Knoten-Indizes aus graph:
+		/*
+		 * now that the possible matches for each node are known,
+		 * what's left is a depth-first search with backtracking to find the right ones:
+		 */
+		/*
+		 * the following structure contains the current index of possible matches for each node.
 		 */
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
 		for (int i = 0; i < couldMatch.size(); ++i) {
@@ -131,10 +192,15 @@ nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 		}
 		boolean canTryAnother = false;
 		do {
-			/**
-			 * der im Moment zu jedem subNode zugeordnete node:
+			/*
+			 * the following structure contains the currently associated nodes
+			 * to each node from the given sub-graph
 			 */
 			HashMap<Node, Node> sameNodes = new HashMap<Node, Node>(); 
+			/*
+			 * the following structure contains all nodes from the constructed sub-graph,
+			 * that are already target of association - to track if no nodes is used multiple times.
+			 */
 			HashSet<Node> targetNodes = new HashSet<Node>();
 			boolean duplicateChoice = false;
 			for (int i = 0; i < couldMatch.size(); ++i) {
@@ -148,7 +214,10 @@ nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 				targetNodes.add(node);
 			}
 			if (!duplicateChoice) {
-				// check if all edges between subNodes are met between assoc. nodes, too:
+				/*
+				 * attributes are already checked, the number of edges with a certain name, too.
+				 * but what's left now is to check if the edges have the right targets:
+				 */
 				boolean mismatch = false; 
 edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 					Node sourceSubNode = subGraph.nodes.get(i);
@@ -164,7 +233,12 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 					}
 				}
 				if (!mismatch) {
-					return true;
+					/*
+					 * if there was no mismatch, this is actually the valid mapping
+					 * from the given sub-graph to a constructed sub-graph
+					 * of the original base-graph.
+					 */
+					return sameNodes;
 				}
 			}
 			// try to find the next valid configuration of currentTry:
@@ -181,6 +255,76 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 				}
 			}
 		} while (canTryAnother);
+		/*
+		 * there are no possible matches left, so the check has failed.
+		 */
+		return null;
+	}
+	
+	/**
+	 * This function returns true if the given valid mapping from nodes of a subgraph work in both directions
+	 * 
+	 * @param knownMapping the valid mapping from nodes of a subgraph to nodes of another graph
+	 * @return true if the mapping works in both directions, or else false
+	 */
+	private boolean reverseIsomorphicSubGraphCheck(HashMap<Node, Node> nodeMapping) {
+		/*
+		 * if advancedIsomorphicSubGraphCheck has already found a mapping
+		 * from a sub-graph to its base-graph,
+		 * then you could interchange the base- and sub-graph and check for an
+		 * isomorphic sub-graph again, to see if both graphs are isomorphic too each other.
+		 * 
+		 * but it saves some time to take the returned mapping and just check,
+		 * if the attributes and edges match the other way around, too.
+		 */
+		HashMap<Node, Node> reverseMapping = new HashMap<Node, Node>();
+		/*
+		 * reverse the mapping:
+		 */
+		for (Node subNode: nodeMapping.keySet()) {
+			reverseMapping.put(nodeMapping.get(subNode), subNode);
+		}
+		for (Node newSubNode: reverseMapping.keySet()) {
+			/*
+			 * check the attributes for each node:
+			 */
+			for (String attributeName: newSubNode.getAttributes().keySet()) {
+				if (reverseMapping.get(newSubNode).getAttribute(attributeName) != newSubNode.getAttribute(attributeName)) {
+					return false;
+				}
+			}
+			/*
+			 * check the edges for each node:
+			 */
+			for (String edgeName: newSubNode.getEdges().keySet()) {
+				for (Node newTargetSubNode: newSubNode.getEdges(edgeName)) {
+					if (!reverseMapping.get(newSubNode).getEdges(edgeName).contains(reverseMapping.get(newTargetSubNode))) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * This function returns true if the other graph is isomorph to this graph.
+	 * 
+	 * @param other the other graph
+	 * @return true if the graphs are isomorph
+	 */
+	public boolean isIsomorphTo(Graph other) {
+		/*
+		 * the check is done by using advancedIsomorphicSubGraphCheck
+		 * and then checking for the other way around with reverseIsomorphicSubGraphCheck:
+		 */
+		try {
+			HashMap<Node, Node> mapping = advancedIsomorphicSubGraphCheck(this, other);
+			if (mapping != null && reverseIsomorphicSubGraphCheck(mapping)) {
+				return true;
+			}
+		} catch (Throwable t) {
+		}
 		return false;
 	}
 	
@@ -219,14 +363,11 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 	}
 	
 	@Override
-	public int compareTo(Graph o) {
-		try {
-			if (advancedIsomorphicSubGraphCheck(this, o) && advancedIsomorphicSubGraphCheck(o, this)) {
-				return 0;
-			}
-		} catch (Throwable t) {
+	public int compareTo(Graph other) {
+		if (isIsomorphTo(other)) {
+			return 0;
 		}
-		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(o));
+		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(other));
 	}
 
 }

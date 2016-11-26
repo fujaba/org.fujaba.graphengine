@@ -13,9 +13,9 @@ public class GraphTest {
 	@Test
 	public void testGraph() {
 		Gson gson = GraphEngine.getGson();
-		// build ferryman's problem graph
+		// ferryman's problem graph aufbauen:
 		Graph original = new Graph(); // originaler graph
-		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(),north = new Node(), south = new Node();
+		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
 		original.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
 		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", north);
 		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").addEdge("eats", cabbage).addEdge("at", north);
@@ -116,6 +116,19 @@ public class GraphTest {
 		}
 		// hier kommt jetzt aber ein bisher unbekanntes attribute hinein:
 		subGraph.getNodes().get(0).setAttribute("count", 2);
+		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
+		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
+		subGraph = original.clone();
+		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		// hier bekommt jetzt aber ein attribut einen anderen wert:
+		for (Node n: subGraph.getNodes()) {
+			for (String key: n.getAttributes().keySet()) {
+				if (n.getAttribute(key) == "Wolf") {
+					n.setAttribute(key, "Tiger");
+				}
+			}
+		}
 		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
 	}
 	
