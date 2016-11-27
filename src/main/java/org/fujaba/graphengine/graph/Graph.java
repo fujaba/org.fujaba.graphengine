@@ -66,7 +66,48 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		 * just start the recursive search for sub-graphs of this base-graph
 		 * with the same number of nodes as the given sub-graph:
 		 */
-		return hasIsomorphicSubGraph(this, subGraph, 0);
+		return hasIsomorphicSubGraph(withNodesThatCouldBeMappedToFrom(subGraph), subGraph, 0);
+	}
+	
+	/**
+	 * This helper-function gives a copy of this graph, where all nodes have been removed,
+	 * which can't possible be a match for any nodes of the given sub-graph.
+	 * 
+	 * This is for use in checks for isomorphic sub-graphs, to drasticly increase performance in many cases.
+	 * 
+	 * @param subGraph the given sub-graph to be checked against
+	 * @return a copy of this graph, where all nodes have been removed,
+	 * which can't possible be a match for any nodes of the given sub-graph.
+	 */
+	private Graph withNodesThatCouldBeMappedToFrom(Graph subGraph) {
+		Graph resultingGraph = this.clone();
+		ArrayList<Node> nodesToRemove = new ArrayList<Node>();
+		for (Node node: resultingGraph.getNodes()) {
+			boolean foundMatch = false;
+match:		for (Node subNode: subGraph.getNodes()) {
+				for (String key: subNode.getEdges().keySet()) {
+					int currentSubNodeEdgeCount = subNode.getEdges(key).size();
+					int currentNodeEdgeCount = (node.getEdges(key) == null ? 0 : node.getEdges(key).size());
+					if (currentNodeEdgeCount < currentSubNodeEdgeCount) {
+						continue match;
+					}
+				}
+				for (String key: subNode.getAttributes().keySet()) {
+					if (!subNode.getAttribute(key).equals(node.getAttribute(key))) {
+						continue match;
+					}
+				}
+				foundMatch = true;
+				break match;
+			}
+			if (!foundMatch) {
+				nodesToRemove.add(node);
+			}
+		}
+		for (Node node: nodesToRemove) {
+			resultingGraph.removeNode(node);
+		}
+		return resultingGraph;
 	}
 	
 	/**
