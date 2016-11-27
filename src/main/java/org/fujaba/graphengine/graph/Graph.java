@@ -352,6 +352,9 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 	 * @return true if the graphs are isomorph
 	 */
 	public boolean isIsomorphTo(Graph other) {
+		if (this.getNodes().size() != other.getNodes().size()) {
+			return false;
+		}
 		/*
 		 * the check is done by using advancedIsomorphicSubGraphCheck
 		 * and then checking for the other way around with reverseIsomorphicSubGraphCheck:

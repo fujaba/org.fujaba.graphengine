@@ -137,7 +137,7 @@ public class GraphTest {
 		
 //		createTestGraphs();
 		
-		String filename = "src/test/resources/g15.json";
+		String filename = "src/test/resources/g5000.json";
 		Graph bigBaseGraph = new Graph();
 		try {
 			bigBaseGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
@@ -145,7 +145,7 @@ public class GraphTest {
 		} catch (Throwable t) {
 			Assert.fail();
 		}
-		filename = "src/test/resources/g15s10.json";
+		filename = "src/test/resources/g5000s50.json";
 		Graph bigSubGraph = new Graph();
 		try {
 			bigSubGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
@@ -175,12 +175,12 @@ public class GraphTest {
 		/*
 		 * hier erzeuge ich einen großen basis-graphen
 		 */
-		Graph bigBaseGraph = constructBigGraph(15, 10, 4, 10, 10, 4);
+		Graph bigBaseGraph = constructBigGraph(5000, 10, 4, 10, 10, 4);
 		System.out.println(GraphEngine.getGson().toJson(bigBaseGraph));
 		/*
 		 * ich will hier möglichst knoten löschen, so dass ein weithin zusammenhängender sub-graph entsteht
 		 */
-		while (bigBaseGraph.getNodes().size() > 10) {
+		while (bigBaseGraph.getNodes().size() > 50) {
 			int minEdgeCount = Integer.MAX_VALUE;
 			int minIndex = -1;
 			for (int i = 0; i < bigBaseGraph.getNodes().size(); ++i) {
@@ -210,15 +210,15 @@ public class GraphTest {
 	Graph constructBigGraph(int nodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
 		ArrayList<String> edgeTypes = new ArrayList<String>();
 		for (int i = 0; i < edgeTypeCount; ++i) {
-			edgeTypes.add("edgeType" + (i + 1));
+			edgeTypes.add("e" + i);
 		}
 		ArrayList<String> attributeTypes = new ArrayList<String>();
 		for (int i = 0; i < attributeTypeCount; ++i) {
-			attributeTypes.add("attrType" + (i + 1));
+			attributeTypes.add("a" + i);
 		}
 		ArrayList<String> attributeValues = new ArrayList<String>();
 		for (int i = 0; i < attributeValueCount; ++i) {
-			attributeValues.add("attrVal" + (i + 1));
+			attributeValues.add("v" + i);
 		}
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		for (int i = 0; i < nodeCount; ++i) {
