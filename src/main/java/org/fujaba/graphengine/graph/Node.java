@@ -96,6 +96,23 @@ public class Node implements Cloneable {
 		}
 		return this;
 	}
+	public Node removeEdgesTo(Node target) {
+		ArrayList<String> toRemove = new ArrayList<String>();
+		for (String key: this.edges.keySet()) {
+			if (this.edges.get(key).contains(target)) {
+				toRemove.add(key);
+			}
+		}
+		for (String key: toRemove) {
+			while (this.edges.get(key).contains(target)) {
+				this.edges.get(key).remove(target);
+			}
+			if (this.edges.get(key).size() == 0) {
+				this.edges.remove(key);
+			}
+		}
+		return this;
+	}
 	
 	@Override
 	public String toString() {

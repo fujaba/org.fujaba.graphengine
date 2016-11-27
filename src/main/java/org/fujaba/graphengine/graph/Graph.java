@@ -48,17 +48,9 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		if (this.nodes == null) {
 			return this;
 		}
-		HashMap<Node, String> ingoingEdgesToRemove = new HashMap<Node, String>();
 		this.nodes.remove(node);
 		for (Node otherNode: this.nodes) {
-			for (String edgeName: otherNode.getEdges().keySet()) {
-				if (otherNode.getEdges(edgeName).contains(node)) {
-					ingoingEdgesToRemove.put(otherNode, edgeName);
-				}
-			}
-		}
-		for (Node sourceNode: ingoingEdgesToRemove.keySet()) {
-			sourceNode.removeEdge(ingoingEdgesToRemove.get(sourceNode), node);
+			otherNode.removeEdgesTo(node);
 		}
 		return this;
 	}
@@ -90,7 +82,7 @@ public class Graph implements Cloneable, Comparable<Graph> {
 			if (versionB.getNodes() != null && versionB.getNodes().size() > currentIndex) {
 				/*
 				 * if possible, the call splits in two sub-calls,
-				 * where either the n-th node is removed or not 
+				 * where either the n-th node is removed or not
 				 */
 				versionB = versionB.clone();
 				versionB.removeNode(versionB.getNodes().get(currentIndex));
