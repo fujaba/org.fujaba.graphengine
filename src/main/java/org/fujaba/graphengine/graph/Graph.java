@@ -99,21 +99,26 @@ public class Graph implements Cloneable, Comparable<Graph> {
 					 */
 					return false;
 				}
+			} else if (versionB.getNodes() != null && versionB.getNodes().size() == currentIndex) {
+				return (graph.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(graph, subGraph) != null);
 			} else {
-				/*
-				 * if the call can't split, here's the call that's left over:
-				 */
-				return advancedIsomorphicSubGraphCheck(versionB, subGraph) != null;
+				return false;
 			}
 			/*
 			 * the actual split was just prepared earlier and happens here:
 			 */
-			return hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1) || hasIsomorphicSubGraph(versionB, subGraph, currentIndex);
+			if (versionB.getNodes() != null && versionB.getNodes().size() > currentIndex) {
+				return hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1) || hasIsomorphicSubGraph(versionB, subGraph, currentIndex);
+			} else {
+				return hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1);
+			}
 		} catch (IOException e) {
 			/*
 			 * the only possible IOException is when this function would be calling
 			 * advancedIsomorphicSubGraphCheck with wrong arguments.
 			 */
+			System.err.println("wrong usage of Graph.hasIsomorphicSubGraph");
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -158,7 +163,7 @@ nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 				 * including the same value.
 				 */
 				for (String key: subNode.getAttributes().keySet()) {
-					if (node.getAttribute(key) != subNode.getAttribute(key)) {
+					if (!subNode.getAttribute(key).equals(node.getAttribute(key))) {
 						continue nodeMatch;
 					}
 				}

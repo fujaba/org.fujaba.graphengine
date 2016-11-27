@@ -137,38 +137,38 @@ public class GraphTest {
 		
 //		createTestGraphs();
 		
-//		String filename = "src/test/resources/g15.json";
-//		Graph bigBaseGraph = new Graph();
-//		try {
-//			bigBaseGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
+		String filename = "src/test/resources/g15.json";
+		Graph bigBaseGraph = new Graph();
+		try {
+			bigBaseGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
 //			System.out.println(GraphEngine.getGson().toJson(bigBaseGraph));
-//		} catch (Throwable t) {
-//			Assert.fail();
-//		}
-//		filename = "src/test/resources/g15s10.json";
-//		Graph bigSubGraph = new Graph();
-//		try {
-//			bigSubGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
+		} catch (Throwable t) {
+			Assert.fail();
+		}
+		filename = "src/test/resources/g15s10.json";
+		Graph bigSubGraph = new Graph();
+		try {
+			bigSubGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
 //			System.out.println(GraphEngine.getGson().toJson(bigSubGraph));
-//		} catch (Throwable t) {
-//			Assert.fail();
-//		}
-//		long beginMeasure, endMeasure;
-//		System.out.println("test graph15.json isomorph to itself...");
-//		beginMeasure = System.nanoTime();
-//		Assert.assertTrue(bigBaseGraph.isIsomorphTo(bigBaseGraph));
-//		endMeasure = System.nanoTime();
-//		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
-//		System.out.println("test graph15sub10.json isomorph to itself...");
-//		beginMeasure = System.nanoTime();
-//		Assert.assertTrue(bigSubGraph.isIsomorphTo(bigSubGraph));
-//		endMeasure = System.nanoTime();
-//		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
-//		System.out.println("test graph15.json has isomorph sub-graph graph15sub10.json...");
-//		beginMeasure = System.nanoTime();
-//		Assert.assertTrue(bigBaseGraph.hasIsomorphicSubGraph(bigSubGraph));
-//		endMeasure = System.nanoTime();
-//		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+		} catch (Throwable t) {
+			Assert.fail();
+		}
+		long beginMeasure, endMeasure;
+		System.out.println("test graph15.json isomorph to itself...");
+		beginMeasure = System.nanoTime();
+		Assert.assertTrue(bigBaseGraph.isIsomorphTo(bigBaseGraph));
+		endMeasure = System.nanoTime();
+		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+		System.out.println("test graph15sub10.json isomorph to itself...");
+		beginMeasure = System.nanoTime();
+		Assert.assertTrue(bigSubGraph.isIsomorphTo(bigSubGraph));
+		endMeasure = System.nanoTime();
+		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+		System.out.println("test graph15.json has isomorph sub-graph graph15sub10.json...");
+		beginMeasure = System.nanoTime();
+		Assert.assertTrue(bigBaseGraph.hasIsomorphicSubGraph(bigSubGraph));
+		endMeasure = System.nanoTime();
+		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 	}
 	
 	void createTestGraphs() {
