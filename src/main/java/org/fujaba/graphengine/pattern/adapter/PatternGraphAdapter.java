@@ -1,9 +1,10 @@
-package org.fujaba.graphengine;
+package org.fujaba.graphengine.pattern.adapter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.fujaba.graphengine.IdManager;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;

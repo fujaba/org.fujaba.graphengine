@@ -1,9 +1,10 @@
-package org.fujaba.graphengine;
+package org.fujaba.graphengine.graph.adapter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.fujaba.graphengine.IdManager;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 

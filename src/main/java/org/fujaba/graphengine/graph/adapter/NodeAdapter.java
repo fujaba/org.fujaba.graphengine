@@ -1,4 +1,4 @@
-package org.fujaba.graphengine;
+package org.fujaba.graphengine.graph.adapter;
 
 import java.io.IOException;
 
