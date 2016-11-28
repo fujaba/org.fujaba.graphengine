@@ -175,23 +175,22 @@ public class GraphTest {
 		endMeasure = System.nanoTime();
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
-		for (int i = 0; i < 1000; ++i) {
-//			ArrayList<Graph> testGraphs = createTestGraphs(1000, 10, 10, 4, 10, 10, 4);
-			int nodeCount             = 10,
-				subGraphNodeCount     = (int)(Math.random() * nodeCount),
-				edgeTypeCount         = (int)(Math.random() * 5) + 1,
-				edgeCountPerNode      = (int)(Math.random() * 6),
-				attributeTypeCount    = (int)(Math.random() * 5) + 1,
-				attributeValueCount   = (int)(Math.random() * 5) + 1,
-				attributeCountPerNode = (int)(Math.random() * 6);
+		for (int i = 0; i < 10; ++i) {
+			int     nodeCount             = 1000,
+					subGraphNodeCount     = (int)(Math.random() * nodeCount),
+					edgeTypeCount         = (int)(Math.random() * 9) + 1  + 5,
+					edgeCountPerNode      = (int)(Math.random() * 3) + 1  + 5, // extreme low edge count sucks
+					attributeTypeCount    = (int)(Math.random() * 9) + 1  + 5,
+					attributeValueCount   = (int)(Math.random() * 10)     + 5,
+					attributeCountPerNode = (int)(Math.random() * 4)      + 5; // extreme low attr count sucks
 			System.out.println("\ncreateTestGraphs("
-				+ nodeCount + ", " 
-				+ subGraphNodeCount + ", " 
-				+ edgeTypeCount + ", " 
-				+ edgeCountPerNode + ", " 
-				+ attributeTypeCount + ", " 
-				+ attributeValueCount + ", " 
-				+ attributeCountPerNode + "):");
+			+ "nodeCount=" + nodeCount + ", " 
+			+ "subGraphNodeCount=" + subGraphNodeCount + ", " 
+			+ "edgeTypeCount=" + edgeTypeCount + ", " 
+			+ "edgeCountPerNode=" + edgeCountPerNode + ", " 
+			+ "attributeTypeCount=" + attributeTypeCount + ", " 
+			+ "attributeValueCount=" + attributeValueCount + ", " 
+			+ "attributeCountPerNode=" + attributeCountPerNode + "):");
 			ArrayList<Graph> testGraphs = createTestGraphs(nodeCount, subGraphNodeCount, edgeTypeCount, edgeCountPerNode, attributeTypeCount, attributeValueCount, attributeCountPerNode);
 			System.out.println("test random base-graph has isomorph sub-graph...");
 //			System.out.println("base-graph");
@@ -275,15 +274,6 @@ public class GraphTest {
 		result.add(subGraph);
 		return result;
 	}
-	
-//	String generateString(int length) {
-//		String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-//		String result = "";
-//		for (int i = 0; i < length; ++i) {
-//			result += alphabet.charAt((int)(Math.random() * alphabet.length()));
-//		}
-//		return result;
-//	}
 	
 	Graph constructBigGraph(int nodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
 		if (nodeCount < 0) {
