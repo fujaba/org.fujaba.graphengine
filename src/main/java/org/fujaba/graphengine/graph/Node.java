@@ -115,17 +115,6 @@ public class Node implements Cloneable {
 	}
 	
 	@Override
-	public String toString() {
-		String result = "node with attributes " + attributes + " and edges {";
-		boolean isFirst = true;
-		for (String key: edges.keySet()) {
-			result += (isFirst ? "" : ",") + key + "=[" + edges.get(key).size() + " target" + (edges.get(key).size() == 1 ? "" : "s") + "]";
-			isFirst = false;
-		}
-		return result + "}";
-	}
-	
-	@Override
 	public Node clone() {
 		HashMap<String, Object> clonedAttributes = new HashMap<String, Object>();
 		for (String key: attributes.keySet()) {

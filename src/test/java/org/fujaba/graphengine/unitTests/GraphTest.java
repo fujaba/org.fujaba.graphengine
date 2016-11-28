@@ -134,68 +134,146 @@ public class GraphTest {
 			}
 		}
 		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
-		
-//		createTestGraphs();
-		
-		String filename = "src/test/resources/g5000.json";
-		Graph bigBaseGraph = new Graph();
-		try {
-			bigBaseGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
-//			System.out.println(GraphEngine.getGson().toJson(bigBaseGraph));
-		} catch (Throwable t) {
-			Assert.fail();
-		}
-		filename = "src/test/resources/g5000s50.json";
-		Graph bigSubGraph = new Graph();
-		try {
-			bigSubGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filename)), Graph.class);
-//			System.out.println(GraphEngine.getGson().toJson(bigSubGraph));
-		} catch (Throwable t) {
-			Assert.fail();
-		}
-		long beginMeasure, endMeasure;
-		System.out.println("test graph15.json isomorph to itself...");
-		beginMeasure = System.nanoTime();
-		Assert.assertTrue(bigBaseGraph.isIsomorphTo(bigBaseGraph));
-		endMeasure = System.nanoTime();
-		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
-		System.out.println("test graph15sub10.json isomorph to itself...");
-		beginMeasure = System.nanoTime();
-		Assert.assertTrue(bigSubGraph.isIsomorphTo(bigSubGraph));
-		endMeasure = System.nanoTime();
-		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
-		System.out.println("test graph15.json has isomorph sub-graph graph15sub10.json...");
-		beginMeasure = System.nanoTime();
-		Assert.assertTrue(bigBaseGraph.hasIsomorphicSubGraph(bigSubGraph));
-		endMeasure = System.nanoTime();
-		System.out.println("measured " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 	}
 	
-	void createTestGraphs() {
+	@Test
+	public void testIsomorphSubgraph() {
+		String filenameBaseGraph = "src/test/resources/g1000.json";
+		Graph baseGraph = new Graph();
+		try {
+			baseGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filenameBaseGraph)), Graph.class);
+		} catch (Throwable t) {
+			Assert.fail();
+		}
+		String filenameSubGraph = "src/test/resources/g1000s10.json";
+		Graph subGraph = new Graph();
+		try {
+			subGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filenameSubGraph)), Graph.class);
+		} catch (Throwable t) {
+			Assert.fail();
+		}
+		
+		long beginMeasure, endMeasure;
+
+		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph " + filenameSubGraph + "...");
+		beginMeasure = System.nanoTime();
+		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(subGraph));
+		endMeasure = System.nanoTime();
+		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+
+		Graph emptyGraph = new Graph();
+		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph 'empty graph'...");
+		beginMeasure = System.nanoTime();
+		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(emptyGraph));
+		endMeasure = System.nanoTime();
+		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+
+		Graph singleNodedGraph = new Graph().addNode(baseGraph.getNodes().get(0).clone());
+		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph 'empty graph'...");
+		beginMeasure = System.nanoTime();
+		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(singleNodedGraph));
+		endMeasure = System.nanoTime();
+		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+
+		for (int i = 0; i < 1000; ++i) {
+//			ArrayList<Graph> testGraphs = createTestGraphs(1000, 10, 10, 4, 10, 10, 4);
+			int nodeCount             = 10,
+				subGraphNodeCount     = (int)(Math.random() * nodeCount),
+				edgeTypeCount         = (int)(Math.random() * 5) + 1,
+				edgeCountPerNode      = (int)(Math.random() * 6),
+				attributeTypeCount    = (int)(Math.random() * 5) + 1,
+				attributeValueCount   = (int)(Math.random() * 5) + 1,
+				attributeCountPerNode = (int)(Math.random() * 6);
+			System.out.println("\ncreateTestGraphs("
+				+ nodeCount + ", " 
+				+ subGraphNodeCount + ", " 
+				+ edgeTypeCount + ", " 
+				+ edgeCountPerNode + ", " 
+				+ attributeTypeCount + ", " 
+				+ attributeValueCount + ", " 
+				+ attributeCountPerNode + "):");
+			ArrayList<Graph> testGraphs = createTestGraphs(nodeCount, subGraphNodeCount, edgeTypeCount, edgeCountPerNode, attributeTypeCount, attributeValueCount, attributeCountPerNode);
+			System.out.println("test random base-graph has isomorph sub-graph...");
+//			System.out.println("base-graph");
+//			System.out.println(testGraphs.get(0));
+//			System.out.println("sub-graph");
+//			System.out.println(testGraphs.get(1));
+			beginMeasure = System.nanoTime();
+			Assert.assertTrue(testGraphs.get(0).hasIsomorphicSubGraph(testGraphs.get(1)));
+			endMeasure = System.nanoTime();
+			System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
+		}
+	}
+	
+	ArrayList<Graph> createTestGraphs(int nodeCount, int subGraphNodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
+		if (nodeCount < 0) {
+			nodeCount = 0;
+		}
+		if (subGraphNodeCount > nodeCount) {
+			subGraphNodeCount = nodeCount;
+		}
+		if (edgeTypeCount < 1) {
+			edgeTypeCount = 1;
+		}
+		while (edgeTypeCount < nodeCount * edgeCountPerNode) {
+			++edgeTypeCount;
+		}
+		if (edgeCountPerNode < 0) {
+			edgeCountPerNode = 0;
+		}
+		if (edgeCountPerNode == 0 && nodeCount > 1) {
+			edgeCountPerNode = 1;
+		}
+		if (attributeTypeCount < 1) {
+			attributeTypeCount = 1;
+		}
+		if (attributeTypeCount < attributeCountPerNode) {
+			attributeTypeCount = attributeCountPerNode;
+		}
+		if (attributeValueCount < 1) {
+			attributeValueCount = 1;
+		}
+		if (attributeCountPerNode < 0) {
+			attributeCountPerNode = 0;
+		}
 		/*
 		 * hier erzeuge ich einen großen basis-graphen
-		 */
-		Graph bigBaseGraph = constructBigGraph(5000, 10, 4, 10, 10, 4);
-		System.out.println(GraphEngine.getGson().toJson(bigBaseGraph));
+		 */ 
+		Graph baseGraph;
+		do {
+			baseGraph = constructBigGraph(nodeCount, edgeTypeCount, edgeCountPerNode, attributeTypeCount, attributeValueCount, attributeCountPerNode);
+		} while (!baseGraph.isConnected());
 		/*
 		 * ich will hier möglichst knoten löschen, so dass ein weithin zusammenhängender sub-graph entsteht
 		 */
-		while (bigBaseGraph.getNodes().size() > 50) {
-			int minEdgeCount = Integer.MAX_VALUE;
-			int minIndex = -1;
-			for (int i = 0; i < bigBaseGraph.getNodes().size(); ++i) {
-				int currentEdgeCount = 0;
-				for (String key: bigBaseGraph.getNodes().get(i).getEdges().keySet()) {
-					currentEdgeCount += bigBaseGraph.getNodes().get(i).getEdges(key).size();
+		Graph subGraph;
+		do {
+			subGraph = baseGraph.clone();
+			while (subGraph.getNodes().size() > subGraphNodeCount) {
+				int minEdgeCount = Integer.MAX_VALUE;
+				ArrayList<Integer> minIndizes = new ArrayList<Integer>();
+				for (int i = 0; i < subGraph.getNodes().size(); ++i) {
+					int currentEdgeCount = 0;
+					for (String key: subGraph.getNodes().get(i).getEdges().keySet()) {
+						currentEdgeCount += subGraph.getNodes().get(i).getEdges(key).size();
+					}
+					if (currentEdgeCount <= minEdgeCount) {
+						if (currentEdgeCount < minEdgeCount) {
+							minIndizes = new ArrayList<Integer>();
+							minIndizes.add(i);
+						} else {
+							minIndizes.add(i);
+						}
+						minEdgeCount = currentEdgeCount;
+					}
 				}
-				if (currentEdgeCount < minEdgeCount) {
-					minEdgeCount = currentEdgeCount;
-					minIndex = i;
-				}
+				subGraph.removeNode(subGraph.getNodes().get(minIndizes.get((int)(Math.random() * minIndizes.size()))));
 			}
-			bigBaseGraph.removeNode(bigBaseGraph.getNodes().get(minIndex));
-		}
-		System.out.println(GraphEngine.getGson().toJson(bigBaseGraph));
+		} while (!subGraph.isConnected());
+		ArrayList<Graph> result = new ArrayList<Graph>();
+		result.add(baseGraph);
+		result.add(subGraph);
+		return result;
 	}
 	
 //	String generateString(int length) {
@@ -208,6 +286,33 @@ public class GraphTest {
 //	}
 	
 	Graph constructBigGraph(int nodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
+		if (nodeCount < 0) {
+			nodeCount = 0;
+		}
+		if (edgeTypeCount < 1) {
+			edgeTypeCount = 1;
+		}
+		while (edgeTypeCount < nodeCount * edgeCountPerNode) {
+			++edgeTypeCount;
+		}
+		if (edgeCountPerNode < 0) {
+			edgeCountPerNode = 0;
+		}
+		if (edgeCountPerNode == 0 && nodeCount > 1) {
+			edgeCountPerNode = 1;
+		}
+		if (attributeTypeCount < 1) {
+			attributeTypeCount = 1;
+		}
+		if (attributeTypeCount < attributeCountPerNode) {
+			attributeTypeCount = attributeCountPerNode;
+		}
+		if (attributeValueCount < 1) {
+			attributeValueCount = 1;
+		}
+		if (attributeCountPerNode < 0) {
+			attributeCountPerNode = 0;
+		}
 		ArrayList<String> edgeTypes = new ArrayList<String>();
 		for (int i = 0; i < edgeTypeCount; ++i) {
 			edgeTypes.add("e" + i);
@@ -223,22 +328,26 @@ public class GraphTest {
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		for (int i = 0; i < nodeCount; ++i) {
 			Node node = new Node();
-			do {
-				node.setAttribute(attributeTypes.get((int)(Math.random() * attributeTypeCount)), attributeValues.get((int)(Math.random() * attributeValueCount)));
-			} while (node.getAttributes().size() < attributeCountPerNode);
+			if (attributeCountPerNode > 0) {
+				do {
+					node.setAttribute(attributeTypes.get((int)(Math.random() * attributeTypeCount)), attributeValues.get((int)(Math.random() * attributeValueCount)));
+				} while (node.getAttributes().size() < attributeCountPerNode);
+			}
 			nodes.add(node);
 		}
 		Graph graph = new Graph();
 		for (int i = 0; i < nodeCount; ++i) {
 			Node node = nodes.get(i);
-			int achievedEdgeCount = Integer.MAX_VALUE;
-			do {
-				node.addEdge(edgeTypes.get((int)(Math.random() * edgeTypeCount)), nodes.get((int)(Math.random() * nodeCount)));
-				achievedEdgeCount = 0;
-				for (String key: node.getEdges().keySet()) {
-					achievedEdgeCount += node.getEdges(key).size();
-				}
-			} while (achievedEdgeCount < edgeCountPerNode);
+			if (edgeCountPerNode > 0) {
+				int achievedEdgeCount = Integer.MAX_VALUE;
+				do {
+					node.addEdge(edgeTypes.get((int)(Math.random() * edgeTypeCount)), nodes.get((int)(Math.random() * nodeCount)));
+					achievedEdgeCount = 0;
+					for (String key: node.getEdges().keySet()) {
+						achievedEdgeCount += node.getEdges(key).size();
+					}
+				} while (achievedEdgeCount < edgeCountPerNode);
+			}
 			graph.addNode(node);
 		}
 		return graph;

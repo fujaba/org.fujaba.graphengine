@@ -18,7 +18,7 @@ public class Graph implements Cloneable, Comparable<Graph> {
 	/**
 	 * the nodes of this graph (in an ArrayList)
 	 */
-	private ArrayList<Node> nodes;
+	private ArrayList<Node> nodes = new ArrayList<Node>();
 
 	/**
 	 * A constructor to create an empty graph
@@ -62,11 +62,21 @@ public class Graph implements Cloneable, Comparable<Graph> {
 	 * @return true if the given subGraph is isomorph to a sub-graph of this graph, or else false.
 	 */
 	public boolean hasIsomorphicSubGraph(Graph subGraph) {
+		if (subGraph.getNodes().size() > this.getNodes().size()) {
+			return false;
+		}
+		if (subGraph.getNodes().size() == 0) {
+			return true;
+		}
+		Graph reducedGraph = this.withNodesThatCouldBeMappedToFrom(subGraph);
+		if (subGraph.getNodes().size() > reducedGraph.getNodes().size()) {
+			return false;
+		}
 		/* 
 		 * just start the recursive search for sub-graphs of this base-graph
 		 * with the same number of nodes as the given sub-graph:
 		 */
-		return hasIsomorphicSubGraph(withNodesThatCouldBeMappedToFrom(subGraph), subGraph, 0);
+		return hasIsomorphicSubGraph(reducedGraph, subGraph, 0);
 	}
 	
 	/**
@@ -118,47 +128,23 @@ match:		for (Node subNode: subGraph.getNodes()) {
 	 * @return true if the given subGraph is isomorph to a sub-graph of this graph, or else false.
 	 */
 	private static boolean hasIsomorphicSubGraph(Graph graph, Graph subGraph, int currentIndex) {
+//		System.out.println("hasIsomorphicSubGraph " + currentIndex + "/" + graph.getNodes().size());
 		try {
-			Graph versionB = graph;
-			if (versionB.getNodes() != null && versionB.getNodes().size() > currentIndex) {
-				/*
-				 * if possible, the call splits in two sub-calls,
-				 * where either the n-th node is removed or not
-				 */
-				versionB = versionB.clone();
-				versionB.removeNode(versionB.getNodes().get(currentIndex));
+			if (graph.getNodes().size() > currentIndex) {
+				Graph clone = graph.clone();
+				clone.removeNode(clone.getNodes().get(currentIndex));
 				if ((graph.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(graph, subGraph) != null)
-						|| (versionB.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(versionB, subGraph) != null)) {
-					/*
-					 * until a sub-graph is found that has the right number of nodes and withstands all further testing.
-					 */
-					return true;
-				} else if (graph.getNodes().size() < subGraph.getNodes().size() && versionB.getNodes().size() < subGraph.getNodes().size()) {
-					/*
-					 * if the current branch of those recursive calls
-					 * already has removed too much nodes, it's discarded
-					 */
-					return false;
+						|| (clone.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(clone, subGraph) != null)) {
+					return true; // either with or without the node currentIndex, it worked
+				} else if (graph.getNodes().size() < subGraph.getNodes().size()) {
+					return false; // too many nodes were removed
+				} else {
+					return hasIsomorphicSubGraph(clone, subGraph, currentIndex) || hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1);
 				}
-			} else if (versionB.getNodes() != null && versionB.getNodes().size() == currentIndex) {
-				return (graph.getNodes().size() == subGraph.getNodes().size() && advancedIsomorphicSubGraphCheck(graph, subGraph) != null);
 			} else {
-				return false;
-			}
-			/*
-			 * the actual split was just prepared earlier and happens here:
-			 */
-			if (versionB.getNodes() != null && versionB.getNodes().size() > currentIndex) {
-				return hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1) || hasIsomorphicSubGraph(versionB, subGraph, currentIndex);
-			} else {
-				return hasIsomorphicSubGraph(graph, subGraph, currentIndex + 1);
+				return false; // all combinations were tried
 			}
 		} catch (IOException e) {
-			/*
-			 * the only possible IOException is when this function would be calling
-			 * advancedIsomorphicSubGraphCheck with wrong arguments.
-			 */
-			System.err.println("wrong usage of Graph.hasIsomorphicSubGraph");
 			e.printStackTrace();
 			return false;
 		}
@@ -174,6 +160,7 @@ match:		for (Node subNode: subGraph.getNodes()) {
 	 * @throws IOException is thrown if the graphs don't have the same number of nodes.
 	 */
 	private static HashMap<Node, Node> advancedIsomorphicSubGraphCheck(Graph graph, Graph subGraph) throws IOException {
+//		System.out.println("advancedIsomorphicSubGraphCheck");
 		if (graph.getNodes().size() != subGraph.getNodes().size()) {
 			throw new IOException("wrong input - both graphs need to have the same number of nodes for this check!");
 		}
@@ -182,6 +169,13 @@ match:		for (Node subNode: subGraph.getNodes()) {
 		 * in the following structure there will be all possible matches of the given sub-graph's nodes
 		 * to the constructed sub-graph's nodes:
 		 */
+//		System.out.println("\ngraph");
+//		System.out.println(graph);
+//		System.out.println("subGraph");
+//		System.out.println(subGraph);
+//		if ((graph.toString().equals(subGraph.toString()))) {
+//			System.out.println("BANG!");
+//		}
 		ArrayList<ArrayList<Integer>> couldMatch = new ArrayList<ArrayList<Integer>>();
 		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 			Node subNode = subGraph.getNodes().get(i);
@@ -230,6 +224,7 @@ nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
 		}
 		boolean canTryAnother = false;
 		do {
+			canTryAnother = false;
 			/*
 			 * the following structure contains the currently associated nodes
 			 * to each node from the given sub-graph
@@ -368,6 +363,46 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 		}
 		return false;
 	}
+
+	public boolean isConnected() {
+		if (nodes.size() == 0) {
+			return true;
+		}
+		return isConnected(nodes.get(0));
+	}
+	private boolean isConnected(Node node) {
+		if (!nodes.contains(node)) {
+			return false;
+		}
+		ArrayList<Node> open = new ArrayList<Node>();
+		ArrayList<Node> closed = new ArrayList<Node>();
+		open.add(node);
+		while (open.size() > 0) {
+//			System.out.println("open = " + open);
+//			System.out.println("closed = " + closed);
+			Node current = open.remove(0);
+			closed.add(current);
+			ArrayList<Node> succ = new ArrayList<Node>();
+			for (String edgeName: current.getEdges().keySet()) {
+				for (Node outgoing: current.getEdges(edgeName)) {
+					if (!open.contains(outgoing) && !closed.contains(outgoing) && !succ.contains(outgoing)) {
+						succ.add(outgoing);
+					}
+				}
+			}
+			for (Node ingoing: nodes) {
+				for (String edgeName: ingoing.getEdges().keySet()) {
+					if (ingoing.getEdges(edgeName) != null && ingoing.getEdges(edgeName).contains(current) && !open.contains(ingoing) && !closed.contains(ingoing) && !succ.contains(ingoing)) {
+						succ.add(ingoing);
+						break;
+					}
+				}
+			}
+			open.addAll(succ);
+		}
+		return closed.size() == nodes.size();
+	}
+
 	
 	@Override
 	public String toString() {
@@ -381,7 +416,8 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 		HashMap<Long, HashMap<String, ArrayList<Long>>> edgesToAdd = new HashMap<Long, HashMap<String, ArrayList<Long>>>();
 		HashMap<Node, Node> newNodes = new HashMap<Node, Node>();
 		IdManager idManager = new IdManager();
-		for (Node node: nodes) {
+		for (int i = 0; i < nodes.size(); ++i) {
+			Node node = nodes.get(i);
 			edgesToAdd.put(idManager.getId(node), new HashMap<String, ArrayList<Long>>());
 			newNodes.put(node, node.clone());
 			for (String key: node.getEdges().keySet()) {
