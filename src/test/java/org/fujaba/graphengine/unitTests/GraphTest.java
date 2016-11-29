@@ -175,14 +175,14 @@ public class GraphTest {
 		endMeasure = System.nanoTime();
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
-		for (int i = 0; i < 10; ++i) {
-			int     nodeCount             = 1000,
+		for (int i = 0; i < 100; ++i) {
+			int     nodeCount             = 250, // extreme high node count sucks (if edge and attr count are low)
 					subGraphNodeCount     = (int)(Math.random() * nodeCount),
-					edgeTypeCount         = (int)(Math.random() * 9) + 1  + 5,
-					edgeCountPerNode      = (int)(Math.random() * 3) + 1  + 5, // extreme low edge count sucks
-					attributeTypeCount    = (int)(Math.random() * 9) + 1  + 5,
-					attributeValueCount   = (int)(Math.random() * 10)     + 5,
-					attributeCountPerNode = (int)(Math.random() * 4)      + 5; // extreme low attr count sucks
+					edgeTypeCount         = (int)(Math.random() * 9) + 1  + 0,
+					edgeCountPerNode      = (int)(Math.random() * 3) + 1  + 2, // extreme low edge count sucks
+					attributeTypeCount    = (int)(Math.random() * 9) + 1  + 0,
+					attributeValueCount   = (int)(Math.random() * 10)     + 0,
+					attributeCountPerNode = (int)(Math.random() * 4)      + 2; // extreme low attr count sucks
 			System.out.println("\ncreateTestGraphs("
 			+ "nodeCount=" + nodeCount + ", " 
 			+ "subGraphNodeCount=" + subGraphNodeCount + ", " 
@@ -241,7 +241,7 @@ public class GraphTest {
 		Graph baseGraph;
 		do {
 			baseGraph = constructBigGraph(nodeCount, edgeTypeCount, edgeCountPerNode, attributeTypeCount, attributeValueCount, attributeCountPerNode);
-		} while (!baseGraph.isConnected());
+		} while (false/*!baseGraph.isConnected()*/);
 		/*
 		 * ich will hier möglichst knoten löschen, so dass ein weithin zusammenhängender sub-graph entsteht
 		 */
@@ -268,7 +268,7 @@ public class GraphTest {
 				}
 				subGraph.removeNode(subGraph.getNodes().get(minIndizes.get((int)(Math.random() * minIndizes.size()))));
 			}
-		} while (!subGraph.isConnected());
+		} while (false/*!subGraph.isConnected()*/);
 		ArrayList<Graph> result = new ArrayList<Graph>();
 		result.add(baseGraph);
 		result.add(subGraph);
