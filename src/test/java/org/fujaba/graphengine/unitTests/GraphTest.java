@@ -138,14 +138,14 @@ public class GraphTest {
 	
 	@Test
 	public void testIsomorphSubgraph() {
-		String filenameBaseGraph = "src/test/resources/g1000.json";
+		String filenameBaseGraph = "src/test/resources/g5000.json";
 		Graph baseGraph = new Graph();
 		try {
 			baseGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filenameBaseGraph)), Graph.class);
 		} catch (Throwable t) {
 			Assert.fail();
 		}
-		String filenameSubGraph = "src/test/resources/g1000s10.json";
+		String filenameSubGraph = "src/test/resources/g5000s50.json";
 		Graph subGraph = new Graph();
 		try {
 			subGraph = GraphEngine.getGson().fromJson(new JsonReader(new FileReader(filenameSubGraph)), Graph.class);
@@ -169,20 +169,20 @@ public class GraphTest {
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
 		Graph singleNodedGraph = new Graph().addNode(baseGraph.getNodes().get(0).clone());
-		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph 'empty graph'...");
+		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph 'one-noded graph'...");
 		beginMeasure = System.nanoTime();
 		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(singleNodedGraph));
 		endMeasure = System.nanoTime();
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
-		for (int i = 0; i < 100; ++i) {
-			int     nodeCount             = 250, // extreme high node count sucks (if edge and attr count are low)
-					subGraphNodeCount     = (int)(Math.random() * nodeCount),
-					edgeTypeCount         = (int)(Math.random() * 9) + 1  + 0,
-					edgeCountPerNode      = (int)(Math.random() * 3) + 1  + 2, // extreme low edge count sucks
-					attributeTypeCount    = (int)(Math.random() * 9) + 1  + 0,
-					attributeValueCount   = (int)(Math.random() * 10)     + 0,
-					attributeCountPerNode = (int)(Math.random() * 4)      + 2; // extreme low attr count sucks
+		for (int i = 0; i < 10; ++i) {
+			int     nodeCount             = 500,//500, // extreme high node count sucks (if edge and attr count are low)
+					subGraphNodeCount     = 15,//(int)(Math.random() * nodeCount),
+					edgeTypeCount         = 3,//(int)(Math.random() * 9) + 1  + 2,
+					edgeCountPerNode      = 2,//(int)(Math.random() * 3) + 1  + 2, // extreme low edge count sucks
+					attributeTypeCount    = 3,//(int)(Math.random() * 9) + 1  + 2,
+					attributeValueCount   = 10,//(int)(Math.random() * 10)     + 2,
+					attributeCountPerNode = 2;//(int)(Math.random() * 4)      + 2; // extreme low attr count sucks
 			System.out.println("\ncreateTestGraphs("
 			+ "nodeCount=" + nodeCount + ", " 
 			+ "subGraphNodeCount=" + subGraphNodeCount + ", " 
