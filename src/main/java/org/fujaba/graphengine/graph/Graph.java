@@ -203,15 +203,47 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 		}
 	}
 
+	/**
+	 * Returns all separate graphs (parts of this graph with no edges in between) as new graphs.
+	 * @return all separate graphs (parts of this graph with no edges in between) as new graphs
+	 */
+	public ArrayList<Graph> split() {
+		ArrayList<Graph> result = new ArrayList<Graph>();
+		if (nodes.size() <= 1) {
+			result.add(this.clone());
+			return result;
+		}
+		int count = 0;
+		Graph clone = clone();
+		while (count < nodes.size()) {
+			ArrayList<Node> subGraphNodes = nodesConnectedTo(clone.nodes.get(0));
+			count += subGraphNodes.size();
+			Graph subGraph = new Graph();
+			subGraph.nodes.addAll(subGraphNodes);
+			for (int i = 0; i < subGraphNodes.size(); ++i) {
+				clone.removeNode(subGraphNodes.get(i));
+			}
+			result.add(subGraph.clone());
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns true if there are no separate graphs (parts of the graph with no edges in between). 
+	 * @return true if there are no separate graphs (parts of the graph with no edges in between), otherwise false.
+	 */
 	public boolean isConnected() {
 		if (nodes.size() <= 1) {
 			return true;
 		}
-		return isConnected(nodes.get(0));
+		return nodesConnectedTo(nodes.get(0)).size() == nodes.size();
 	}
-	private boolean isConnected(Node node) {
-		return nodesConnectedTo(node).size() == nodes.size();
-	}
+	
+	/**
+	 * This function basically does a search for all nodes connected to the given node and returns them in an ArrayList<Node>
+	 * @param node the node to do the check with
+	 * @return all nodes connected to the given node in an ArrayList<Node>
+	 */
 	private ArrayList<Node> nodesConnectedTo(Node node) {
 		ArrayList<Node> open = new ArrayList<Node>();
 		ArrayList<Node> closed = new ArrayList<Node>();
@@ -232,7 +264,8 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 			}
 			for (Node ingoing: nodes) {
 				for (String edgeName: ingoing.getEdges().keySet()) {
-					if (ingoing.getEdges(edgeName) != null && ingoing.getEdges(edgeName).contains(current) && !open.contains(ingoing) && !closed.contains(ingoing) && !succ.contains(ingoing)) {
+					if (ingoing.getEdges(edgeName) != null && ingoing.getEdges(edgeName).contains(current)
+							&& !open.contains(ingoing) && !closed.contains(ingoing) && !succ.contains(ingoing)) {
 						succ.add(ingoing);
 						break;
 					}
