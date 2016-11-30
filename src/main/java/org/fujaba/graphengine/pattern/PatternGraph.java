@@ -2,6 +2,8 @@ package org.fujaba.graphengine.pattern;
 
 import java.util.ArrayList;
 
+import org.fujaba.graphengine.GraphEngine;
+
 public class PatternGraph extends Pattern {
 	
 	/**
@@ -39,6 +41,11 @@ public class PatternGraph extends Pattern {
 	public PatternGraph setNegative(boolean negative) {
 		super.setNegative(negative);
 		return this;
+	}
+	
+	@Override
+	public String toString() {
+		return GraphEngine.getGson().toJson(this);
 	}
 
 }

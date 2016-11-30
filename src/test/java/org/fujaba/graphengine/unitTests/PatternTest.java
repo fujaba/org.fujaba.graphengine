@@ -42,7 +42,7 @@ public class PatternTest {
 						.setSource(ferry)
 						.setName("at")
 						.setTarget(bankThere)
-				)).addPatternNode(bankHere.setAction("match").addPatternAttribute(new PatternAttribute()
+				)).addSubPatternGraph(new PatternGraph().addPatternNode(bankHere.setAction("match").addPatternAttribute(new PatternAttribute()
 						.setAction("match")
 						.setName("type")
 						.setValue("Bank")
@@ -55,7 +55,7 @@ public class PatternTest {
 						.setAction("match")
 						.setName("type")
 						.setValue("Bank")
-				));
+				)));
 		String toJson = GraphEngine.getGson().toJson(patternGraph); // hand-gebauter graph zu json
 		
 		PatternGraph fromJson = GraphEngine.getGson().fromJson(toJson, PatternGraph.class); // json von handgebaut zu objekt
@@ -66,6 +66,8 @@ public class PatternTest {
 		
 		Assert.assertEquals(backToJson, backToJson2);
 		// TODO: implement better test for PatternGraph comparison
+		
+//		System.out.println(patternGraph);
 	}
 	
 }

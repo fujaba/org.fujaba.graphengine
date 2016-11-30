@@ -1,8 +1,7 @@
 package org.fujaba.graphengine;
 
-import javax.xml.soap.Node;
-
 import org.fujaba.graphengine.graph.Graph;
+import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.graph.adapter.GraphAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
 import org.fujaba.graphengine.pattern.PatternEdge;
