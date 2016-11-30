@@ -93,11 +93,11 @@ nodeMatch:	for (int j = 0; j < this.getNodes().size(); ++j) {
 			}
 		}
 		
-		int checks = 1; 								// DEBUG
-		for (int i = 0; i < couldMatch.size(); ++i) { 	// DEBUG
-			checks *= couldMatch.get(i).size(); 		// DEBUG
-		} 												// DEBUG
-		System.out.println("there will be " + checks + " checks of " + subGraph.getNodes().size() + " nodes each time:");
+//		int checks = 1; 								// DEBUG
+//		for (int i = 0; i < couldMatch.size(); ++i) { 	// DEBUG
+//			checks *= couldMatch.get(i).size(); 		// DEBUG
+//		} 												// DEBUG
+//		System.out.println("there will be " + checks + " checks of " + subGraph.getNodes().size() + " nodes each time:");
 		
 		// now a depth-first search with backtracking to find the right mapping:
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
@@ -223,14 +223,12 @@ edgesMatch:		for (int i = 0; i < subGraph.nodes.size(); ++i) {
 		int count = 0;
 		Graph clone = clone();
 		while (count < nodes.size()) {
-			ArrayList<Node> subGraphNodes = nodesConnectedTo(clone.nodes.get(0));
-			count += subGraphNodes.size();
 			Graph subGraph = new Graph();
+			ArrayList<Node> subGraphNodes = nodesConnectedTo(clone.nodes.get(0));
+			clone.nodes.removeAll(subGraphNodes);
 			subGraph.nodes.addAll(subGraphNodes);
-			for (int i = 0; i < subGraphNodes.size(); ++i) {
-				clone.removeNode(subGraphNodes.get(i));
-			}
 			result.add(subGraph.clone());
+			count += subGraphNodes.size();
 		}
 		return result;
 	}
