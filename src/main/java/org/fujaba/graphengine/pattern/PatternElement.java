@@ -1,7 +1,11 @@
 package org.fujaba.graphengine.pattern;
 
-public abstract class PatternElement extends Pattern {
-	
+public abstract class PatternElement {
+
+	/**
+	 * whether this Pattern is negative or not
+	 */
+	private boolean negative;
 	/**
 	 * an action to apply to this PatternElement (currently "match", "remove" or "create")
 	 */
@@ -14,5 +18,12 @@ public abstract class PatternElement extends Pattern {
 		this.action = action;
 		return this;
 	}
-
+	public boolean isNegative() {
+		return negative;
+	}
+	public PatternElement setNegative(boolean negative) {
+		this.negative = negative;
+		return this;
+	}
+	
 }

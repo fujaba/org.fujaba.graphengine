@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.fujaba.graphengine.GraphEngine;
 
-public class PatternGraph extends Pattern {
+public class PatternGraph {
 	
 //	/**
 //	 * the sub-PatternGraphs of this PatternGraph
@@ -35,11 +35,6 @@ public class PatternGraph extends Pattern {
 	}
 	public PatternGraph addPatternNode(PatternNode patternNode) {
 		this.patternNodes.add(patternNode);
-		return this;
-	}
-	@Override
-	public PatternGraph setNegative(boolean negative) {
-		super.setNegative(negative);
 		return this;
 	}
 	
