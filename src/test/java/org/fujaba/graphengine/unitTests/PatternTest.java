@@ -56,13 +56,13 @@ public class PatternTest {
 						.setName("type")
 						.setValue("Bank")
 				)));
-		String toJson = GraphEngine.getGson().toJson(patternGraph); // hand-gebauter graph zu json
+		String toJson = GraphEngine.getGson().toJson(patternGraph); // hand-made graph to json
 		
-		PatternGraph fromJson = GraphEngine.getGson().fromJson(toJson, PatternGraph.class); // json von handgebaut zu objekt
-		String backToJson = GraphEngine.getGson().toJson(fromJson); // automatisch gebautes objekt zu json
+		PatternGraph fromJson = GraphEngine.getGson().fromJson(toJson, PatternGraph.class); // json from hand-made to object
+		String backToJson = GraphEngine.getGson().toJson(fromJson); // automaticly built object to json
 		
-		PatternGraph fromJson2 = GraphEngine.getGson().fromJson(backToJson, PatternGraph.class); // json aus automatisch gebautem objekt zu objekt
-		String backToJson2 = GraphEngine.getGson().toJson(fromJson2); // automatisch gebautes objekt zu json
+		PatternGraph fromJson2 = GraphEngine.getGson().fromJson(backToJson, PatternGraph.class); // json from automaticly built object to object
+		String backToJson2 = GraphEngine.getGson().toJson(fromJson2); // automaticly built object to json
 		
 		Assert.assertEquals(backToJson, backToJson2);
 		// TODO: implement better test for PatternGraph comparison

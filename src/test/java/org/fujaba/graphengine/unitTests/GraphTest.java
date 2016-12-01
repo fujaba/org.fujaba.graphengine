@@ -17,8 +17,8 @@ public class GraphTest {
 	@Test
 	public void testGraph() {
 		Gson gson = GraphEngine.getGson();
-		// ferryman's problem graph aufbauen:
-		Graph original = new Graph(); // originaler graph
+		// build ferryman's problem graph:
+		Graph original = new Graph(); // original graph
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
 		original.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
 		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", north);
@@ -28,31 +28,31 @@ public class GraphTest {
 		north.setAttribute("type", "Bank").addEdge("opposite", south);
 		south.setAttribute("type", "Bank").addEdge("opposite", north);
 
-		String toJson = gson.toJson(original); // serialisiertes json
-		Graph fromJson = gson.fromJson(toJson, Graph.class); // deserialisierter graph
-		String backToJson = gson.toJson(fromJson); // zurück-serialisiertes json
+		String toJson = gson.toJson(original); // serialized json
+		Graph fromJson = gson.fromJson(toJson, Graph.class); // deserialized graph
+		String backToJson = gson.toJson(fromJson); // serialized back to json
 
-		// graph und zurück-deserialisierter graph müssen isomorph sein:
+		// original graph and deserialized graph must be isomorph:
 		Assert.assertEquals(0, original.compareTo(fromJson));
-		// serialisiertes json und zurück-serialisiertes json sollten identisch sein:
+		// serialized json and re-serialized json should be identical:
 		Assert.assertEquals(toJson, backToJson);
 
-		// graph auf isomorphie und isomorphe teilgraphen testen (mit positiv-erwartetem ergebnis):
+		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		Graph graph = original.clone();
 		Graph subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
-		do { // hier werden nach und nach alle knoten gelöscht
+		do { // all nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
 			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		} while (subGraph.getNodes().size() > 0);
-		// graph auf isomorphie und isomorphe teilgraphen testen (mit positiv-erwartetem ergebnis):
+		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		int totalEdgeCount;
-		do { // hier werden nach und nach alle kanten gelöscht 
+		do { // all edges will be deleted here, one after another
 			int currentEdgeCount;
 			int randomNodeIndex;
 			do {
@@ -74,12 +74,12 @@ public class GraphTest {
 				}
 			}
 		} while (totalEdgeCount > 0);
-		// graph auf isomorphie und isomorphe teilgraphen testen (mit positiv-erwartetem ergebnis):
+		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		int totalAttributeCount;
-		do { // hier werden nach und nach alle attribute gelöscht 
+		do { // all attributes will be deleted here, one after another
 			int currentAttributeCount;
 			int randomNodeIndex;
 			do {
@@ -97,35 +97,35 @@ public class GraphTest {
 			}
 		} while (totalAttributeCount > 0);
 
-		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
+		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
-		while (subGraph.getNodes().size() > 2) { // hier werden nach und nach die meisten knoten gelöscht
+		while (subGraph.getNodes().size() > 2) { // most nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
 			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		}
-		// hier kommt jetzt aber ein knoten mit bisher unbekannter kante hinein:
+		// now we add a node with a previously unknown edge
 		subGraph.addNode(new Node().addEdge("parent", subGraph.getNodes().get(0)));
 		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
-		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
+		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
-		while (subGraph.getNodes().size() > 2) { // hier werden nach und nach die meisten knoten gelöscht
+		while (subGraph.getNodes().size() > 2) { // most nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
 			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
 		}
-		// hier kommt jetzt aber ein bisher unbekanntes attribute hinein:
+		// now we add a previously unknown attribute
 		subGraph.getNodes().get(0).setAttribute("count", 2);
 		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
-		// graph auf isomorphie und isomorphe teilgraphen testen (mit negativ-erwartetem ergebnis):
+		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
 		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
-		// hier bekommt jetzt aber ein attribut einen anderen wert:
+		// now we change an attribute to a different value
 		for (Node n: subGraph.getNodes()) {
 			for (String key: n.getAttributes().keySet()) {
 				if (n.getAttribute(key) == "Wolf") {
@@ -236,14 +236,14 @@ public class GraphTest {
 			attributeCountPerNode = 0;
 		}
 		/*
-		 * hier erzeuge ich einen großen basis-graphen
+		 * here i build a big base graph
 		 */ 
 		Graph baseGraph;
 		do {
 			baseGraph = constructBigGraph(nodeCount, edgeTypeCount, edgeCountPerNode, attributeTypeCount, attributeValueCount, attributeCountPerNode);
 		} while (false/*!baseGraph.isConnected()*/);
 		/*
-		 * ich will hier möglichst knoten löschen, so dass ein weithin zusammenhängender sub-graph entsteht
+		 * here i try to delete nodes that will leave a still connected graph
 		 */
 		Graph subGraph;
 		do {
