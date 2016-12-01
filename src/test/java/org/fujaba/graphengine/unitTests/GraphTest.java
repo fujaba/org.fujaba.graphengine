@@ -41,16 +41,16 @@ public class GraphTest {
 		Graph graph = original.clone();
 		Graph subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		do { // all nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
-			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+			Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		} while (subGraph.getNodes().size() > 0);
 		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		int totalEdgeCount;
 		do { // all edges will be deleted here, one after another
 			int currentEdgeCount;
@@ -66,7 +66,7 @@ public class GraphTest {
 				}
 				break;
 			}
-			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+			Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 			totalEdgeCount = 0;
 			for (Node node: subGraph.getNodes()) {
 				for (String key: node.getEdges().keySet()) {
@@ -77,7 +77,7 @@ public class GraphTest {
 		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		int totalAttributeCount;
 		do { // all attributes will be deleted here, one after another
 			int currentAttributeCount;
@@ -90,7 +90,7 @@ public class GraphTest {
 				subGraph.getNodes().get(randomNodeIndex).removeAttribute(key);
 				break;
 			}
-			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+			Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 			totalAttributeCount = 0;
 			for (Node node: subGraph.getNodes()) {
 				totalAttributeCount += node.getAttributes().keySet().size();
@@ -100,31 +100,31 @@ public class GraphTest {
 		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		while (subGraph.getNodes().size() > 2) { // most nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
-			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+			Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		}
 		// now we add a node with a previously unknown edge
 		subGraph.addNode(new Node().addEdge("parent", subGraph.getNodes().get(0)));
-		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertFalse(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		while (subGraph.getNodes().size() > 2) { // most nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
 			subGraph.removeNode(subGraph.getNodes().get(randomIndex));
-			Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+			Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		}
 		// now we add a previously unknown attribute
 		subGraph.getNodes().get(0).setAttribute("count", 2);
-		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertFalse(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
 		Assert.assertTrue(graph.compareTo(subGraph) == 0);
-		Assert.assertTrue(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		// now we change an attribute to a different value
 		for (Node n: subGraph.getNodes()) {
 			for (String key: n.getAttributes().keySet()) {
@@ -133,7 +133,7 @@ public class GraphTest {
 				}
 			}
 		}
-		Assert.assertFalse(graph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertFalse(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 	}
 	
 	@Test
@@ -157,21 +157,21 @@ public class GraphTest {
 
 		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph " + filenameSubGraph + "...");
 		beginMeasure = System.nanoTime();
-		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(subGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, baseGraph));
 		endMeasure = System.nanoTime();
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
 		Graph emptyGraph = new Graph();
 		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph 'empty graph'...");
 		beginMeasure = System.nanoTime();
-		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(emptyGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(emptyGraph, baseGraph));
 		endMeasure = System.nanoTime();
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
 		Graph singleNodedGraph = new Graph().addNode(baseGraph.getNodes().get(0).clone());
 		System.out.println("test " + filenameBaseGraph + " has isomorph sub-graph 'one-noded graph'...");
 		beginMeasure = System.nanoTime();
-		Assert.assertTrue(baseGraph.hasIsomorphicSubGraph(singleNodedGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(singleNodedGraph, baseGraph));
 		endMeasure = System.nanoTime();
 		System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 
@@ -198,7 +198,7 @@ public class GraphTest {
 //			System.out.println("sub-graph");
 //			System.out.println(testGraphs.get(1));
 			beginMeasure = System.nanoTime();
-			Assert.assertTrue(testGraphs.get(0).hasIsomorphicSubGraph(testGraphs.get(1)));
+			Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(testGraphs.get(1), testGraphs.get(0)));
 			endMeasure = System.nanoTime();
 			System.out.println("success in " + ((endMeasure - beginMeasure) / 1e6) + "ms");
 		}
