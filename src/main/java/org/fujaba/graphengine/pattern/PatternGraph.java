@@ -6,26 +6,26 @@ import org.fujaba.graphengine.GraphEngine;
 
 public class PatternGraph extends Pattern {
 	
-	/**
-	 * the sub-PatternGraphs of this PatternGraph
-	 */
-	private ArrayList<PatternGraph> subPatternGraphs = new ArrayList<PatternGraph>();
+//	/**
+//	 * the sub-PatternGraphs of this PatternGraph
+//	 */
+//	private ArrayList<PatternGraph> subPatternGraphs = new ArrayList<PatternGraph>();
 	/**
 	 * the PatternNode contained in this PatternGraph (not in sub-PatternGraphs)
 	 */
 	private ArrayList<PatternNode> patternNodes = new ArrayList<PatternNode>();
 	
-	public ArrayList<PatternGraph> getSubPatternGraphs() {
-		return subPatternGraphs;
-	}
-	public PatternGraph setSubPatternGraphs(ArrayList<PatternGraph> subPatternGraphs) {
-		this.subPatternGraphs = subPatternGraphs;
-		return this;
-	}
-	public PatternGraph addSubPatternGraph(PatternGraph subPatternGraph) {
-		this.subPatternGraphs.add(subPatternGraph);
-		return this;
-	}
+//	public ArrayList<PatternGraph> getSubPatternGraphs() {
+//		return subPatternGraphs;
+//	}
+//	public PatternGraph setSubPatternGraphs(ArrayList<PatternGraph> subPatternGraphs) {
+//		this.subPatternGraphs = subPatternGraphs;
+//		return this;
+//	}
+//	public PatternGraph addSubPatternGraph(PatternGraph subPatternGraph) {
+//		this.subPatternGraphs.add(subPatternGraph);
+//		return this;
+//	}
 	public ArrayList<PatternNode> getPatternNodes() {
 		return patternNodes;
 	}

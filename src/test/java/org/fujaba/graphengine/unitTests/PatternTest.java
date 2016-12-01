@@ -42,7 +42,7 @@ public class PatternTest {
 						.setSource(ferry)
 						.setName("at")
 						.setTarget(bankThere)
-				)).addSubPatternGraph(new PatternGraph().addPatternNode(bankHere.setAction("match").addPatternAttribute(new PatternAttribute()
+				)).addPatternNode(bankHere.setAction("match").addPatternAttribute(new PatternAttribute()
 						.setAction("match")
 						.setName("type")
 						.setValue("Bank")
@@ -55,7 +55,7 @@ public class PatternTest {
 						.setAction("match")
 						.setName("type")
 						.setValue("Bank")
-				)));
+				));
 		String toJson = GraphEngine.getGson().toJson(patternGraph); // hand-made graph to json
 		
 		PatternGraph fromJson = GraphEngine.getGson().fromJson(toJson, PatternGraph.class); // json from hand-made to object

@@ -57,12 +57,12 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 			// the part for the node ends
 		}
 		out.endArray();
-		out.name("subGraphs");
-		out.beginArray();
-		for (PatternGraph subGraph: graph.getSubPatternGraphs()) {
-			writeWithManager(out, subGraph, idManager); // recursively write sub-graphs
-		}
-		out.endArray();
+//		out.name("subGraphs");
+//		out.beginArray();
+//		for (PatternGraph subGraph: graph.getSubPatternGraphs()) {
+//			writeWithManager(out, subGraph, idManager); // recursively write sub-graphs
+//		}
+//		out.endArray();
 		out.endObject();
 	}
 
@@ -169,13 +169,13 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 		    	}
 	    		in.endArray();
 	    		break;
-	    	case "subGraphs":
-	    		in.beginArray();
-	    	    while (in.hasNext()) {
-	    	    	graph.addSubPatternGraph(readWithManager(in, idManager)); // recursively read the sub-graphs
-	    	    }
-	    		in.endArray();
-	    		break;
+//	    	case "subGraphs":
+//	    		in.beginArray();
+//	    	    while (in.hasNext()) {
+//	    	    	graph.addSubPatternGraph(readWithManager(in, idManager)); // recursively read the sub-graphs
+//	    	    }
+//	    		in.endArray();
+//	    		break;
 	    	}
 	    }
 	    for (Long sourceKey: edgesToBuild.keySet()) {
