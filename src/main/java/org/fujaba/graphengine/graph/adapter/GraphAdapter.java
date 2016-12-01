@@ -12,6 +12,11 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+/**
+ * The GraphAdapter is a gson TypeAdapter used to serialize and deserialize Graphs to and from JSON.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class GraphAdapter extends TypeAdapter<Graph> {
 
 	@Override

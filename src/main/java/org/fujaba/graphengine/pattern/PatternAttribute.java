@@ -1,5 +1,10 @@
 package org.fujaba.graphengine.pattern;
 
+/**
+ * The PatternAttribute is a node of the PatternGraph.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class PatternAttribute extends PatternElement {
 	
 	/**

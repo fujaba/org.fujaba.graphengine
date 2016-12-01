@@ -2,6 +2,11 @@ package org.fujaba.graphengine;
 
 import java.util.HashMap;
 
+/**
+ * The IdManager can track and create IDs for Objects to identify them later on.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class IdManager {
 	
 	private HashMap<Object, Long> idMap;

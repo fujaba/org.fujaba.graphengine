@@ -1,5 +1,10 @@
 package org.fujaba.graphengine.pattern;
 
+/**
+ * The PatternEdge is a node of the PatternGraph.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class PatternEdge extends PatternElement {
 
 	/**

@@ -8,6 +8,11 @@ import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
 import org.junit.Assert;
 
+/**
+ * This class is for testing Patterns.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class PatternTest {
 	
 	@Test

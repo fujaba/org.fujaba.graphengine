@@ -18,6 +18,11 @@ import org.fujaba.graphengine.pattern.adapter.PatternNodeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * The GraphEngine is a class that contains methods to handle graphs.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class GraphEngine {
 	
 	private static Gson gson;

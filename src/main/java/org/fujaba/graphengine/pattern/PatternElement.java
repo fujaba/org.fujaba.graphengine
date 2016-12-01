@@ -1,5 +1,11 @@
 package org.fujaba.graphengine.pattern;
 
+/**
+ * This abstract class is the superclass for all content classes of the PatternGraph:
+ * PatternNode, PatternEdge and PatternAttribute.
+ * 
+ * @author Philipp Kolodziej
+ */
 public abstract class PatternElement {
 
 	/**

@@ -14,6 +14,11 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+/**
+ * The PatternGraphAdapter is a gson TypeAdapter used to serialize and deserialize PatternGraphs to and from JSON.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 
 	@Override

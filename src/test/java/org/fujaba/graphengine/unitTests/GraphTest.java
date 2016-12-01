@@ -12,6 +12,11 @@ import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
+/**
+ * This class is for testing Graphs.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class GraphTest {
 	
 	@Test

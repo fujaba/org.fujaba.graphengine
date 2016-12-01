@@ -8,6 +8,12 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
+/**
+ * The PatternNodeAdapter is a gson TypeAdapter used to serialize and deserialize PatternNodes to and from JSON.
+ * Though this Object doesn't make sense to serialize without its parent context - so it is prohibited by this Adapter.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class PatternNodeAdapter extends TypeAdapter<PatternNode> {
 
 	@Override

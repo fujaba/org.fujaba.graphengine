@@ -4,6 +4,13 @@ import java.util.ArrayList;
 
 import org.fujaba.graphengine.GraphEngine;
 
+/**
+ * The PatternGraph is a kind of pattern to be used with a Graph.
+ * It can contain information for pattern matching,
+ * as well as actions to apply when matches were found.
+ * 
+ * @author Philipp Kolodziej
+ */
 public class PatternGraph {
 	
 //	/**
