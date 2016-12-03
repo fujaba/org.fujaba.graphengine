@@ -19,18 +19,34 @@ import org.fujaba.graphengine.pattern.PatternNode;
 public class PatternEngine {
 	
 	/**
-	 * matches and directly applies a pattern as often as possible
-	 * until the optional limit is met, without revisiting graphs,
-	 * that were already used (preventing endless cycles).
+	 * matches and directly applies a pattern as often as possible,
+	 * without revisiting graphs, that were already used (preventing endless cycles).
 	 * 
 	 * @param graph the graph to apply the pattern on
 	 * @param pattern the pattern to apply
-	 * @param maxCount the maximum number of times the pattern should be applied to the graph
 	 * @return the resulting graph
 	 */
-	public static Graph applyPattern(Graph graph, PatternGraph pattern, int maxCount) { // TODO: implement
+	public static Graph applyPattern(Graph graph, PatternGraph pattern) {
+		ArrayList<Graph> history = new ArrayList<Graph>();
 		Graph result = graph.clone();
-		
+		history.add(result);
+		boolean canTryAnother = false;
+		do {
+			canTryAnother = false;
+			ArrayList<Match> matches = matchPattern(result, pattern, false);
+			if (matches.size() == 0) {
+				break;
+			}
+			for (Match match: matches) {
+				Graph next = applyMatch(match);
+				if (!history.contains(next)) {
+					history.add(next);
+					result = next;
+					canTryAnother = true;
+					break;
+				}
+			}
+		} while (canTryAnother);
 		return result;
 	}
 
@@ -41,7 +57,7 @@ public class PatternEngine {
 	 * @param pattern the pattern to match
 	 * @return a list of matches for the pattern in the graph
 	 */
-	public static ArrayList<Match> matchPattern(Graph graph, PatternGraph pattern) {
+	public static ArrayList<Match> matchPattern(Graph graph, PatternGraph pattern, boolean single) {
 		ArrayList<Match> matches = new ArrayList<Match>();
 		// step 1: for every PatternNode, find all possible Nodes:
 		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
@@ -117,6 +133,9 @@ nodes:			for (int i = 0; i < pattern.getPatternNodes().size(); ++i) {
 				}
 				if (!fail) {
 					matches.add(new Match(graph, pattern, mapping));
+					if (single) {
+						return matches;
+					}
 				}
 			}
 			for (int i = 0; i < currentTry.size(); ++i) {
