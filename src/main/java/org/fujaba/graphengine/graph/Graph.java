@@ -95,5 +95,13 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		}
 		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(other));
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof Graph)) {
+			return false;
+		}
+		return compareTo((Graph)other) == 0;
+	}
 
 }

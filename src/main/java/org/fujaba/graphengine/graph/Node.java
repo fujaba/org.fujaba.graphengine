@@ -77,7 +77,9 @@ public class Node implements Cloneable {
 		if (this.edges.get(name) == null) {
 			this.edges.put(name, new ArrayList<Node>());
 		}
-		this.edges.get(name).add(target);
+		if (!this.edges.get(name).contains(target)) {
+			this.edges.get(name).add(target);
+		}
 		return this;
 	}
 	public Node removeEdge(String name, Node target) {

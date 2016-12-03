@@ -27,6 +27,11 @@ public class GraphEngine {
 	
 	private static Gson gson;
 
+	/**
+	 * Getter for the GraphEngine's gson
+	 * 
+	 * @return a gson-Object with the necessary custom TypeAdapters.
+	 */
 	public static Gson getGson() {
 		if (gson == null) {
 			gson = new GsonBuilder()
@@ -80,13 +85,6 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				return null; // no mapping for this node => fail
 			}
 		}
-		
-//		int checks = 1; 								// DEBUG
-//		for (int i = 0; i < couldMatch.size(); ++i) { 	// DEBUG
-//			checks *= couldMatch.get(i).size(); 		// DEBUG
-//		} 												// DEBUG
-//		System.out.println("there will be " + checks + " checks of " + subGraph.getNodes().size() + " nodes each time:");
-		
 		// now a depth-first search with backtracking to find the right mapping:
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
 		for (int i = 0; i < couldMatch.size(); ++i) {
