@@ -52,6 +52,10 @@ public class PatternEngine {
 		if (patterns == null) {
 			return result;
 		}
+//		ArrayList<Integer> counts = new ArrayList<Integer>(); //TODO: remove debug
+//		for (int i = 0; i < patterns.size(); ++i) { //TODO: remove debug
+//			counts.add(0); //TODO: remove debug
+//		} //TODO: remove debug
 		history.add(result);
 		boolean canTryAnother = false;
 		do {
@@ -70,6 +74,7 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 					if (!history.contains(next)) {
 						history.add(next.clone());
 						result = next;
+//						counts.set(currentPatternIndex - 1, counts.get(currentPatternIndex - 1) + 1); //TODO: remove debug
 						if (single) {
 							return result;
 						}
@@ -80,6 +85,8 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 				}
 			}
 		} while (canTryAnother);
+//		System.out.println("|history| = " + history.size()); //TODO: remove debug
+//		System.out.println(counts); //TODO: remove debug
 		return result;
 	}
 

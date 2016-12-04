@@ -43,11 +43,12 @@ public class PatternTest {
 	public void testPatternMatching() {
 		PatternGraph transportRule = getTranportRule();
 		Graph ferrymansGraph = getFerrymansGraph();
+		
 		ArrayList<Match> matches = PatternEngine.matchPattern(ferrymansGraph, transportRule, true);
-		Assert.assertEquals(1, matches.size());
+		Assert.assertEquals(1, matches.size()); // finds a match (at all) for the transport rule
 		
 		matches = PatternEngine.matchPattern(ferrymansGraph, transportRule, false);
-		Assert.assertEquals(3, matches.size());
+		Assert.assertEquals(3, matches.size()); // finds all 3 matches for the transport rule
 	}
 	
 	@Test
@@ -60,8 +61,11 @@ public class PatternTest {
 		Assert.assertEquals(3, matches.size());
 
 		Graph wolfTransported = PatternEngine.applyMatch(matches.get(0));
+//		System.out.println(wolfTransported);
 		Graph goatTransported = PatternEngine.applyMatch(matches.get(1));
+//		System.out.println(goatTransported);
 		Graph cabbageTransported = PatternEngine.applyMatch(matches.get(2));
+//		System.out.println(cabbageTransported);
 
 		Assert.assertNotEquals(ferrymansGraph, wolfTransported);
 		Assert.assertNotEquals(ferrymansGraph, goatTransported);
@@ -70,16 +74,137 @@ public class PatternTest {
 	
 	@Test
 	public void testCycleFreeRepetitivePatternApplication() {
+		PatternGraph eatingRule = getEatingRule();
 		PatternGraph transportRule = getTranportRule();
 		PatternGraph emptyTransportRule = getEmptyTranportRule();
 		Graph ferrymansGraph = getFerrymansGraph();
 		ArrayList<PatternGraph> patterns = new ArrayList<PatternGraph>();
+		patterns.add(eatingRule);
 		patterns.add(transportRule);
 		patterns.add(emptyTransportRule);
 
 		Graph result = PatternEngine.applyPatterns(ferrymansGraph, patterns, false);
-		
+//		System.out.println(result);
 		Assert.assertNotEquals(ferrymansGraph, result);
+	}
+	
+	@Test
+	public void testSolvingFerrymansProblem() {
+		PatternGraph eatingRule = getEatingRule();
+		PatternGraph transportRule = getTranportRule();
+		PatternGraph emptyTransportRule = getEmptyTranportRule();
+		Graph ferrymansGraph = getFerrymansGraph();
+		Graph ferrymansSolutionGraph = getFerrymansSolutionGraph();
+		ArrayList<Match> matches;
+		
+		Graph current = ferrymansGraph;
+		
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+		
+		matches = PatternEngine.matchPattern(current, transportRule, false);
+		Assert.assertEquals(3, matches.size()); // he could bring each species
+		
+		current = PatternEngine.applyMatch(matches.get(1)); // 1st turn: we know he has to bring the goat first
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+
+		matches = PatternEngine.matchPattern(current, emptyTransportRule, false);
+		Assert.assertEquals(1, matches.size()); // he could go back alone
+
+		current = PatternEngine.applyMatch(matches.get(0)); // 2nd turn: he has to go back
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+		
+		matches = PatternEngine.matchPattern(current, transportRule, false);
+		Assert.assertEquals(2, matches.size()); // he could now bring wolf or cabbage
+
+		current = PatternEngine.applyMatch(matches.get(0)); // 3rd turn: he brings the wolf
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+		
+		matches = PatternEngine.matchPattern(current, transportRule, false);
+		Assert.assertEquals(2, matches.size()); // he could now bring back wolf or goat
+
+		current = PatternEngine.applyMatch(matches.get(1)); // 4th turn: he brings back the goat
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+		
+		matches = PatternEngine.matchPattern(current, transportRule, false);
+		Assert.assertEquals(2, matches.size()); // he could now bring goat or cabbage
+
+		current = PatternEngine.applyMatch(matches.get(1)); // 5th turn: he brings the cabbage
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+
+		matches = PatternEngine.matchPattern(current, emptyTransportRule, false);
+		Assert.assertEquals(1, matches.size()); // he could go back alone
+
+		current = PatternEngine.applyMatch(matches.get(0)); // 6th turn: he has to go back
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+		
+		matches = PatternEngine.matchPattern(current, transportRule, false);
+		Assert.assertEquals(1, matches.size()); // he could now finally bring the goat and he's done
+
+		current = PatternEngine.applyMatch(matches.get(0)); // 7th turn: he brings the goat and completes the challenge
+
+		matches = PatternEngine.matchPattern(current, eatingRule, false);
+		Assert.assertEquals(0, matches.size()); // noone gets eaten
+		
+		matches = PatternEngine.matchPattern(current, transportRule, false);
+		Assert.assertEquals(3, matches.size()); // he could now start over and bring each species
+		
+		Assert.assertEquals(ferrymansSolutionGraph, current); // the solution is as expected
+	}
+	
+	private PatternGraph getEatingRule() {
+		PatternNode cargoEats = new PatternNode(), cargoGetsEaten = new PatternNode(), ferry = new PatternNode(), bank = new PatternNode();
+		return new PatternGraph()
+		.addPatternNode(cargoEats.setAction("match").addPatternAttribute(new PatternAttribute()
+				.setAction("match")
+				.setName("type")
+				.setValue("Cargo")
+		).addPatternEdge(new PatternEdge()
+				.setAction("match")
+				.setSource(cargoEats)
+				.setName("at")
+				.setTarget(bank)
+		).addPatternEdge(new PatternEdge()
+				.setAction("remove")
+				.setSource(cargoEats)
+				.setName("eats")
+				.setTarget(cargoGetsEaten)
+		)).addPatternNode(cargoGetsEaten.setAction("remove").addPatternAttribute(new PatternAttribute()
+				.setAction("remove")
+				.setName("type")
+				.setValue("Cargo")
+		).addPatternEdge(new PatternEdge()
+				.setAction("remove")
+				.setSource(cargoGetsEaten)
+				.setName("at")
+				.setTarget(bank)
+		)).addPatternNode(ferry.setAction("match").addPatternAttribute(new PatternAttribute()
+				.setAction("match")
+				.setName("type")
+				.setValue("Ferry")
+		).addPatternEdge(new PatternEdge()
+				.setAction("match")
+				.setNegative(true)
+				.setSource(ferry)
+				.setName("at")
+				.setTarget(bank)
+		)).addPatternNode(bank.setAction("match").addPatternAttribute(new PatternAttribute()
+				.setAction("match")
+				.setName("type")
+				.setValue("Bank")
+		));
 	}
 	
 	private PatternGraph getTranportRule() {
@@ -163,13 +288,26 @@ public class PatternTest {
 	}
 	
 	private Graph getFerrymansGraph() {
-		Graph ferrymansGraph = new Graph(); // original graph
+		Graph ferrymansGraph = new Graph();
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
 		ferrymansGraph.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
 		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", north);
 		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").addEdge("eats", cabbage).addEdge("at", north);
 		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").addEdge("at", north);
 		ferry.setAttribute("type", "Ferry").addEdge("at", north);
+		north.setAttribute("type", "Bank").setAttribute("side", "north").addEdge("opposite", south);
+		south.setAttribute("type", "Bank").setAttribute("side", "south").addEdge("opposite", north);
+		return ferrymansGraph;
+	}
+	
+	private Graph getFerrymansSolutionGraph() {
+		Graph ferrymansGraph = new Graph();
+		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
+		ferrymansGraph.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
+		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", south);
+		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").addEdge("eats", cabbage).addEdge("at", south);
+		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").addEdge("at", south);
+		ferry.setAttribute("type", "Ferry").addEdge("at", south);
 		north.setAttribute("type", "Bank").setAttribute("side", "north").addEdge("opposite", south);
 		south.setAttribute("type", "Bank").setAttribute("side", "south").addEdge("opposite", north);
 		return ferrymansGraph;
