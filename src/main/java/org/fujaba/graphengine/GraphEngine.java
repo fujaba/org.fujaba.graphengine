@@ -179,7 +179,7 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 		for (Node newSubNode: reverseMapping.keySet()) {
 			// check attributes
 			for (String attributeName: newSubNode.getAttributes().keySet()) {
-				if (reverseMapping.get(newSubNode).getAttribute(attributeName).equals(newSubNode.getAttribute(attributeName))) {
+				if (!reverseMapping.get(newSubNode).getAttribute(attributeName).equals(newSubNode.getAttribute(attributeName))) {
 					return false;
 				}
 			}
