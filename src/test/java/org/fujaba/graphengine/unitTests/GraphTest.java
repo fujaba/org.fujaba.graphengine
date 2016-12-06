@@ -348,4 +348,122 @@ public class GraphTest {
 		return graph;
 	}
 	
+	@Test
+	public void testIsomorphismTestGraph() {
+		
+		Graph one = new Graph();
+		
+		ArrayList<Node> as = new ArrayList<Node>();
+		ArrayList<Node> bs = new ArrayList<Node>();
+		ArrayList<Node> cs = new ArrayList<Node>();
+		
+		int size = 50;
+		
+		for (int i = 0; i < size; ++i) {
+			as.add(new Node().setAttribute("type", "NodeTypeA").setAttribute("attra", "a"));
+			bs.add(new Node().setAttribute("type", "NodeTypeB").setAttribute("attrb", "b"));
+			cs.add(new Node().setAttribute("type", "NodeTypeC").setAttribute("attrc", "c"));
+		}
+		for (int i = 0; i < size; ++i) {
+			for (int j = 0; j < size; ++j) {
+				as.get(i).addEdge("atob", bs.get(j));
+				bs.get(i).addEdge("btoc", cs.get(j));
+				cs.get(i).addEdge("ctoa", as.get(j));
+			}
+			one.addNode(as.get(i)).addNode(bs.get(i)).addNode(cs.get(i));
+		}
+		
+		Graph two = one.clone();
+		
+	    long start = System.nanoTime();
+	    Assert.assertNotNull(GraphEngine.isIsomorphTo(one, two));
+	    long duration = System.nanoTime() - start;
+	    System.out.println("test ismorphic check performance: " + duration / 1e6 + "ms");
+		
+	}
+		
+//	@Test
+//	public void PhilippKolodziejIsomorphismTestGraph() {
+//	    Storyboard storyboard = new Storyboard();
+//	    ClassModel model = new ClassModel("org.sdmlib.test.examples.reachabilitygraphs.philippkolodziejisomorphismgraphtest");
+//	    Clazz a = model.createClazz("NodeTypeA")
+//	        .withAttribute("attra", DataType.STRING);
+//	    Clazz b = model.createClazz("NodeTypeB")
+//	        .withAttribute("attrb", DataType.STRING);
+//	    Clazz c = model.createClazz("NodeTypeC")
+//	        .withAttribute("attrc", DataType.STRING);
+//	    a.withUniDirectional(b, "atob", Cardinality.MANY);
+//	    b.withUniDirectional(c, "btoc", Cardinality.MANY);
+//	    c.withUniDirectional(a, "ctoa", Cardinality.MANY);
+//	    storyboard.addClassDiagram(model);
+//	    model.generate("src/test/java");
+//	    storyboard.dumpHTML();
+//    }
+//
+//	@Test
+//	public void PhilippKolodziejIsomorphismTest() {
+//		Storyboard storyboard1 = new Storyboard();
+//		Storyboard storyboard2 = new Storyboard();
+//		// ================================================
+//		storyboard1.add("initial situation:");
+//		storyboard2.add("initial situation:");
+//		int size = 50;
+//		ArrayList<NodeTypeA> as1 = new ArrayList<NodeTypeA>();
+//		ArrayList<NodeTypeB> bs1 = new ArrayList<NodeTypeB>();
+//		ArrayList<NodeTypeC> cs1 = new ArrayList<NodeTypeC>();
+//		ArrayList<NodeTypeA> as2 = new ArrayList<NodeTypeA>();
+//		ArrayList<NodeTypeB> bs2 = new ArrayList<NodeTypeB>();
+//		ArrayList<NodeTypeC> cs2 = new ArrayList<NodeTypeC>();
+//		for (int i = 0; i < size; ++i) {
+//			as1.add(new NodeTypeA());
+//			bs1.add(new NodeTypeB());
+//			cs1.add(new NodeTypeC());
+//			as2.add(new NodeTypeA());
+//			bs2.add(new NodeTypeB());
+//			cs2.add(new NodeTypeC());
+//		}
+//		for (int i = 0; i < size; ++i) {
+//			as1.get(i).setAttra("a");
+//			bs1.get(i).setAttrb("b");
+//			cs1.get(i).setAttrc("c");
+//			as2.get(i).setAttra("a");
+//			bs2.get(i).setAttrb("b");
+//			cs2.get(i).setAttrc("c");
+//			for (int j = 0; j < size; ++j) {
+//				as1.get(i).withAtob(bs1.get(j));
+//				bs1.get(i).withBtoc(cs1.get(j));
+//				cs1.get(i).withCtoa(as1.get(j));
+//				as2.get(i).withAtob(bs2.get(j));
+//				bs2.get(i).withBtoc(cs2.get(j));
+//				cs2.get(i).withCtoa(as2.get(j));
+//			}			
+//		}
+//		NodeTypeA root1 = as1.get(0);
+//		NodeTypeA root2 = as2.get(0);
+//	    storyboard1.addObjectDiagram(root1);
+//	    storyboard2.addObjectDiagram(root1);
+//	    storyboard1.add("compute certificates");
+//	    storyboard1.add("compute certificates");
+//	    ReachableState rs1 = new ReachableState().withGraphRoot(root1);
+//	    ReachableState rs2 = new ReachableState().withGraphRoot(root2);
+//	    NodeTypeACreator cc1 = new NodeTypeACreator();
+//	    NodeTypeACreator cc2 = new NodeTypeACreator();
+//	    IdMap map1 = cc1.createIdMap("s");
+//	    IdMap map2 = cc2.createIdMap("s");
+//	    map1.with(ReachabilityGraphCreator.createIdMap("rg"));
+//	    map2.with(ReachabilityGraphCreator.createIdMap("rg"));
+//	    String s1cert = rs1.computeCertificate(map1);
+//	    String s2cert = rs2.computeCertificate(map2);
+//	    storyboard1.add(s1cert);
+//	    storyboard2.add(s2cert);
+//	    ReachabilityGraph reachabilityGraph1 = new ReachabilityGraph()
+//	       .withMasterMap(map1).withStates(rs1).withTodo(rs1).withStateMap(s1cert, rs1);
+//	    ReachabilityGraph reachabilityGraph2 = new ReachabilityGraph()
+//	 	   .withMasterMap(map2).withStates(rs2).withTodo(rs2).withStateMap(s2cert, rs2);
+//	    long start = System.nanoTime();
+//	    Assert.assertNotNull(IsomorphismComputation.calculateMatch(rs1, rs2, map1));
+//	    long duration = System.nanoTime() - start;
+//	    System.out.println(duration / 1e6 + "ms");
+//	}
+	
 }
