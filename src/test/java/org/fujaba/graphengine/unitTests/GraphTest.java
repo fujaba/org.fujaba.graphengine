@@ -374,9 +374,9 @@ public class GraphTest {
 		}
 		
 		Graph two = one.clone();
-		
+
 	    long start = System.nanoTime();
-	    Assert.assertNotNull(GraphEngine.isIsomorphTo(one, two));
+	    Assert.assertEquals(one, two);
 	    long duration = System.nanoTime() - start;
 	    System.out.println("test ismorphic check performance: " + duration / 1e6 + "ms");
 		

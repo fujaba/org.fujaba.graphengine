@@ -92,7 +92,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 		}
 		HashSet<Node> usedNodes = new HashSet<Node>();
 		usedNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
-fix:				for (int k = 0; k < currentTry.size(); ++k) {
+fix:	for (int k = currentTry.size() - 1; k >= 0; --k) {
 			while (usedNodes.contains(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))))) {
 				if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
 					break fix;
@@ -148,7 +148,7 @@ edgesMatch:		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 					}
 					canTryAnother = true;
 					usedNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
-fix:				for (int k = 0; k < currentTry.size(); ++k) {
+fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 						while (usedNodes.contains(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))))) {
 							if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
 								break fix;
