@@ -9,11 +9,9 @@ package org.fujaba.graphengine.pattern;
 public abstract class PatternElement {
 
 	/**
-	 * whether this Pattern is negative or not
-	 */
-	private boolean negative;
-	/**
-	 * an action to apply to this PatternElement (currently "match", "remove" or "create")
+	 * an action to apply to this PatternElement (currently "==", "!=", "+" or "-")
+	 * 
+	 * TODO: maybe for convenience i should allow "=", "!", "++" and "--", too...
 	 */
 	private String action;
 
@@ -22,13 +20,6 @@ public abstract class PatternElement {
 	}
 	public PatternElement setAction(String action) {
 		this.action = action;
-		return this;
-	}
-	public boolean isNegative() {
-		return negative;
-	}
-	public PatternElement setNegative(boolean negative) {
-		this.negative = negative;
 		return this;
 	}
 	

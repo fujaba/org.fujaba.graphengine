@@ -33,14 +33,12 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 		for (PatternNode node: graph.getPatternNodes()) {
 			// the part for the node begins
 		    out.beginObject();
-		    out.name("negative").value(node.isNegative());
 	    	out.name("action").value(node.getAction());
 		    out.name("id").value(idManager.getId(node));
 		    out.name("attributes");
 		    out.beginArray();
 		    for (PatternAttribute attribute: node.getPatternAttributes()) {
 			    out.beginObject();
-		    	out.name("negative").value(attribute.isNegative());
 		    	out.name("action").value(attribute.getAction());
 		    	out.name("name").value(attribute.getName());
 		    	out.name("value").value(attribute.getValue());
@@ -51,7 +49,6 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 		    out.beginArray();
 		    for (PatternEdge edge: node.getPatternEdges()) {
 		    	out.beginObject();
-		    	out.name("negative").value(edge.isNegative());
 		    	out.name("action").value(edge.getAction());
 		    	out.name("name").value(edge.getName());
 		    	out.name("target").value(idManager.getId(edge.getTarget()));
@@ -77,7 +74,6 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 	}
 	public PatternGraph readWithManager(JsonReader in, IdManager idManager) throws IOException {
 		HashMap<Long, HashMap<String, ArrayList<Long>>> edgesToBuild = new HashMap<Long, HashMap<String, ArrayList<Long>>>();
-		HashMap<Long, HashMap<String, ArrayList<Boolean>>> edgesToBuildNegative = new HashMap<Long, HashMap<String, ArrayList<Boolean>>>();
 		HashMap<Long, HashMap<String, ArrayList<String>>> edgesToBuildAction = new HashMap<Long, HashMap<String, ArrayList<String>>>();
 	    final PatternGraph graph = new PatternGraph();
 	    in.beginObject();
@@ -94,9 +90,6 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 	    	    	in.beginObject();
 		    	    while (in.hasNext()) {
 		    	    	switch (in.nextName()) {
-		    	    	case "negative":
-		    	    		node.setNegative(in.nextBoolean());
-		    	    		break;
 		    	    	case "action":
 		    	    		node.setAction(in.nextString());
 		    	    		break;
@@ -110,9 +103,6 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 			    	    		in.beginObject();
 					    	    while (in.hasNext()) {
 					    	    	switch (in.nextName()) {
-					    	    	case "negative":
-					    	    		attribute.setNegative(in.nextBoolean());
-					    	    		break;
 					    	    	case "action":
 					    	    		attribute.setAction(in.nextString());
 					    	    		break;
@@ -133,16 +123,12 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 		    	    		in.beginArray();
 		    	    		Long sourceId = idManager.getId(node);
 		    	    		edgesToBuild.put(sourceId, new HashMap<String, ArrayList<Long>>());
-		    	    		edgesToBuildNegative.put(sourceId, new HashMap<String, ArrayList<Boolean>>());
 		    	    		edgesToBuildAction.put(sourceId, new HashMap<String, ArrayList<String>>());
 				    	    while (in.hasNext()) {
 				    	    	in.beginObject();
 				    	    	PatternEdge edge = new PatternEdge().setSource(node);
 					    	    while (in.hasNext()) {
 					    	    	switch (in.nextName()) {
-					    	    	case "negative":
-					    	    		edge.setNegative(in.nextBoolean());
-					    	    		break;
 					    	    	case "action":
 					    	    		edge.setAction(in.nextString());
 					    	    		break;
@@ -156,11 +142,9 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 					    	    }
 					    	    if (!edgesToBuild.get(sourceId).containsKey(edge.getName())) {
 					    	    	edgesToBuild.get(sourceId).put(edge.getName(), new ArrayList<Long>());
-					    	    	edgesToBuildNegative.get(sourceId).put(edge.getName(), new ArrayList<Boolean>());
 					    	    	edgesToBuildAction.get(sourceId).put(edge.getName(), new ArrayList<String>());
 					    	    }
 					    	    edgesToBuild.get(sourceId).get(edge.getName()).add(idManager.getId(edge.getTarget()));
-					    	    edgesToBuildNegative.get(sourceId).get(edge.getName()).add(edge.isNegative());
 					    	    edgesToBuildAction.get(sourceId).get(edge.getName()).add(edge.getAction());
 				    	    	in.endObject();
 				    	    }
@@ -187,11 +171,9 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 	    	for (String edgeName: edgesToBuild.get(sourceKey).keySet()) {
 		    	for (int i = 0; i < edgesToBuild.get(sourceKey).get(edgeName).size(); ++i) {
 	    			Long targetKey = edgesToBuild.get(sourceKey).get(edgeName).get(i);
-	    			boolean negative = edgesToBuildNegative.get(sourceKey).get(edgeName).get(i);
 	    			String action = edgesToBuildAction.get(sourceKey).get(edgeName).get(i);
 	    			((PatternNode)idManager.getObject(sourceKey)).addPatternEdge(
 	    				new PatternEdge()
-	    					.setNegative(negative)
 	    					.setAction(action)
 	    					.setSource((PatternNode)idManager.getObject(sourceKey))
 	    					.setName(edgeName)

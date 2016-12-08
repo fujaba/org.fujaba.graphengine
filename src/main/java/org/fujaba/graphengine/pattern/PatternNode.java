@@ -10,6 +10,12 @@ import java.util.ArrayList;
 public class PatternNode extends PatternElement {
 	
 	/**
+	 * public constructor, setting default value of action-attribute to "==" (match).
+	 */
+	public PatternNode() {
+		setAction("==");
+	}
+	/**
 	 * the PatternAttributes of this PatternNode
 	 */
 	private ArrayList<PatternAttribute> patternAttributes = new ArrayList<PatternAttribute>();
@@ -65,11 +71,6 @@ public class PatternNode extends PatternElement {
 	}
 	public PatternNode addPatternEdge(PatternEdge patternEdge) {
 		this.patternEdges.add(patternEdge);
-		return this;
-	}
-	@Override
-	public PatternNode setNegative(boolean negative) {
-		super.setNegative(negative);
 		return this;
 	}
 	@Override

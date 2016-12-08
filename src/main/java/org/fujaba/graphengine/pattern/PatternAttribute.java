@@ -8,6 +8,12 @@ package org.fujaba.graphengine.pattern;
 public class PatternAttribute extends PatternElement {
 	
 	/**
+	 * public constructor, setting default value of action-attribute to "==" (match).
+	 */
+	public PatternAttribute() {
+		setAction("==");
+	}
+	/**
 	 * the name of this PatternAttribute
 	 */
 	private String name;
@@ -28,11 +34,6 @@ public class PatternAttribute extends PatternElement {
 	}
 	public PatternAttribute setValue(String value) {
 		this.value = value;
-		return this;
-	}
-	@Override
-	public PatternAttribute setNegative(boolean negative) {
-		super.setNegative(negative);
 		return this;
 	}
 	@Override

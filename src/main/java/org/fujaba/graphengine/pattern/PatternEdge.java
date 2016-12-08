@@ -6,7 +6,13 @@ package org.fujaba.graphengine.pattern;
  * @author Philipp Kolodziej
  */
 public class PatternEdge extends PatternElement {
-
+	
+	/**
+	 * public constructor, setting default value of action-attribute to "==" (match).
+	 */
+	public PatternEdge() {
+		setAction("==");
+	}
 	/**
 	 * the name of this PatternEdge
 	 */
@@ -39,11 +45,6 @@ public class PatternEdge extends PatternElement {
 	}
 	public PatternEdge setTarget(PatternNode target) {
 		this.target = target;
-		return this;
-	}
-	@Override
-	public PatternEdge setNegative(boolean negative) {
-		super.setNegative(negative);
 		return this;
 	}
 	@Override

@@ -17,8 +17,6 @@ import org.fujaba.graphengine.pattern.PatternNode;
  * @author Philipp Kolodziej
  */
 public class PatternEngine {
-	
-
 	/**
 	 * matches and directly applies a pattern as often as possible,
 	 * without revisiting graphs, that were already used (preventing endless cycles).
@@ -112,7 +110,7 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
 		for (int i = 0; i < pattern.getPatternNodes().size(); ++i) {
 			PatternNode patternNode = pattern.getPatternNodes().get(i);
-			if (patternNode.getAction() == "create") {
+			if ("+".equals(patternNode.getAction())) {
 				continue;
 			}
 			couldMatch.add(new ArrayList<Node>());
@@ -120,17 +118,17 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 				Node node = graph.getNodes().get(j);
 				for (int k = 0; k < patternNode.getPatternAttributes().size(); ++k) {
 					PatternAttribute patternAttribute = patternNode.getPatternAttributes().get(k);
-					if (patternAttribute.getAction() == "create") {
+					if ("+".equals(patternAttribute.getAction())) {
 						continue;
 					}
 					boolean attributeValueMatch = patternAttribute.getValue().equals(node.getAttribute(patternAttribute.getName()));
-					if ((patternAttribute.isNegative() && attributeValueMatch) || (!patternAttribute.isNegative() && !attributeValueMatch)) {
+					if (("!=".equals(patternAttribute.getAction()) && attributeValueMatch) || (!"!=".equals(patternAttribute.getAction()) && !attributeValueMatch)) {
 						continue nodes;
 					}
 				}
 				for (int k = 0; k < patternNode.getPatternEdges().size(); ++k) {
 					PatternEdge patternEdge = patternNode.getPatternEdges().get(k);
-					if (patternEdge.getAction() == "create" || patternEdge.isNegative()) {
+					if ("+".equals(patternEdge.getAction()) || "!=".equals(patternEdge.getAction())) {
 						continue;
 					}
 					if (!node.getEdges().containsKey(patternEdge.getName())) {
@@ -170,11 +168,11 @@ nodes:			for (int i = 0; i < pattern.getPatternNodes().size(); ++i) {
 					PatternNode sourcePatternNode = pattern.getPatternNodes().get(i);
 					for (int j = 0; j < sourcePatternNode.getPatternEdges().size(); ++j) {
 						PatternEdge patternEdge = sourcePatternNode.getPatternEdges().get(j);
-						if (patternEdge.getAction() == "create") {
+						if ("+".equals(patternEdge.getAction())) {
 							continue;
 						}
 						boolean isThere = mapping.get(sourcePatternNode).getEdges(patternEdge.getName()).contains(mapping.get(patternEdge.getTarget()));
-						if ((patternEdge.isNegative() && isThere) || (!patternEdge.isNegative() && !isThere)) {
+						if (("!=".equals(patternEdge.getAction()) && isThere) || (!"!=".equals(patternEdge.getAction()) && !isThere)) {
 							fail = true;
 							break nodes;
 						}
@@ -218,10 +216,10 @@ nodes:			for (int i = 0; i < pattern.getPatternNodes().size(); ++i) {
 		for (PatternNode patternNode: match.getPattern().getPatternNodes()) {
 			Node matchedNode;
 			switch (patternNode.getAction()) {
-			case "remove": // remove
+			case "-": // remove
 				clonedGraph.removeNode(clonedNodeMatch.get(patternNode));
 				continue;
-			case "create": // create
+			case "+": // create
 				matchedNode = new Node();
 				clonedGraph.addNode(matchedNode);
 				break;
@@ -230,19 +228,19 @@ nodes:			for (int i = 0; i < pattern.getPatternNodes().size(); ++i) {
 			}
 			for (PatternAttribute patternAttribute: patternNode.getPatternAttributes()) {
 				switch (patternAttribute.getAction()) {
-				case "remove": // remove
+				case "-": // remove
 					matchedNode.removeAttribute(patternAttribute.getName());
 					break;
-				case "create": // create
+				case "+": // create
 					matchedNode.setAttribute(patternAttribute.getName(), patternAttribute.getValue());
 				}
 			}
 			for (PatternEdge patternEdge: patternNode.getPatternEdges()) {
 				switch (patternEdge.getAction()) {
-				case "remove": // remove
+				case "-": // remove
 					matchedNode.removeEdge(patternEdge.getName(), clonedNodeMatch.get(patternEdge.getTarget()));
 					break;
-				case "create": // create
+				case "+": // create
 					matchedNode.addEdge(patternEdge.getName(), clonedNodeMatch.get(patternEdge.getTarget()));
 				}
 			}
