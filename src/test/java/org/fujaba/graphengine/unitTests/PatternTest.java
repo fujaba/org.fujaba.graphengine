@@ -67,9 +67,9 @@ public class PatternTest {
 		Graph cabbageTransported = PatternEngine.applyMatch(matches.get(2));
 //		System.out.println(cabbageTransported);
 
-		Assert.assertNotEquals(ferrymansGraph, wolfTransported);
-		Assert.assertNotEquals(ferrymansGraph, goatTransported);
-		Assert.assertNotEquals(ferrymansGraph, cabbageTransported);
+		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, wolfTransported));
+		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, goatTransported));
+		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, cabbageTransported));
 	}
 	
 	@Test
@@ -85,7 +85,7 @@ public class PatternTest {
 
 		Graph result = PatternEngine.applyPatterns(ferrymansGraph, patterns, false);
 //		System.out.println(result);
-		Assert.assertNotEquals(ferrymansGraph, result);
+		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, result));
 	}
 	
 	@Test
@@ -161,7 +161,7 @@ public class PatternTest {
 		matches = PatternEngine.matchPattern(current, transportRule, false);
 		Assert.assertEquals(3, matches.size()); // he could now start over and bring each species
 		
-		Assert.assertEquals(ferrymansSolutionGraph, current); // the solution is as expected
+		Assert.assertTrue(GraphEngine.isIsomorphTo(ferrymansSolutionGraph, current)); // the solution is as expected
 	}
 	
 	private PatternGraph getEatingRule() {

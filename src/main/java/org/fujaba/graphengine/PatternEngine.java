@@ -71,7 +71,7 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 				}
 				for (Match match: matches) {
 					Graph next = applyMatch(match);
-					if (!history.contains(next)) {
+					if (!contains(history, next)) {
 						history.add(next.clone());
 						result = next;
 //						counts.set(currentPatternIndex - 1, counts.get(currentPatternIndex - 1) + 1); //TODO: remove debug
@@ -88,6 +88,15 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 //		System.out.println("|history| = " + history.size()); //TODO: remove debug
 //		System.out.println(counts); //TODO: remove debug
 		return result;
+	}
+	
+	private static boolean contains(ArrayList<Graph> graphs, Graph graph) {
+		for (Graph g: graphs) {
+			if (GraphEngine.isIsomorphTo(g, graph)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

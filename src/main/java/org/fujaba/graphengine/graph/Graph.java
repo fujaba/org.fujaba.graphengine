@@ -11,7 +11,7 @@ import org.fujaba.graphengine.IdManager;
  * 
  * @author Philipp Kolodziej
  */
-public class Graph implements Cloneable, Comparable<Graph> {
+public class Graph implements Cloneable/*, Comparable<Graph>*/ {
 
 	/**
 	 * the nodes of this graph (in an ArrayList)
@@ -88,20 +88,20 @@ public class Graph implements Cloneable, Comparable<Graph> {
 		return clone;
 	}
 	
-	@Override
-	public int compareTo(Graph other) {
-		if (GraphEngine.isIsomorphTo(other, this)) {
-			return 0;
-		}
-		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(other));
-	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof Graph)) {
-			return false;
-		}
-		return compareTo((Graph)other) == 0;
-	}
+//	@Override
+//	public int compareTo(Graph other) {
+//		if (GraphEngine.isIsomorphTo(other, this)) {
+//			return 0;
+//		}
+//		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(other));
+//	}
+//	
+//	@Override
+//	public boolean equals(Object other) {
+//		if (!(other instanceof Graph)) {
+//			return false;
+//		}
+//		return compareTo((Graph)other) == 0;
+//	}
 
 }

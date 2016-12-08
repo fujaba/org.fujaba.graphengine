@@ -38,14 +38,14 @@ public class GraphTest {
 		String backToJson = gson.toJson(fromJson); // serialized back to json
 
 		// original graph and deserialized graph must be isomorph:
-		Assert.assertEquals(0, original.compareTo(fromJson));
+		Assert.assertTrue(GraphEngine.isIsomorphTo(original, fromJson));
 		// serialized json and re-serialized json should be identical:
 		Assert.assertEquals(toJson, backToJson);
 
 		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		Graph graph = original.clone();
 		Graph subGraph = original.clone();
-		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(GraphEngine.isIsomorphTo(graph, subGraph));
 		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		do { // all nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
@@ -54,7 +54,7 @@ public class GraphTest {
 		} while (subGraph.getNodes().size() > 0);
 		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		subGraph = original.clone();
-		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(GraphEngine.isIsomorphTo(graph, subGraph));
 		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		int totalEdgeCount;
 		do { // all edges will be deleted here, one after another
@@ -81,7 +81,7 @@ public class GraphTest {
 		} while (totalEdgeCount > 0);
 		// test graph for isomorphy and isomorphic sub-graph (expecting positive results):
 		subGraph = original.clone();
-		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(GraphEngine.isIsomorphTo(graph, subGraph));
 		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		int totalAttributeCount;
 		do { // all attributes will be deleted here, one after another
@@ -104,7 +104,7 @@ public class GraphTest {
 
 		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
-		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(GraphEngine.isIsomorphTo(graph,subGraph));
 		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		while (subGraph.getNodes().size() > 2) { // most nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
@@ -116,7 +116,7 @@ public class GraphTest {
 		Assert.assertFalse(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
-		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(GraphEngine.isIsomorphTo(graph,subGraph));
 		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		while (subGraph.getNodes().size() > 2) { // most nodes will be deleted here, one after another
 			int randomIndex = (int)(Math.random() * subGraph.getNodes().size());
@@ -128,7 +128,7 @@ public class GraphTest {
 		Assert.assertFalse(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		// test graph for isomorphy and isomorphic sub-graph (expecting negative results):
 		subGraph = original.clone();
-		Assert.assertTrue(graph.compareTo(subGraph) == 0);
+		Assert.assertTrue(GraphEngine.isIsomorphTo(graph, subGraph));
 		Assert.assertTrue(GraphEngine.isIsomorphicSubGraph(subGraph, graph));
 		// now we change an attribute to a different value
 		for (Node n: subGraph.getNodes()) {
