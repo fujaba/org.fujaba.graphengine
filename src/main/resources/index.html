@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style type="text/css">
+			#container {
+				height: 800px;
+				/* background-color: black; */
+			}
+		</style>
+	</head>
+	<body>
+		<script src="jacomyal-sigma.js/sigma.min.js"></script>
+		<div id="container">
+			<div id="graph-container"></div>
+		</div>
+		<script src="jacomyal-sigma.js/plugins/sigma.layout.forceAtlas2.min.js"></script>
+		<script src="jacomyal-sigma.js/plugins/sigma.renderers.edgeLabels.min.js"></script>
+		<script src="jacomyal-sigma.js/plugins/sigma.parsers.json.min.js"></script>
+		<script>
+			var s = new sigma({
+			  graph: {
+				  nodes: [],
+				  edges: []
+				},                                                 
+				renderer: {                                                        
+					container: "container",                                        
+					type: "canvas"                                                 
+				},    
+			  settings: {
+				drawEdges: true,
+				defaultEdgeType: 'arrow'
+			  }
+			});
+			sigma.parsers.json(
+			  'data.json',
+			  s,
+			  function() {
+				s.refresh();
+				// Start the ForceAtlas2 algorithm:
+				s.startForceAtlas2({worker: true, barnesHutOptimize: true, gravity: 0.1, linLogMode: true, iterationsPerRender: 2});
+			  }
+			);
+		</script>
+	</body>
+</html>

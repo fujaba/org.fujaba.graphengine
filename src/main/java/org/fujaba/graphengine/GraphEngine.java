@@ -1,5 +1,8 @@
 package org.fujaba.graphengine;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,6 +10,7 @@ import java.util.HashSet;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.graph.adapter.GraphAdapter;
+import org.fujaba.graphengine.graph.adapter.GraphToSigmaJsAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
@@ -45,6 +49,27 @@ public class GraphEngine {
 					.create();
 		}
 		return gson;
+	}
+
+	/**
+	 * Getter for the GraphEngine's gson
+	 * 
+	 * @return a gson-Object with the necessary custom TypeAdapters.
+	 */
+	public static Gson getGsonForSigmaJs() {
+		return new GsonBuilder()
+			.registerTypeAdapter(Graph.class, new GraphToSigmaJsAdapter())
+//				.setPrettyPrinting()
+//				.serializeNulls()
+			.create();
+	}
+	
+	public static void prepareGraphAsJsonFileForSigmaJs(Graph graph) {
+		try (Writer writer = new FileWriter("src/main/resources/data.json")) {
+			getGsonForSigmaJs().toJson(graph, writer);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**

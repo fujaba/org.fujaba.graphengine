@@ -82,12 +82,12 @@ public class PatternEngine {
 				if (index != -1) {
 					// just build edge to an existing node
 					Node target = findGraphInReachabilityGraph(rg, successor);
-					source.addEdge(match.toString(), target);
+					source.addEdge(match.getPattern().toString(), target);
 				} else {
 					// add a new node
 					Node target = new Node().setAttribute("graph", successor.toString());
 					rg.addNode(target);
-					source.addEdge(match.toString(), target);
+					source.addEdge(match.getPattern().toString(), target);
 					added.add(successor);
 					unprocessed.add(successor);
 				}
