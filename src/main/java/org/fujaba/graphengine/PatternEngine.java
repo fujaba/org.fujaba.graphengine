@@ -32,6 +32,94 @@ public class PatternEngine {
 		return applyPatterns(graph, patterns, single);
 	}
 	
+	public static Graph calculateReachabilityGraph(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
+		// TODO: do comments later, this is a work in progress
+		/*
+		 * ok right now i think im going for this priority concept, where i have an arraylist of 'priority-levels'
+		 * inside each priority-level, there's a list of patterns to match.
+		 * 
+		 * the first level, where there's a match found inside is used -> children of that graph will be all graphs
+		 * with the applied matches of that level and that level alone.
+		 * 
+		 * with this approach im kind of very flexible on whatever priority concept really will be needed!
+		 */
+		
+		/*
+		 * the graph itself is made up like this:
+		 * 
+		 * each node represents a graph and has an attribute 'graph' and as value the serialized graph.
+		 * the edges represent the application of a certain pattern-graph, with its serialization as a node-name.
+		 * 
+		 */
+		
+		/*
+		 * the algorithm for calculating the graph itself is like this:
+		 * 
+		 * first add the base-graph itself to the RG. and add it to a list with unprocessed nodes.
+		 * from then on go though all unprocessed nodes and check for successors,
+		 * add them according to the naming scheme to the RG and add em to the list of unprocessed nodes.
+		 * and so on.
+		 * 
+		 * just take care when finding successors, to always check if they were already existing,
+		 * if they did, make the edge go to the previously added nodes in the EG and DON'T add them to the list
+		 * of unprocessed nodes. just as simple as that...
+		 */
+		
+		// so let's go
+		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
+		ArrayList<Graph> added = new ArrayList<Graph>();
+		ArrayList<Graph> unprocessed = new ArrayList<Graph>();
+		added.add(graph);
+		unprocessed.add(graph);
+		while (unprocessed.size() > 0) {
+			ArrayList<Match> matches = calculateReachabilityNodeMatches(unprocessed.get(0), patterns);
+			Node source = findGraphInReachabilityGraph(rg, unprocessed.get(0));
+			for (Match match: matches) {
+				Graph successor = applyMatch(match);
+				int index = indexOf(added, successor);
+				if (index != -1) {
+					// just build edge to an existing node
+					Node target = findGraphInReachabilityGraph(rg, successor);
+					source.addEdge(match.toString(), target);
+				} else {
+					// add a new node
+					Node target = new Node().setAttribute("graph", successor.toString());
+					rg.addNode(target);
+					source.addEdge(match.toString(), target);
+					added.add(successor);
+					unprocessed.add(successor);
+				}
+			}
+			unprocessed.remove(0);
+		}
+		return rg;
+	}
+	
+	private static Node findGraphInReachabilityGraph(Graph rg, Graph node) {
+		String serialization = node.toString();
+		for (Node found: rg.getNodes()) {
+			if (serialization.equals(found.getAttribute("graph"))) {
+				return found;
+			}
+		}
+		return null;
+	}
+	
+	private static ArrayList<Match> calculateReachabilityNodeMatches(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
+		ArrayList<Match> result = new ArrayList<Match>();
+		for (int i = 0; i < patterns.size(); ++i) {
+			ArrayList<PatternGraph> priorityLevel = patterns.get(i);
+			for (int j = 0; j < priorityLevel.size(); ++j) {
+				PatternGraph pattern = priorityLevel.get(j);
+				result.addAll(matchPattern(graph, pattern, false));
+			}
+			if (result.size() > 0) {
+				return result;
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * matches and directly applies a pattern as often as possible,
 	 * without revisiting graphs, that were already used (preventing endless cycles).
@@ -42,6 +130,7 @@ public class PatternEngine {
 	 * @return the resulting graph
 	 */
 	public static Graph applyPatterns(Graph graph, ArrayList<PatternGraph> patterns, boolean single) {
+		// TODO: whatever this method is, i don't think this is necessary, especially after reachability graphs are implemented
 		if (graph == null) {
 			return null;
 		}
@@ -65,7 +154,7 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 				}
 				for (Match match: matches) {
 					Graph next = applyMatch(match);
-					if (!contains(history, next)) {
+					if (indexOf(history, next) == -1) {
 						history.add(next.clone());
 						result = next;
 						if (single) {
@@ -81,13 +170,14 @@ loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
 		return result;
 	}
 	
-	private static boolean contains(ArrayList<Graph> graphs, Graph graph) {
-		for (Graph g: graphs) {
+	private static int indexOf(ArrayList<Graph> graphs, Graph graph) {
+		for (int i = 0; i < graphs.size(); ++i) {
+			Graph g = graphs.get(i);
 			if (GraphEngine.isIsomorphTo(g, graph)) {
-				return true;
+				return i;
 			}
 		}
-		return false;
+		return -1;
 	}
 
 	/**
