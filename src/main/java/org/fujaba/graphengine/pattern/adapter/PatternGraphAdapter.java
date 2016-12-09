@@ -33,6 +33,7 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 		for (PatternNode node: graph.getPatternNodes()) {
 			// the part for the node begins
 		    out.beginObject();
+		    out.name("expression").value(node.getAttributeMatchExpression());
 	    	out.name("action").value(node.getAction());
 		    out.name("id").value(idManager.getId(node));
 		    out.name("attributes");
@@ -90,6 +91,9 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 	    	    	in.beginObject();
 		    	    while (in.hasNext()) {
 		    	    	switch (in.nextName()) {
+		    	    	case "expression":
+		    	    		node.setAttributeMatchExpression(in.nextString());
+		    	    		break;
 		    	    	case "action":
 		    	    		node.setAction(in.nextString());
 		    	    		break;

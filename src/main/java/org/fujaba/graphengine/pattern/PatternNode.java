@@ -10,11 +10,9 @@ import java.util.ArrayList;
 public class PatternNode extends PatternElement {
 	
 	/**
-	 * public constructor, setting default value of action-attribute to "==" (match).
+	 * a jeval expression to match attributes
 	 */
-	public PatternNode() {
-		setAction("==");
-	}
+	private String attributeMatchExpression;
 	/**
 	 * the PatternAttributes of this PatternNode
 	 */
@@ -24,6 +22,22 @@ public class PatternNode extends PatternElement {
 	 */
 	private ArrayList<PatternEdge> patternEdges = new ArrayList<PatternEdge>();
 
+	
+	/**
+	 * public constructor, setting default value of action-attribute to "==" (match).
+	 */
+	public PatternNode() {
+		setAction("==");
+	}
+	
+
+	public String getAttributeMatchExpression() {
+		return attributeMatchExpression;
+	}
+	public PatternNode setAttributeMatchExpression(String attributeMatchExpression) {
+		this.attributeMatchExpression = attributeMatchExpression;
+		return this;
+	}
 	public ArrayList<PatternAttribute> getPatternAttributes() {
 		return patternAttributes;
 	}

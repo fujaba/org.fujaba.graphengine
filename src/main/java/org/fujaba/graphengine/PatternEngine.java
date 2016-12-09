@@ -11,6 +11,8 @@ import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
 
+import net.sourceforge.jeval.Evaluator;
+
 /**
  * The PatternEngine contains all logic concerning PatternGraphs.
  * 
@@ -215,10 +217,13 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 						continue;
 					}
 					// other attributes are being checked ("==" and "-" are checked normally; "!=" is checked negatively)
-					boolean attributeValueMatch = patternAttribute.getValue().equals(node.getAttribute(patternAttribute.getName()));
+					boolean attributeValueMatch = PatternEngine.evaluate(node, patternAttribute.getValue());
 					if (("!=".equals(patternAttribute.getAction()) && attributeValueMatch) || (!"!=".equals(patternAttribute.getAction()) && !attributeValueMatch)) {
 						continue nodes;
 					}
+				}
+				if (!PatternEngine.evaluate(node, patternNode.getAttributeMatchExpression())) {
+					continue nodes;
 				}
 				// now edges are being checked 'loosely'
 				for (int k = 0; k < patternNode.getPatternEdges().size(); ++k) {
@@ -467,6 +472,41 @@ negativeCheck:		do {
 			}
 		}
 		return clonedGraph;
+	}
+	
+	public static boolean evaluate(Node node, String expression) {
+		return evaluate(buildNodeEvaluator(node), expression);
+	}
+	public static Evaluator buildNodeEvaluator(Node node) {
+		Evaluator evaluator = new Evaluator();
+		for (String key: node.getAttributes().keySet()) {
+			if (node.getAttribute(key) instanceof String) {
+				// Strings are contained in single quotes:
+				evaluator.putVariable(key, "'" + node.getAttribute(key) + "'");
+			} else if (node.getAttribute(key) instanceof Boolean) {
+				// Booleans are handled as 1 (or 1.0) respectively 0 (or 0.0):
+				evaluator.putVariable(key, "" + ((boolean)node.getAttribute(key) ? "1.0" : "0.0"));
+			} else {
+				// other values like numbers are just written as is:
+				evaluator.putVariable(key, "" + node.getAttribute(key));
+			}
+		}
+		return evaluator;
+	}
+	public static boolean evaluate(Evaluator evaluator, String expression) {
+		// 'no condition' is always fulfilled:
+		if (expression == null || "".equals(expression)) {
+			return true;
+		}
+		boolean matched = false;
+		try {
+			// the expression must yield a boolean value, so "1.0" means true, "0.0" means false:
+			matched = "1.0".equals(evaluator.evaluate(expression)); // calls the expression library
+		} catch (Throwable t) {
+			// error means, the condition isn't fulfulled:
+			matched = false;
+		}
+		return matched;
 	}
 	
 }

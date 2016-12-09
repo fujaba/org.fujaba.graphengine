@@ -1,6 +1,7 @@
 package org.fujaba.graphengine.unitTests;
 
 import org.junit.Test;
+import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.junit.Assert;
@@ -56,12 +57,7 @@ public class TestUseExpressionLibrary {
 
 		boolean matched = false;
 		for (Node node: graph.getNodes()) {
-			Evaluator eval = buildNodeEvaluator(node);
-			try {
-				matched = "1.0".equals(eval.evaluate(expression));
-			} catch (Throwable t) {
-				matched = false;
-			}
+			matched = PatternEngine.evaluate(node, expression);
 			if (matched) {
 				break;
 			}
@@ -69,19 +65,7 @@ public class TestUseExpressionLibrary {
 		Assert.assertTrue(matched);
 	}
 	
-	private Evaluator buildNodeEvaluator(Node node) {
-		Evaluator evaluator = new Evaluator();
-		for (String key: node.getAttributes().keySet()) {
-			if (node.getAttribute(key) instanceof String) {
-				evaluator.putVariable(key, "'" + node.getAttribute(key) + "'");
-			} else if (node.getAttribute(key) instanceof Boolean) {
-				evaluator.putVariable(key, "" + ((boolean)node.getAttribute(key) ? "1.0" : "0.0"));
-			} else {
-				evaluator.putVariable(key, "" + node.getAttribute(key));
-			}
-		}
-		return evaluator;
-	}
+
 	
 	private Graph getFerrymansGraph() {
 		Graph ferrymansGraph = new Graph();

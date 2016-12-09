@@ -167,12 +167,9 @@ public class PatternTest {
 	private PatternGraph getEatingRule() {
 		PatternNode cargoEats = new PatternNode(), cargoGetsEaten = new PatternNode(), ferry = new PatternNode(), bank = new PatternNode();
 		return new PatternGraph()
-		.addPatternNode(cargoEats.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Cargo")
-		).addPatternEdge(new PatternEdge()
-				.setAction("==")
+		.addPatternNode(cargoEats
+				.setAttributeMatchExpression("#{type} == 'Cargo'")
+		.addPatternEdge(new PatternEdge()
 				.setSource(cargoEats)
 				.setName("at")
 				.setTarget(bank)
@@ -184,36 +181,30 @@ public class PatternTest {
 		)).addPatternNode(cargoGetsEaten.setAction("-").addPatternAttribute(new PatternAttribute()
 				.setAction("-")
 				.setName("type")
-				.setValue("Cargo")
+				.setValue("#{type} == 'Cargo'")
 		).addPatternEdge(new PatternEdge()
 				.setAction("-")
 				.setSource(cargoGetsEaten)
 				.setName("at")
 				.setTarget(bank)
-		)).addPatternNode(ferry.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Ferry")
-		).addPatternEdge(new PatternEdge()
+		)).addPatternNode(ferry
+				.setAttributeMatchExpression("#{type} == 'Ferry'")
+		.addPatternEdge(new PatternEdge()
 				.setAction("!=")
 				.setSource(ferry)
 				.setName("at")
 				.setTarget(bank)
-		)).addPatternNode(bank.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Bank")
-		));
+		)).addPatternNode(bank
+				.setAttributeMatchExpression("#{type} == 'Bank'")
+		);
 	}
 	
 	private PatternGraph getTranportRule() {
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
 		return new PatternGraph()
-		.addPatternNode(cargo.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Cargo")
-		).addPatternEdge(new PatternEdge()
+		.addPatternNode(cargo
+				.setAttributeMatchExpression("#{type} == 'Cargo'")
+		.addPatternEdge(new PatternEdge()
 				.setAction("-")
 				.setSource(cargo)
 				.setName("at")
@@ -223,11 +214,9 @@ public class PatternTest {
 				.setSource(cargo)
 				.setName("at")
 				.setTarget(bankThere)
-		)).addPatternNode(ferry.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Ferry")
-		).addPatternEdge(new PatternEdge()
+		)).addPatternNode(ferry
+				.setAttributeMatchExpression("#{type} == 'Ferry'")
+		.addPatternEdge(new PatternEdge()
 				.setAction("-")
 				.setSource(ferry)
 				.setName("at")
@@ -237,30 +226,23 @@ public class PatternTest {
 				.setSource(ferry)
 				.setName("at")
 				.setTarget(bankThere)
-		)).addPatternNode(bankHere.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Bank")
-		).addPatternEdge(new PatternEdge()
-				.setAction("==")
+		)).addPatternNode(bankHere
+				.setAttributeMatchExpression("#{type} == 'Bank'")
+		.addPatternEdge(new PatternEdge()
 				.setSource(bankHere)
 				.setName("opposite")
 				.setTarget(bankThere)
-		)).addPatternNode(bankThere.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Bank")
-		));
+		)).addPatternNode(bankThere
+				.setAttributeMatchExpression("#{type} == 'Bank'")
+		);
 	}
 	
 	private PatternGraph getEmptyTranportRule() {
 		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
 		return new PatternGraph()
-		.addPatternNode(ferry.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Ferry")
-		).addPatternEdge(new PatternEdge()
+		.addPatternNode(ferry
+				.setAttributeMatchExpression("#{type} == 'Ferry'")
+		.addPatternEdge(new PatternEdge()
 				.setAction("-")
 				.setSource(ferry)
 				.setName("at")
@@ -270,20 +252,15 @@ public class PatternTest {
 				.setSource(ferry)
 				.setName("at")
 				.setTarget(bankThere)
-		)).addPatternNode(bankHere.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Bank")
-		).addPatternEdge(new PatternEdge()
-				.setAction("==")
+		)).addPatternNode(bankHere
+				.setAttributeMatchExpression("#{type} == 'Bank'")
+		.addPatternEdge(new PatternEdge()
 				.setSource(bankHere)
 				.setName("opposite")
 				.setTarget(bankThere)
-		)).addPatternNode(bankThere.setAction("==").addPatternAttribute(new PatternAttribute()
-				.setAction("==")
-				.setName("type")
-				.setValue("Bank")
-		));
+		)).addPatternNode(bankThere
+				.setAttributeMatchExpression("#{type} == 'Bank'")
+		);
 	}
 	
 	private Graph getFerrymansGraph() {
