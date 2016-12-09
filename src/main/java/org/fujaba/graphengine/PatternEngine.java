@@ -212,13 +212,7 @@ nodes:			for (int i = 0; i < couldMatch.size(); ++i) {
 				}
 				if (!fail) {
 					boolean foundNoNastyNegativeNode = true;
-					// TODO: the absolute final check is to look for those negative nodes we previously skipped
-					/*
-					 * info:
-					 * negative nodes, their attributes and edges **TO** and from them all weren't handled, yet.
-					 * 
-					 * but in negativeCouldMatch, we have possible matches for those nasty negative nodes
-					 */
+					// the absolute final check is to look for those negative nodes we previously skipped
 					boolean canTryAnotherNegative = false;
 					ArrayList<Integer> currentNegativeTry = new ArrayList<Integer>();
 					// we initialize the indices for candidates for each negative node of the pattern:
@@ -274,10 +268,27 @@ negativeCheck:		do {
 										continue nodes;
 									}
 								}
-								
-								// TODO: annoyingly, here the incoming edges from non-negative nodes have to be checked, too
-								
-								
+								// annoyingly, here the incoming edges from non-negative nodes have to be checked, too
+								int incomingSourceCount = 0;
+								for (int j = 0; j < couldMatch.size(); ++j) {
+									while ("+".equals(pattern.getPatternNodes().get(incomingSourceCount).getAction()) || "!=".equals(pattern.getPatternNodes().get(incomingSourceCount).getAction())) {
+										++incomingSourceCount;
+									}
+									PatternNode patternNodeIncomingToNegative = pattern.getPatternNodes().get(incomingSourceCount);
+									++incomingSourceCount;
+									for (PatternEdge patternEdge: patternNodeIncomingToNegative.getPatternEdges()) {
+										// confusing but true: 'sourcePatternNode' is the target here...
+										if (!patternEdge.getTarget().equals(sourcePatternNode)) {
+											continue;
+										}
+										boolean isThere = mapping.get(patternNodeIncomingToNegative).getEdges(patternEdge.getName()).contains(negativeMapping.get(sourcePatternNode));
+										// edges with "==", "-" are checked normally, edges with "!=" are checked negatively:
+										if (("!=".equals(patternEdge.getAction()) && isThere) || (!"!=".equals(patternEdge.getAction()) && !isThere)) {
+											negativeFail = true;
+											continue nodes;
+										}
+									}
+								}
 								if (!negativeFail) {
 									// a SINGLE negative node was matched -> the WHOLE pattern fails!!
 									foundNoNastyNegativeNode = false;
@@ -297,11 +308,6 @@ negativeCheck:		do {
 							}
 						}
 					} while (canTryAnotherNegative);
-					
-					
-					
-					
-					
 					if (foundNoNastyNegativeNode) {
 						matches.add(new Match(graph, pattern, mapping));
 						if (single) {
