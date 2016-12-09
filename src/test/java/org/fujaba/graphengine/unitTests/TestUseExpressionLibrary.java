@@ -52,7 +52,7 @@ public class TestUseExpressionLibrary {
 	public void testUseExpressionLibraryOnFerrymansGraph() {
 		Graph graph = getFerrymansGraph();
 		
-		String expression = "#{type} == 'Cargo' && #{species} == 'Wolf' && #{count} < 5";
+		String expression = "#{type} == 'Cargo' && #{species} == 'Wolf' && (#{count} < 5 || #{count} > 1000) && #{existant} == 1.0";
 
 		boolean matched = false;
 		for (Node node: graph.getNodes()) {
@@ -74,6 +74,8 @@ public class TestUseExpressionLibrary {
 		for (String key: node.getAttributes().keySet()) {
 			if (node.getAttribute(key) instanceof String) {
 				evaluator.putVariable(key, "'" + node.getAttribute(key) + "'");
+			} else if (node.getAttribute(key) instanceof Boolean) {
+				evaluator.putVariable(key, "" + ((boolean)node.getAttribute(key) ? "1.0" : "0.0"));
 			} else {
 				evaluator.putVariable(key, "" + node.getAttribute(key));
 			}
@@ -85,12 +87,12 @@ public class TestUseExpressionLibrary {
 		Graph ferrymansGraph = new Graph();
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
 		ferrymansGraph.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
-		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").setAttribute("count", 1).addEdge("eats", goat).addEdge("at", north);
-		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").setAttribute("count", 1).addEdge("eats", cabbage).addEdge("at", north);
-		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").setAttribute("count", 5).addEdge("at", north);
-		ferry.setAttribute("type", "Ferry").setAttribute("count", 1).addEdge("at", north);
-		north.setAttribute("type", "Bank").setAttribute("side", "north").setAttribute("count", 1).addEdge("opposite", south);
-		south.setAttribute("type", "Bank").setAttribute("side", "south").setAttribute("count", 1).addEdge("opposite", north);
+		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").setAttribute("count", 1).setAttribute("existant", true).addEdge("eats", goat).addEdge("at", north);
+		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").setAttribute("count", 1).setAttribute("existant", true).addEdge("eats", cabbage).addEdge("at", north);
+		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").setAttribute("count", 5).setAttribute("existant", true).addEdge("at", north);
+		ferry.setAttribute("type", "Ferry").setAttribute("count", 1).setAttribute("existant", true).addEdge("at", north);
+		north.setAttribute("type", "Bank").setAttribute("side", "north").setAttribute("count", 1).setAttribute("existant", true).addEdge("opposite", south);
+		south.setAttribute("type", "Bank").setAttribute("side", "south").setAttribute("count", 1).setAttribute("existant", true).addEdge("opposite", north);
 		return ferrymansGraph;
 	}
 	
