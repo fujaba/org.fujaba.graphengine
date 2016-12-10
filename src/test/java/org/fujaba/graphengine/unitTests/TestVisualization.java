@@ -59,8 +59,8 @@ public class TestVisualization {
 	
 	private PatternGraph getTranportRule() {
 		PatternGraph pattern = new PatternGraph();
-		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
-		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere);
+		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
+		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
 		cargo.setAttributeMatchExpression("#{type} == 'Cargo'");
 		cargo.addPatternEdge(new PatternEdge()
 			.setAction("-")
@@ -94,6 +94,23 @@ public class TestVisualization {
 			.setTarget(bankThere)
 		);
 		bankThere.setAttributeMatchExpression("#{type} == 'Bank'");
+		
+		eater.setAttributeMatchExpression("#{type} == 'Cargo'");
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("eats")
+				.setTarget(getsEaten));
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("at")
+				.setTarget(bankHere));
+		eater.setAction("!=");
+		getsEaten.setAttributeMatchExpression("#{type} == 'Cargo'");
+		getsEaten.addPatternEdge(new PatternEdge()
+				.setTarget(getsEaten)
+				.setName("at")
+				.setTarget(bankHere));
+		getsEaten.setAction("!=");
 		return pattern;
 	}
 	

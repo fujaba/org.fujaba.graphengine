@@ -360,7 +360,7 @@ negativeCheck:		do {
 									// edges with "==", "-" are checked normally, edges with "!=" are checked negatively:
 									if (("!=".equals(patternEdge.getAction()) && isThere) || (!"!=".equals(patternEdge.getAction()) && !isThere)) {
 										negativeFail = true;
-										continue nodes;
+										break nodes;
 									}
 								}
 								// annoyingly, here the incoming edges from non-negative nodes have to be checked, too
@@ -380,16 +380,16 @@ negativeCheck:		do {
 										// edges with "==", "-" are checked normally, edges with "!=" are checked negatively:
 										if (("!=".equals(patternEdge.getAction()) && isThere) || (!"!=".equals(patternEdge.getAction()) && !isThere)) {
 											negativeFail = true;
-											continue nodes;
+											break nodes;
 										}
 									}
 								}
-								if (!negativeFail) {
-									// a SINGLE negative node was matched -> the WHOLE pattern fails!!
-									foundNoNastyNegativeNode = false;
-									// make it fail, to continue the search:
-									break negativeCheck;
-								}
+							}
+							if (!negativeFail) {
+								// a SINGLE negative node was matched -> the WHOLE pattern fails!!
+								foundNoNastyNegativeNode = false;
+								// make it fail, to continue the search:
+								break negativeCheck;
 							}
 						}
 						for (int i = 0; i < currentNegativeTry.size(); ++i) { //TODO: do the thing that drastically improved performance of isomorphic checks!
@@ -403,7 +403,16 @@ negativeCheck:		do {
 							}
 						}
 					} while (canTryAnotherNegative);
-					if (foundNoNastyNegativeNode) {
+					boolean noProblemWithNegativeNodes = false;
+					if (negativeCouldMatch.size() == 0) {
+						noProblemWithNegativeNodes = true;
+					}
+					for (ArrayList<Node> possible: negativeCouldMatch) {
+						if (possible.size() == 0) {
+							noProblemWithNegativeNodes = true;
+						}
+					}
+					if (foundNoNastyNegativeNode || noProblemWithNegativeNodes) {
 						matches.add(new Match(graph, pattern, mapping));
 						if (single) {
 							return matches;

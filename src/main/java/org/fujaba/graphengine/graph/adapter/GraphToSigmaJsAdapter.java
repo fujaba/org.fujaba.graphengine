@@ -24,10 +24,10 @@ public class GraphToSigmaJsAdapter extends TypeAdapter<Graph> {
 	}
 
 	private double getX(int index, int total) {
-		return Math.cos((double)index / (double)total * 2 * Math.PI);
+		return -Math.sin((double)index / (double)total * 2 * Math.PI);
 	}
 	private double getY(int index, int total) {
-		return Math.sin((double)index / (double)total * 2 * Math.PI);
+		return -Math.cos((double)index / (double)total * 2 * Math.PI);
 	}
 	
 	@Override
