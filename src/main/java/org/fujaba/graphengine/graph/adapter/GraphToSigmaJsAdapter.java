@@ -24,10 +24,10 @@ public class GraphToSigmaJsAdapter extends TypeAdapter<Graph> {
 	}
 
 	private double getX(int index, int total) {
-		return -Math.sin((double)index / (double)total * 2 * Math.PI);
+		return -Math.sin((double)index / (double)total * 2 * Math.PI) / 10;
 	}
 	private double getY(int index, int total) {
-		return -Math.cos((double)index / (double)total * 2 * Math.PI);
+		return -Math.cos((double)index / (double)total * 2 * Math.PI) / 10;
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class GraphToSigmaJsAdapter extends TypeAdapter<Graph> {
 			out.name("label").value(getNodeLabel(node));
 			out.name("x").value(getX(i, graph.getNodes().size()));
 			out.name("y").value(getY(i, graph.getNodes().size()));
-			out.name("size").value(1);
+			out.name("size").value(10);
 			if (i == 0) {
 				out.name("color").value("#00F");
 			} else {
@@ -64,10 +64,11 @@ public class GraphToSigmaJsAdapter extends TypeAdapter<Graph> {
 				for (Node targetNode: node.getEdges(key)) {
 					out.beginObject();
 					out.name("id").value(count);
+					out.name("label").value(key);
 					out.name("source").value(idManager.getId(node));
 					out.name("target").value(idManager.getId(targetNode));
-					out.name("label").value(key);
-					out.name("color").value("#000");
+					out.name("size").value(10);
+					out.name("color").value("#888");
 					out.endObject();
 					++count;
 				}

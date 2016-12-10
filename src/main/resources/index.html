@@ -9,13 +9,18 @@
 		</style>
 	</head>
 	<body>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.0/sigma.min.js"></script>
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.0/sigma.min.js"></script>-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/linkurious.js/1.5.1/sigma.min.js"></script>
 		<div id="container">
 			<div id="graph-container"></div>
 		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.0/plugins/sigma.layout.forceAtlas2.min.js"></script>
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/linkurious.js/1.5.1/plugins/sigma.layout.forceAtlas2.min.js"></script>-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.0/plugins/sigma.renderers.edgeLabels.min.js"></script>
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/linkurious.js/1.5.1/plugins/sigma.renderers.edgeLabels.min.js"></script>-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/sigma.js/1.2.0/plugins/sigma.parsers.json.min.js"></script>
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/linkurious.js/1.5.1/plugins/sigma.parsers.json.min.js"></script>-->
+		
 		<script>
 			var s = new sigma({
 			  graph: {
@@ -28,7 +33,14 @@
 				},    
 			  settings: {
 				drawEdges: true,
-				defaultEdgeType: 'arrow'
+				defaultEdgeType: 'curvedArrow',
+				minArrowSize: 10,
+				minEdgeSize: 2,
+				minNodeSize: 2,
+				labelAlignment: 'bottom',
+				labelThreshold: 0,
+				edgeLabelThreshold: 0,
+				//maxNodeLabelLineLength: 5
 			  }
 			});
 			sigma.parsers.json(

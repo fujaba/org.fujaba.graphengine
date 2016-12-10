@@ -22,7 +22,6 @@ public class TestVisualization {
 		patterns.get(patterns.size() - 1).add(getTranportRule());
 		patterns.get(patterns.size() - 1).add(getEmptyTranportRule());
 		graph = PatternEngine.calculateReachabilityGraph(graph, patterns);
-		System.out.println(graph.getNodes().size());
 		long count = graph.getNodes().size();
 		for (int i = 0; i < graph.getNodes().size(); ++i) {
 			Node node = graph.getNodes().get(i);
