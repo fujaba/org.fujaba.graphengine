@@ -239,9 +239,9 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 				}
 				// so this node seems to be a candidate for the pattern's node => we add it to a list
 				if (!"!=".equals(patternNode.getAction())) {
-					couldMatch.get(i).add(node);
+					couldMatch.get(couldMatch.size() - 1).add(node);
 				} else {
-					negativeCouldMatch.get(i).add(node);
+					negativeCouldMatch.get(negativeCouldMatch.size() - 1).add(node);
 				}
 			}
 			// if there's not even one loosely matched candidate, there will be no match at all => return empty list!

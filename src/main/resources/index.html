@@ -37,7 +37,26 @@
 			  function() {
 				s.refresh();
 				// Start the ForceAtlas2 algorithm:
-				s.startForceAtlas2({worker: true, barnesHutOptimize: true, gravity: 0.1, linLogMode: true, iterationsPerRender: 2});
+				s.startForceAtlas2({
+					gravity: 0.5,
+					slowDown: 2,
+					iterationsPerRender: 2
+				});
+				/*s.startForceAtlas2({
+				    linLogMode: false, 							// boolean  (false)
+				    outboundAttractionDistribution: false, 		// boolean  (false)
+				    adjustSizes: false, 						// boolean  (false)
+				    edgeWeightInfluence: 0, 					// number   (0)
+				    scalingRatio: 1, 							// number   (1)
+				    strongGravityMode: false, 					// boolean  (false)
+				    gravity number 1, 							// number   (1)
+				    barnesHutOptimize: true, 					// boolean  (true)
+				    barnesHutTheta: 0.5, 						// number   (0.5)
+				    slowDown: 1, 								// number   (1)
+				    startingIterations: 1, 						// integer  (1)
+				    iterationsPerRender: 1, 					// integer  (1)
+				    worker: true 								// boolean  (true)
+				});*/
 			  }
 			);
 		</script>

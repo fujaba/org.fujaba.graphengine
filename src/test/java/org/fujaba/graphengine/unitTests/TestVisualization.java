@@ -8,7 +8,6 @@ import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
@@ -20,8 +19,6 @@ public class TestVisualization {
 		Graph graph = getFerrymansGraph();
 		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
 		patterns.add(new ArrayList<PatternGraph>()); // highest priority
-		patterns.get(patterns.size() - 1).add(getEatingRule());
-		patterns.add(new ArrayList<PatternGraph>()); // lower priority
 		patterns.get(patterns.size() - 1).add(getTranportRule());
 		patterns.get(patterns.size() - 1).add(getEmptyTranportRule());
 		graph = PatternEngine.calculateReachabilityGraph(graph, patterns);
@@ -60,103 +57,88 @@ public class TestVisualization {
 		return ferrymansGraph;
 	}
 	
-	private PatternGraph getEatingRule() {
-		PatternNode cargoEats = new PatternNode(), cargoGetsEaten = new PatternNode(), ferry = new PatternNode(), bank = new PatternNode();
-		return new PatternGraph()
-		.addPatternNode(cargoEats
-				.setAttributeMatchExpression("#{type} == 'Cargo'")
-		.addPatternEdge(new PatternEdge()
-				.setSource(cargoEats)
-				.setName("at")
-				.setTarget(bank)
-		).addPatternEdge(new PatternEdge()
-				.setAction("-")
-				.setSource(cargoEats)
-				.setName("eats")
-				.setTarget(cargoGetsEaten)
-		)).addPatternNode(cargoGetsEaten.setAction("-").addPatternAttribute(new PatternAttribute()
-				.setAction("-")
-				.setName("type")
-				.setValue("#{type} == 'Cargo'")
-		).addPatternEdge(new PatternEdge()
-				.setAction("-")
-				.setSource(cargoGetsEaten)
-				.setName("at")
-				.setTarget(bank)
-		)).addPatternNode(ferry
-				.setAttributeMatchExpression("#{type} == 'Ferry'")
-		.addPatternEdge(new PatternEdge()
-				.setAction("!=")
-				.setSource(ferry)
-				.setName("at")
-				.setTarget(bank)
-		)).addPatternNode(bank
-				.setAttributeMatchExpression("#{type} == 'Bank'")
-		);
-	}
-	
 	private PatternGraph getTranportRule() {
+		PatternGraph pattern = new PatternGraph();
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
-		return new PatternGraph()
-		.addPatternNode(cargo
-				.setAttributeMatchExpression("#{type} == 'Cargo'")
-		.addPatternEdge(new PatternEdge()
-				.setAction("-")
-				.setSource(cargo)
-				.setName("at")
-				.setTarget(bankHere)
-		).addPatternEdge(new PatternEdge()
-				.setAction("+")
-				.setSource(cargo)
-				.setName("at")
-				.setTarget(bankThere)
-		)).addPatternNode(ferry
-				.setAttributeMatchExpression("#{type} == 'Ferry'")
-		.addPatternEdge(new PatternEdge()
-				.setAction("-")
-				.setSource(ferry)
-				.setName("at")
-				.setTarget(bankHere)
-		).addPatternEdge(new PatternEdge()
-				.setAction("+")
-				.setSource(ferry)
-				.setName("at")
-				.setTarget(bankThere)
-		)).addPatternNode(bankHere
-				.setAttributeMatchExpression("#{type} == 'Bank'")
-		.addPatternEdge(new PatternEdge()
-				.setSource(bankHere)
-				.setName("opposite")
-				.setTarget(bankThere)
-		)).addPatternNode(bankThere
-				.setAttributeMatchExpression("#{type} == 'Bank'")
+		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere);
+		cargo.setAttributeMatchExpression("#{type} == 'Cargo'");
+		cargo.addPatternEdge(new PatternEdge()
+			.setAction("-")
+			.setSource(cargo)
+			.setName("at")
+			.setTarget(bankHere)
 		);
+		cargo.addPatternEdge(new PatternEdge()
+			.setAction("+")
+			.setSource(cargo)
+			.setName("at")
+			.setTarget(bankThere)
+		);
+		ferry.setAttributeMatchExpression("#{type} == 'Ferry'");
+		ferry.addPatternEdge(new PatternEdge()
+			.setAction("-")
+			.setSource(ferry)
+			.setName("at")
+			.setTarget(bankHere)
+		);
+		ferry.addPatternEdge(new PatternEdge()
+			.setAction("+")
+			.setSource(ferry)
+			.setName("at")
+			.setTarget(bankThere)
+		);
+		bankHere.setAttributeMatchExpression("#{type} == 'Bank'");
+		bankHere.addPatternEdge(new PatternEdge()
+			.setSource(bankHere)
+			.setName("opposite")
+			.setTarget(bankThere)
+		);
+		bankThere.setAttributeMatchExpression("#{type} == 'Bank'");
+		return pattern;
 	}
 	
 	private PatternGraph getEmptyTranportRule() {
-		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
-		return new PatternGraph()
-		.addPatternNode(ferry
-				.setAttributeMatchExpression("#{type} == 'Ferry'")
-		.addPatternEdge(new PatternEdge()
+		PatternGraph pattern = new PatternGraph();
+		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
+		pattern.addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
+		ferry.setAttributeMatchExpression("#{type} == 'Ferry'");
+		ferry.addPatternEdge(new PatternEdge()
 				.setAction("-")
 				.setSource(ferry)
 				.setName("at")
 				.setTarget(bankHere)
-		).addPatternEdge(new PatternEdge()
+		);
+		ferry.addPatternEdge(new PatternEdge()
 				.setAction("+")
 				.setSource(ferry)
 				.setName("at")
 				.setTarget(bankThere)
-		)).addPatternNode(bankHere
-				.setAttributeMatchExpression("#{type} == 'Bank'")
-		.addPatternEdge(new PatternEdge()
+		);
+		bankHere.setAttributeMatchExpression("#{type} == 'Bank'");
+		bankHere.addPatternEdge(new PatternEdge()
 				.setSource(bankHere)
 				.setName("opposite")
 				.setTarget(bankThere)
-		)).addPatternNode(bankThere
-				.setAttributeMatchExpression("#{type} == 'Bank'")
 		);
+		bankThere.setAttributeMatchExpression("#{type} == 'Bank'");
+		
+		eater.setAttributeMatchExpression("#{type} == 'Cargo'");
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("eats")
+				.setTarget(getsEaten));
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("at")
+				.setTarget(bankHere));
+		eater.setAction("!=");
+		getsEaten.setAttributeMatchExpression("#{type} == 'Cargo'");
+		getsEaten.addPatternEdge(new PatternEdge()
+				.setTarget(getsEaten)
+				.setName("at")
+				.setTarget(bankHere));
+		getsEaten.setAction("!=");
+		return pattern;
 	}
 	
 }
