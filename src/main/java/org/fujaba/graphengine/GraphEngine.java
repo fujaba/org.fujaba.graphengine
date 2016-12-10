@@ -116,7 +116,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 			currentTry.add(0);
 		}
 		HashSet<Node> usedNodes = new HashSet<Node>();
-		usedNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
+		// use next duplicate-free configuration (begin)
 fix:	for (int k = currentTry.size() - 1; k >= 0; --k) {
 			while (usedNodes.contains(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))))) {
 				if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {

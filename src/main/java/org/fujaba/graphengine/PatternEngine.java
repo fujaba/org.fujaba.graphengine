@@ -223,18 +223,29 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 				return matches;
 			}
 		}
-		// step 2: verify the possible matches
 		boolean canTryAnother = false;
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
 		// we initialize the indices for candidates for each node of the pattern:
 		for (int i = 0; i < couldMatch.size(); ++i) {
 			currentTry.add(0);
 		}
+		// step 2: verify the possible matches
+		HashSet<Node> usedNodes = new HashSet<Node>();
+		// use next duplicate-free configuration (begin)
+fix:	for (int k = currentTry.size() - 1; k >= 0; --k) {
+			while (usedNodes.contains(couldMatch.get(k).get(currentTry.get(k)))) {
+				if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
+					break fix;
+				}
+				currentTry.set(k, currentTry.get(k) + 1);
+			}
+			usedNodes.add(couldMatch.get(k).get(currentTry.get(k)));
+		} // use next duplicate-free configuration (end)
 		do {
 			canTryAnother = false;
 			HashMap<PatternNode, Node> mapping = new HashMap<PatternNode, Node>(); 
 			// it's not allowed for two nodes of the pattern to match the same node of the graph:
-			HashSet<Node> usedNodes = new HashSet<Node>();
+			usedNodes = new HashSet<Node>();
 			boolean duplicateChoice = false;
 			int count = 0;
 			for (int i = 0; i < couldMatch.size(); ++i) {
@@ -288,11 +299,22 @@ nodes:			for (int i = 0; i < couldMatch.size(); ++i) {
 					for (int i = 0; i < negativeCouldMatch.size(); ++i) {
 						currentNegativeTry.add(0);
 					}
+					HashSet<Node> usedNegativeNodes = new HashSet<Node>();
+					// use next duplicate-free configuration (begin)
+			fix:	for (int k = currentNegativeTry.size() - 1; k >= 0; --k) {
+						while (usedNegativeNodes.contains(negativeCouldMatch.get(k).get(currentNegativeTry.get(k)))) {
+							if (currentNegativeTry.get(k) >= negativeCouldMatch.get(k).size() - 1) {
+								break fix;
+							}
+							currentNegativeTry.set(k, currentNegativeTry.get(k) + 1);
+						}
+						usedNegativeNodes.add(negativeCouldMatch.get(k).get(currentNegativeTry.get(k)));
+					} // use next duplicate-free configuration (end)
 negativeCheck:		do {
 						canTryAnotherNegative = false;
 						HashMap<PatternNode, Node> negativeMapping = new HashMap<PatternNode, Node>(); 
 						// it's not allowed for two nodes of the pattern to match the same node of the graph:
-						HashSet<Node> usedNegativeNodes = new HashSet<Node>();
+						usedNegativeNodes = new HashSet<Node>();
 						boolean duplicateNegativeChoice = false;
 						int negativeCount = 0;
 						for (int i = 0; i < negativeCouldMatch.size(); ++i) {
@@ -372,6 +394,16 @@ negativeCheck:		do {
 								for (int j = 0; j < i; ++j) {
 									currentNegativeTry.set(j, 0);
 								}
+								usedNegativeNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
+			fix:				for (int k = currentNegativeTry.size() - 1; k >= 0; --k) {
+									while (usedNegativeNodes.contains(negativeCouldMatch.get(k).get(currentNegativeTry.get(k)))) {
+										if (currentNegativeTry.get(k) >= negativeCouldMatch.get(k).size() - 1) {
+											break fix;
+										}
+										currentNegativeTry.set(k, currentNegativeTry.get(k) + 1);
+									}
+									usedNegativeNodes.add(negativeCouldMatch.get(k).get(currentNegativeTry.get(k)));
+								} // use next duplicate-free configuration (end)
 								canTryAnotherNegative = true;
 								break;
 							}
@@ -401,6 +433,16 @@ negativeCheck:		do {
 						currentTry.set(j, 0);
 					}
 					canTryAnother = true;
+					usedNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
+fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
+						while (usedNodes.contains(couldMatch.get(k).get(currentTry.get(k)))) {
+							if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
+								break fix;
+							}
+							currentTry.set(k, currentTry.get(k) + 1);
+						}
+						usedNodes.add(couldMatch.get(k).get(currentTry.get(k)));
+					} // use next duplicate-free configuration (end)
 					break;
 				}
 			}
