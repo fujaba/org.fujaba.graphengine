@@ -35,8 +35,7 @@ public class PatternTest {
 		
 		Assert.assertEquals(backToJson, backToJson2);
 		
-		// TODO: implement better test for PatternGraph comparison
-//		System.out.println(patternGraph);
+		// since there's no check for isomorphism between two PatternGraphs, this only works if the serialized String is the same...
 	}
 	
 	@Test
@@ -70,22 +69,6 @@ public class PatternTest {
 		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, wolfTransported));
 		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, goatTransported));
 		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, cabbageTransported));
-	}
-	
-	@Test
-	public void testCycleFreeRepetitivePatternApplication() {
-		PatternGraph transportRule = getCorrectTranportRule();
-		PatternGraph emptyTransportRule = getCorrectEmptyTranportRule();
-		Graph ferrymansGraph = getFerrymansGraph();
-		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
-		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
-		priorityLevel.add(transportRule);
-		priorityLevel.add(emptyTransportRule);
-		patterns.add(priorityLevel);
-
-		Graph rg = PatternEngine.calculateReachabilityGraph(ferrymansGraph, patterns);
-//		System.out.println(result);
-		Assert.assertNotNull(PatternEngine.findGraphInReachabilityGraph(rg, getFerrymansSolutionGraph()));
 	}
 	
 	@Test
@@ -162,6 +145,112 @@ public class PatternTest {
 		Assert.assertEquals(3, matches.size()); // he could now start over and bring each species
 		
 		Assert.assertTrue(GraphEngine.isIsomorphTo(ferrymansSolutionGraph, current)); // the solution is as expected
+	}
+	
+	@Test
+	public void testSolvingFerrymansProblemWithReachabilityGraph() {
+		PatternGraph transportRule = getCorrectTranportRule();
+		PatternGraph emptyTransportRule = getCorrectEmptyTranportRule();
+		Graph ferrymansGraph = getFerrymansGraph();
+		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
+		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
+		priorityLevel.add(transportRule);
+		priorityLevel.add(emptyTransportRule);
+		patterns.add(priorityLevel);
+
+		// calculate reachability graph with corrected rules:
+		Graph rg = PatternEngine.calculateReachabilityGraph(ferrymansGraph, patterns);
+		// check if the solution is contained in the reachability graph:
+		Assert.assertNotNull(PatternEngine.findGraphInReachabilityGraph(rg, getFerrymansSolutionGraph()));
+	}
+	
+	@Test
+	public void testNegativePatternVariants() {
+
+		// example: find all cars, that have no blue wheel
+		
+		// build a test graph with 6 cars - with two of them having any blue wheels
+		Graph carGraph = new Graph();
+		
+		// build car 'A' with 4 black wheels:
+		Node carA = new Node().setAttribute("type", "Car");
+		Node wheelA1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		Node wheelA2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		Node wheelA3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		Node wheelA4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		carGraph.addNode(carA).addNode(wheelA1).addNode(wheelA2).addNode(wheelA3).addNode(wheelA4);
+		carA.addEdge("has", wheelA1).addEdge("has", wheelA2).addEdge("has", wheelA3).addEdge("has", wheelA4);
+
+		// build a car 'B' with 3 black wheels and 1 blue wheel:
+		Node carB = new Node().setAttribute("type", "Car");
+		Node wheelB1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+		Node wheelB2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		Node wheelB3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		Node wheelB4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "black");
+		carGraph.addNode(carB).addNode(wheelB1).addNode(wheelB2).addNode(wheelB3).addNode(wheelB4);
+		carB.addEdge("has", wheelB1).addEdge("has", wheelB2).addEdge("has", wheelB3).addEdge("has", wheelB4);
+		carA.addEdge("next", carB);
+
+//		// build a car 'C' with 4 blue wheels:
+//		Node carC = new Node().setAttribute("type", "Car");
+//		Node wheelC1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+//		Node wheelC2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+//		Node wheelC3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+//		Node wheelC4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+//		carGraph.addNode(carC).addNode(wheelC1).addNode(wheelC2).addNode(wheelC3).addNode(wheelC4);
+//		carC.addEdge("has", wheelC1).addEdge("has", wheelC2).addEdge("has", wheelC3).addEdge("has", wheelC4);
+//		carB.addEdge("next", carC);
+//
+//		// build a car 'D' with 4 orange wheels
+//		Node carD = new Node().setAttribute("type", "Car");
+//		Node wheelD1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+//		Node wheelD2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+//		Node wheelD3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+//		Node wheelD4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+//		carGraph.addNode(carD).addNode(wheelD1).addNode(wheelD2).addNode(wheelD3).addNode(wheelD4);
+//		carD.addEdge("has", wheelD1).addEdge("has", wheelD2).addEdge("has", wheelD3).addEdge("has", wheelD4);
+//		carC.addEdge("next", carD);
+//
+//		// build a car 'E' with 4 red wheels
+//		Node carE = new Node().setAttribute("type", "Car");
+//		Node wheelE1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+//		Node wheelE2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+//		Node wheelE3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+//		Node wheelE4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+//		carGraph.addNode(carE).addNode(wheelE1).addNode(wheelE2).addNode(wheelE3).addNode(wheelE4);
+//		carE.addEdge("has", wheelE1).addEdge("has", wheelE2).addEdge("has", wheelE3).addEdge("has", wheelE4);
+//		carD.addEdge("next", carE);
+//
+//		// build a car 'F' with 4 green wheels
+//		Node carF = new Node().setAttribute("type", "Car");
+//		Node wheelF1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+//		Node wheelF2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+//		Node wheelF3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+//		Node wheelF4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+//		carGraph.addNode(carF).addNode(wheelF1).addNode(wheelF2).addNode(wheelF3).addNode(wheelF4);
+//		carF.addEdge("has", wheelF1).addEdge("has", wheelF2).addEdge("has", wheelF3).addEdge("has", wheelF4);
+//		carE.addEdge("next", carF);
+		
+		// build a pattern that says 'car without a blue wheel':
+		PatternGraph carWithoutBlueWheel = new PatternGraph();
+		PatternNode car = new PatternNode()
+				.setAttributeMatchExpression("#{type} == 'Car'");
+		PatternNode wheel = new PatternNode()
+				.setAction("!=").setAttributeMatchExpression("#{type} == 'Wheel' && #{color} == 'blue'");
+		carWithoutBlueWheel.addPatternNode(car).addPatternNode(wheel);
+		car.addPatternEdge(new PatternEdge().setSource(car).setName("has").setTarget(wheel));
+		
+		// test if only the 4 cars without blue wheels are found:
+		ArrayList<Match> matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
+		Assert.assertEquals(1, matches.size());
+
+		// test if the reachability graph doesn't go rogue and somehow find multiple graphs:
+		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
+		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
+		priorityLevel.add(carWithoutBlueWheel);
+		patterns.add(priorityLevel);
+		Graph rg = PatternEngine.calculateReachabilityGraph(carGraph, patterns);
+		Assert.assertEquals(1, rg.getNodes().size());
 	}
 	
 	/**
