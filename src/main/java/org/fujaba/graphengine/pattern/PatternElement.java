@@ -10,8 +10,6 @@ public abstract class PatternElement {
 
 	/**
 	 * an action to apply to this PatternElement (currently "==", "!=", "+" or "-")
-	 * 
-	 * TODO: maybe for convenience i should allow "=", "!", "++" and "--", too...
 	 */
 	private String action;
 

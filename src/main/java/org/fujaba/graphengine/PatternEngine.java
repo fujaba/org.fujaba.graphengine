@@ -19,23 +19,15 @@ import net.sourceforge.jeval.Evaluator;
  * @author Philipp Kolodziej
  */
 public class PatternEngine {
-	/**
-	 * matches and directly applies a pattern as often as possible,
-	 * without revisiting graphs, that were already used (preventing endless cycles).
-	 * 
-	 * @param graph the graph to apply the pattern on
-	 * @param pattern the pattern to apply
-	 * @param single wheter the pattern should be only applied a single time
-	 * @return the resulting graph
-	 */
-	public static Graph applyPattern(Graph graph, PatternGraph pattern, boolean single) {
-		ArrayList<PatternGraph> patterns = new ArrayList<PatternGraph>();
-		patterns.add(pattern);
-		return applyPatterns(graph, patterns, single);
-	}
 	
+	/**
+	 * Calculates a reachability graph based on a graph of the initial situation
+	 * and a prioritized list of patterns to match and apply on the graph and resulting graphs.
+	 * @param graph the initial graph
+	 * @param patterns a prioritized list of patterns. the first list is the highest priority-level and so on.
+	 * @return returns the reachability graph, that was calculated
+	 */
 	public static Graph calculateReachabilityGraph(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
-		// TODO: do comments later, this is a work in progress
 		/*
 		 * ok right now i think im going for this priority concept, where i have an arraylist of 'priority-levels'
 		 * inside each priority-level, there's a list of patterns to match.
@@ -67,37 +59,51 @@ public class PatternEngine {
 		 * of unprocessed nodes. just as simple as that...
 		 */
 		
-		// so let's go
+		// the first rg-node is the base-graph:
 		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
-		ArrayList<Graph> added = new ArrayList<Graph>();
-		ArrayList<Graph> unprocessed = new ArrayList<Graph>();
+		ArrayList<Graph> added = new ArrayList<Graph>(); // a list with graphs that were added
+		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
 		added.add(graph);
 		unprocessed.add(graph);
+		
+		// as long as a single graph wasn't checked for successors, the search continues:
 		while (unprocessed.size() > 0) {
+			// looking for matches:
 			ArrayList<Match> matches = calculateReachabilityNodeMatches(unprocessed.get(0), patterns);
+			// look up the rg-node, that represents the unprocessed graph:
 			Node source = findGraphInReachabilityGraph(rg, unprocessed.get(0));
+			// now handle matches:
 			for (Match match: matches) {
+				// construct the graph, that's the result of this match:
 				Graph successor = applyMatch(match);
+				// check if the graph was previously added:
 				int index = indexOf(added, successor);
 				if (index != -1) {
-					// just build edge to an existing node
+					// yes, the graph already did exist => just build edge to an existing node
 					Node target = findGraphInReachabilityGraph(rg, successor);
-					source.addEdge(match.getPattern().toString(), target);
+					source.addEdge(match.getPattern().toString(), target); // new edge
 				} else {
-					// add a new node
-					Node target = new Node().setAttribute("graph", successor.toString());
+					// no, the graph didn't exist before => add a new node
+					Node target = new Node().setAttribute("graph", successor.toString()); // new node
 					rg.addNode(target);
-					source.addEdge(match.getPattern().toString(), target);
+					source.addEdge(match.getPattern().toString(), target); // edge to new node
 					added.add(successor);
 					unprocessed.add(successor);
 				}
 			}
 			unprocessed.remove(0);
 		}
+		// done
 		return rg;
 	}
 	
-	private static Node findGraphInReachabilityGraph(Graph rg, Graph node) {
+	/**
+	 * Function to find a graph as a node inside of a reachability graph.
+	 * @param rg the reachability graph
+	 * @param node the graph that is to be found a node inside of the reachability graph
+	 * @return the node representing the graph inside of the reachability graph if present, or else null
+	 */
+	public static Node findGraphInReachabilityGraph(Graph rg, Graph node) {
 		String serialization = node.toString();
 		for (Node found: rg.getNodes()) {
 			if (serialization.equals(found.getAttribute("graph"))) {
@@ -107,6 +113,13 @@ public class PatternEngine {
 		return null;
 	}
 	
+	/**
+	 * Private helper function that calculates a list of matches for a graph based on a prioritized list of patterns.
+	 * the matches that will be found, will all be from the highest priority-level that had a match.
+	 * @param graph the graph to match patterns on
+	 * @param patterns a prioritized list of patterns
+	 * @return a list of matches from the highest priority-level that matched anything, or else an empty list.
+	 */
 	private static ArrayList<Match> calculateReachabilityNodeMatches(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
 		ArrayList<Match> result = new ArrayList<Match>();
 		for (int i = 0; i < patterns.size(); ++i) {
@@ -131,46 +144,7 @@ public class PatternEngine {
 	 * @param patterns the patterns to apply
 	 * @return the resulting graph
 	 */
-	public static Graph applyPatterns(Graph graph, ArrayList<PatternGraph> patterns, boolean single) {
-		// TODO: whatever this method is, i don't think this is necessary, especially after reachability graphs are implemented
-		if (graph == null) {
-			return null;
-		}
-		ArrayList<Graph> history = new ArrayList<Graph>();
-		Graph result = graph;
-		if (patterns == null) {
-			return result;
-		}
-		history.add(result);
-		boolean canTryAnother = false;
-		do {
-			canTryAnother = false;
-			ArrayList<Match> matches = new ArrayList<Match>();
-			boolean foundNewOne = false;
-			int currentPatternIndex = 0;
-loop:		while (!foundNewOne && currentPatternIndex < patterns.size()) {
-				matches = matchPattern(result, patterns.get(currentPatternIndex), false);
-				++currentPatternIndex;
-				if (matches.size() == 0) {
-					continue;
-				}
-				for (Match match: matches) {
-					Graph next = applyMatch(match);
-					if (indexOf(history, next) == -1) {
-						history.add(next.clone());
-						result = next;
-						if (single) {
-							return result;
-						}
-						canTryAnother = true;
-						foundNewOne = true;
-						break loop;
-					}
-				}
-			}
-		} while (canTryAnother);
-		return result;
-	}
+	
 	
 	private static int indexOf(ArrayList<Graph> graphs, Graph graph) {
 		for (int i = 0; i < graphs.size(); ++i) {

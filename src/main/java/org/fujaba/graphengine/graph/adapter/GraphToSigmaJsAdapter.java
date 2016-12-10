@@ -1,8 +1,6 @@
 package org.fujaba.graphengine.graph.adapter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.fujaba.graphengine.IdManager;
 import org.fujaba.graphengine.graph.Graph;
@@ -13,21 +11,21 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * The GraphAdapter is a gson TypeAdapter used to serialize and deserialize Graphs to and from JSON.
+ * The GraphToSigmaJsAdapter is a gson TypeAdapter used to serialize Graphs to JSON, meant for use in sigma.js visualization.
  * 
  * @author Philipp Kolodziej
  */
 public class GraphToSigmaJsAdapter extends TypeAdapter<Graph> {
 
 	private String getNodeLabel(Node node) {
-		return node.getAttributes().toString(); // TODO: finish
+		return node.getAttributes().toString();
 	}
 
 	private double getX(int index, int total) {
-		return -Math.sin((double)index / (double)total * 2 * Math.PI) / 10;
+		return -Math.sin((double)(index + 0.5) / (double)total * 2 * Math.PI) / 10;
 	}
 	private double getY(int index, int total) {
-		return -Math.cos((double)index / (double)total * 2 * Math.PI) / 10;
+		return -Math.cos((double)(index + 0.5) / (double)total * 2 * Math.PI) / 10;
 	}
 	
 	@Override

@@ -74,18 +74,18 @@ public class PatternTest {
 	
 	@Test
 	public void testCycleFreeRepetitivePatternApplication() {
-		PatternGraph eatingRule = getEatingRule();
-		PatternGraph transportRule = getTranportRule();
-		PatternGraph emptyTransportRule = getEmptyTranportRule();
+		PatternGraph transportRule = getCorrectTranportRule();
+		PatternGraph emptyTransportRule = getCorrectEmptyTranportRule();
 		Graph ferrymansGraph = getFerrymansGraph();
-		ArrayList<PatternGraph> patterns = new ArrayList<PatternGraph>();
-		patterns.add(eatingRule);
-		patterns.add(transportRule);
-		patterns.add(emptyTransportRule);
+		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
+		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
+		priorityLevel.add(transportRule);
+		priorityLevel.add(emptyTransportRule);
+		patterns.add(priorityLevel);
 
-		Graph result = PatternEngine.applyPatterns(ferrymansGraph, patterns, false);
+		Graph rg = PatternEngine.calculateReachabilityGraph(ferrymansGraph, patterns);
 //		System.out.println(result);
-		Assert.assertTrue(!GraphEngine.isIsomorphTo(ferrymansGraph, result));
+		Assert.assertNotNull(PatternEngine.findGraphInReachabilityGraph(rg, getFerrymansSolutionGraph()));
 	}
 	
 	@Test
@@ -164,6 +164,10 @@ public class PatternTest {
 		Assert.assertTrue(GraphEngine.isIsomorphTo(ferrymansSolutionGraph, current)); // the solution is as expected
 	}
 	
+	/**
+	 * Method to obtain the 'eating rule' of the ferryman's problem graph.
+	 * @return the 'eating rule' of the ferryman's problem graph
+	 */
 	private PatternGraph getEatingRule() {
 		PatternNode cargoEats = new PatternNode(), cargoGetsEaten = new PatternNode(), ferry = new PatternNode(), bank = new PatternNode();
 		return new PatternGraph()
@@ -199,6 +203,11 @@ public class PatternTest {
 		);
 	}
 	
+	/**
+	 * Method to obtain the (uncorrected) 'transport rule' of the ferryman's problem graph.
+	 * Note: This rule allows for the ferryman to leave two species alone, that eat each other!
+	 * @return the (uncorrected) 'transport rule' of the ferryman's problem graph
+	 */
 	private PatternGraph getTranportRule() {
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
 		return new PatternGraph()
@@ -236,7 +245,12 @@ public class PatternTest {
 				.setAttributeMatchExpression("#{type} == 'Bank'")
 		);
 	}
-	
+
+	/**
+	 * Method to obtain the (uncorrected) 'empty transport rule' of the ferryman's problem graph.
+	 * Note: This rule allows for the ferryman to leave two species alone, that eat each other!
+	 * @return the (uncorrected) 'empty transport rule' of the ferryman's problem graph
+	 */
 	private PatternGraph getEmptyTranportRule() {
 		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
 		return new PatternGraph()
@@ -262,7 +276,122 @@ public class PatternTest {
 				.setAttributeMatchExpression("#{type} == 'Bank'")
 		);
 	}
+
+	/**
+	 * Method to obtain the (corrected) 'transport rule' of the ferryman's problem graph.
+	 * Note: This rule doesn't allow the ferryman to leave two species alone, that eat each other!
+	 * @return the (corrected) 'transport rule' of the ferryman's problem graph
+	 */
+	private PatternGraph getCorrectTranportRule() {
+		PatternGraph pattern = new PatternGraph();
+		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
+		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
+		cargo.setAttributeMatchExpression("#{type} == 'Cargo'");
+		cargo.addPatternEdge(new PatternEdge()
+			.setAction("-")
+			.setSource(cargo)
+			.setName("at")
+			.setTarget(bankHere)
+		);
+		cargo.addPatternEdge(new PatternEdge()
+			.setAction("+")
+			.setSource(cargo)
+			.setName("at")
+			.setTarget(bankThere)
+		);
+		ferry.setAttributeMatchExpression("#{type} == 'Ferry'");
+		ferry.addPatternEdge(new PatternEdge()
+			.setAction("-")
+			.setSource(ferry)
+			.setName("at")
+			.setTarget(bankHere)
+		);
+		ferry.addPatternEdge(new PatternEdge()
+			.setAction("+")
+			.setSource(ferry)
+			.setName("at")
+			.setTarget(bankThere)
+		);
+		bankHere.setAttributeMatchExpression("#{type} == 'Bank'");
+		bankHere.addPatternEdge(new PatternEdge()
+			.setSource(bankHere)
+			.setName("opposite")
+			.setTarget(bankThere)
+		);
+		bankThere.setAttributeMatchExpression("#{type} == 'Bank'");
+		
+		eater.setAttributeMatchExpression("#{type} == 'Cargo'");
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("eats")
+				.setTarget(getsEaten));
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("at")
+				.setTarget(bankHere));
+		eater.setAction("!=");
+		getsEaten.setAttributeMatchExpression("#{type} == 'Cargo'");
+		getsEaten.addPatternEdge(new PatternEdge()
+				.setTarget(getsEaten)
+				.setName("at")
+				.setTarget(bankHere));
+		getsEaten.setAction("!=");
+		return pattern;
+	}
+
+	/**
+	 * Method to obtain the (corrected) 'empty transport rule' of the ferryman's problem graph.
+	 * Note: This rule doesn't allow the ferryman to leave two species alone, that eat each other!
+	 * @return the (corrected) 'empty transport rule' of the ferryman's problem graph
+	 */
+	private PatternGraph getCorrectEmptyTranportRule() {
+		PatternGraph pattern = new PatternGraph();
+		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
+		pattern.addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
+		ferry.setAttributeMatchExpression("#{type} == 'Ferry'");
+		ferry.addPatternEdge(new PatternEdge()
+				.setAction("-")
+				.setSource(ferry)
+				.setName("at")
+				.setTarget(bankHere)
+		);
+		ferry.addPatternEdge(new PatternEdge()
+				.setAction("+")
+				.setSource(ferry)
+				.setName("at")
+				.setTarget(bankThere)
+		);
+		bankHere.setAttributeMatchExpression("#{type} == 'Bank'");
+		bankHere.addPatternEdge(new PatternEdge()
+				.setSource(bankHere)
+				.setName("opposite")
+				.setTarget(bankThere)
+		);
+		bankThere.setAttributeMatchExpression("#{type} == 'Bank'");
+		
+		eater.setAttributeMatchExpression("#{type} == 'Cargo'");
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("eats")
+				.setTarget(getsEaten));
+		eater.addPatternEdge(new PatternEdge()
+				.setSource(eater)
+				.setName("at")
+				.setTarget(bankHere));
+		eater.setAction("!=");
+		getsEaten.setAttributeMatchExpression("#{type} == 'Cargo'");
+		getsEaten.addPatternEdge(new PatternEdge()
+				.setTarget(getsEaten)
+				.setName("at")
+				.setTarget(bankHere));
+		getsEaten.setAction("!=");
+		return pattern;
+	}
 	
+	/**
+	 * Method to obtain the initial situation of the ferryman's problem as a graph.
+	 * @return the initial situation of the ferryman's problem as a graph.
+	 */
 	private Graph getFerrymansGraph() {
 		Graph ferrymansGraph = new Graph();
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
@@ -276,6 +405,10 @@ public class PatternTest {
 		return ferrymansGraph;
 	}
 	
+	/**
+	 * Method to obtain the solution of the ferryman's problem as a graph.
+	 * @return the solution of the ferryman's problem as a graph.
+	 */
 	private Graph getFerrymansSolutionGraph() {
 		Graph ferrymansGraph = new Graph();
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();

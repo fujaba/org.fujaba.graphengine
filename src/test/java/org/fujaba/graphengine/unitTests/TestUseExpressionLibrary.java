@@ -11,8 +11,6 @@ import net.sourceforge.jeval.Evaluator;
 
 public class TestUseExpressionLibrary {
 
-	
-	
 	@Test
 	public void testUseExpressionLibrary() {
 		Evaluator evaluator = new Evaluator();
@@ -65,18 +63,20 @@ public class TestUseExpressionLibrary {
 		Assert.assertTrue(matched);
 	}
 	
-
-	
+	/**
+	 * Method to obtain the initial situation of the ferryman's problem as a graph.
+	 * @return the initial situation of the ferryman's problem as a graph.
+	 */
 	private Graph getFerrymansGraph() {
 		Graph ferrymansGraph = new Graph();
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
 		ferrymansGraph.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
-		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").setAttribute("count", 1).setAttribute("existant", true).addEdge("eats", goat).addEdge("at", north);
-		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").setAttribute("count", 1).setAttribute("existant", true).addEdge("eats", cabbage).addEdge("at", north);
-		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").setAttribute("count", 5).setAttribute("existant", true).addEdge("at", north);
-		ferry.setAttribute("type", "Ferry").setAttribute("count", 1).setAttribute("existant", true).addEdge("at", north);
-		north.setAttribute("type", "Bank").setAttribute("side", "north").setAttribute("count", 1).setAttribute("existant", true).addEdge("opposite", south);
-		south.setAttribute("type", "Bank").setAttribute("side", "south").setAttribute("count", 1).setAttribute("existant", true).addEdge("opposite", north);
+		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", north);
+		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").addEdge("eats", cabbage).addEdge("at", north);
+		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").addEdge("at", north);
+		ferry.setAttribute("type", "Ferry").addEdge("at", north);
+		north.setAttribute("type", "Bank").setAttribute("side", "north").addEdge("opposite", south);
+		south.setAttribute("type", "Bank").setAttribute("side", "south").addEdge("opposite", north);
 		return ferrymansGraph;
 	}
 	

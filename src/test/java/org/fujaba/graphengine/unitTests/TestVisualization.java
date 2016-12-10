@@ -19,8 +19,8 @@ public class TestVisualization {
 		Graph graph = getFerrymansGraph();
 		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
 		patterns.add(new ArrayList<PatternGraph>()); // highest priority
-		patterns.get(patterns.size() - 1).add(getTranportRule());
-		patterns.get(patterns.size() - 1).add(getEmptyTranportRule());
+		patterns.get(patterns.size() - 1).add(getCorrectTranportRule());
+		patterns.get(patterns.size() - 1).add(getCorrectEmptyTranportRule());
 		graph = PatternEngine.calculateReachabilityGraph(graph, patterns);
 		long count = graph.getNodes().size();
 		for (int i = 0; i < graph.getNodes().size(); ++i) {
@@ -43,6 +43,10 @@ public class TestVisualization {
 		GraphEngine.prepareGraphAsJsonFileForSigmaJs(graph);
 	}
 	
+	/**
+	 * Method to obtain the initial situation of the ferryman's problem as a graph.
+	 * @return the initial situation of the ferryman's problem as a graph.
+	 */
 	private Graph getFerrymansGraph() {
 		Graph ferrymansGraph = new Graph();
 		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
@@ -56,7 +60,12 @@ public class TestVisualization {
 		return ferrymansGraph;
 	}
 	
-	private PatternGraph getTranportRule() {
+	/**
+	 * Method to obtain the (corrected) 'transport rule' of the ferryman's problem graph.
+	 * Note: This rule doesn't allow the ferryman to leave two species alone, that eat each other!
+	 * @return the (corrected) 'transport rule' of the ferryman's problem graph
+	 */
+	private PatternGraph getCorrectTranportRule() {
 		PatternGraph pattern = new PatternGraph();
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
 		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
@@ -113,7 +122,12 @@ public class TestVisualization {
 		return pattern;
 	}
 	
-	private PatternGraph getEmptyTranportRule() {
+	/**
+	 * Method to obtain the (corrected) 'empty transport rule' of the ferryman's problem graph.
+	 * Note: This rule doesn't allow the ferryman to leave two species alone, that eat each other!
+	 * @return the (corrected) 'empty transport rule' of the ferryman's problem graph
+	 */
+	private PatternGraph getCorrectEmptyTranportRule() {
 		PatternGraph pattern = new PatternGraph();
 		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
 		pattern.addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
