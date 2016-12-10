@@ -23,15 +23,7 @@ public class GraphTest {
 	public void testGraph() {
 		Gson gson = GraphEngine.getGson();
 		// build ferryman's problem graph:
-		Graph original = new Graph(); // original graph
-		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
-		original.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
-		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", north);
-		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").addEdge("eats", cabbage).addEdge("at", north);
-		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").addEdge("at", north);
-		ferry.setAttribute("type", "Ferry").addEdge("at", north);
-		north.setAttribute("type", "Bank").addEdge("opposite", south);
-		south.setAttribute("type", "Bank").addEdge("opposite", north);
+		Graph original = getFerrymansGraph();
 
 		String toJson = gson.toJson(original); // serialized json
 		Graph fromJson = gson.fromJson(toJson, Graph.class); // deserialized graph
@@ -465,5 +457,51 @@ public class GraphTest {
 //	    long duration = System.nanoTime() - start;
 //	    System.out.println(duration / 1e6 + "ms");
 //	}
+	
+	@Test
+	public void testGraphSplitting() {
+		Graph a = getFerrymansGraph();
+		Graph b = getFerrymansGraph();
+		GraphEngine.isIsomorphTo(a, b);
+		Graph c = getFerrymansGraph();
+		GraphEngine.isIsomorphTo(b, c);
+		// ok, sure graphs a, b and c are each the same
+		Graph joined = new Graph();
+		joined.getNodes().addAll(a.getNodes());
+		Assert.assertEquals(1, GraphEngine.split(joined).size());
+		// ok, the graph is connected
+		joined.getNodes().addAll(b.getNodes());
+		Assert.assertEquals(2, GraphEngine.split(joined).size());
+		// ok, 2 times the graph are 2 connected graphs
+		joined.getNodes().addAll(c.getNodes());
+
+		ArrayList<Graph> splitted = GraphEngine.split(joined);
+		Assert.assertEquals(3, splitted.size());
+		// ok, 3 times the graph are 3 connected graphs
+
+		GraphEngine.isIsomorphTo(a, splitted.get(0));
+		// ok, after splitting, the first splitted part is the original graph, that was added 3 times
+		GraphEngine.isIsomorphTo(a, splitted.get(1));
+		// ok, after splitting, the second splitted part is the original graph, that was added 3 times
+		GraphEngine.isIsomorphTo(a, splitted.get(2));
+		// ok, after splitting, the third splitted part is the original graph, that was added 3 times
+	}
+	
+	/**
+	 * Method to obtain the initial situation of the ferryman's problem as a graph.
+	 * @return the initial situation of the ferryman's problem as a graph.
+	 */
+	private Graph getFerrymansGraph() {
+		Graph ferrymansGraph = new Graph();
+		Node wolf = new Node(), goat = new Node(), cabbage = new Node(), ferry = new Node(), north = new Node(), south = new Node();
+		ferrymansGraph.addNode(wolf).addNode(goat).addNode(cabbage).addNode(ferry).addNode(north).addNode(south);
+		wolf.setAttribute("type", "Cargo").setAttribute("species", "Wolf").addEdge("eats", goat).addEdge("at", north);
+		goat.setAttribute("type", "Cargo").setAttribute("species", "Goat").addEdge("eats", cabbage).addEdge("at", north);
+		cabbage.setAttribute("type", "Cargo").setAttribute("species", "Cabbage").addEdge("at", north);
+		ferry.setAttribute("type", "Ferry").addEdge("at", north);
+		north.setAttribute("type", "Bank").setAttribute("side", "north").addEdge("opposite", south);
+		south.setAttribute("type", "Bank").setAttribute("side", "south").addEdge("opposite", north);
+		return ferrymansGraph;
+	}
 	
 }

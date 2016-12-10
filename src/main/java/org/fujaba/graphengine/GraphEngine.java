@@ -256,7 +256,7 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 		Graph clone = graph.clone();
 		while (count < graph.getNodes().size()) {
 			Graph subGraph = new Graph();
-			ArrayList<Node> subGraphNodes = connectedNodes(graph, clone.getNodes().get(0));
+			ArrayList<Node> subGraphNodes = connectedNodes(clone, clone.getNodes().get(0));
 			clone.getNodes().removeAll(subGraphNodes);
 			subGraph.getNodes().addAll(subGraphNodes);
 			result.add(subGraph);
