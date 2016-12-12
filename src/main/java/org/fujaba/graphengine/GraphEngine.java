@@ -110,7 +110,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				return null; // no mapping for this node => fail
 			}
 		}
-		// now a depth-first search with backtracking to find the right mapping:
+		// now going through all valid combinations of those loosely fitted candidates to find a match:
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
 		for (int i = 0; i < couldMatch.size(); ++i) {
 			currentTry.add(0);
