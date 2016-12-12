@@ -388,7 +388,7 @@ negativeCheck:		do {
 								break negativeCheck;
 							}
 						}
-						for (int i = 0; i < currentNegativeTry.size(); ++i) { //TODO: do the thing that drastically improved performance of isomorphic checks!
+						for (int i = 0; i < currentNegativeTry.size(); ++i) {
 							if (currentNegativeTry.get(i) < negativeCouldMatch.get(i).size() - 1) {
 								currentNegativeTry.set(i, currentNegativeTry.get(i) + 1);
 								for (int j = 0; j < i; ++j) {
@@ -426,7 +426,7 @@ negativeCheck:		do {
 					}
 				}
 			}
-			for (int i = 0; i < currentTry.size(); ++i) { //TODO: do the thing that drastically improved performance of isomorphic checks!
+			for (int i = 0; i < currentTry.size(); ++i) {
 				if (currentTry.get(i) < couldMatch.get(i).size() - 1) {
 					currentTry.set(i, currentTry.get(i) + 1);
 					for (int j = 0; j < i; ++j) {

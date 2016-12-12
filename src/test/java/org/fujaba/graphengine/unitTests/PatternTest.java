@@ -9,6 +9,8 @@ import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.isomorphismtools.GraphEngineSearchBased;
+import org.fujaba.graphengine.isomorphismtools.GraphEngineSortBased;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
@@ -240,17 +242,49 @@ public class PatternTest {
 		carWithoutBlueWheel.addPatternNode(car).addPatternNode(wheel);
 		car.addPatternEdge(new PatternEdge().setSource(car).setName("has").setTarget(wheel));
 		
-		// test if only the 4 cars without blue wheels are found:
-		ArrayList<Match> matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
-		Assert.assertEquals(1, matches.size());
+		long begin;
+		double duration;
+//		// test if only the 4 cars without blue wheels are found:
+//		begin = System.nanoTime(); // TODO: remove debug
+//		ArrayList<Match> matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
+//		matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
+//		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
+//		System.out.println(duration + "ms"); // TODO: remove debug
+//		Assert.assertEquals(1, matches.size());
 
-		// test if the reachability graph doesn't go rogue and somehow find multiple graphs:
-		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
-		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
-		priorityLevel.add(carWithoutBlueWheel);
-		patterns.add(priorityLevel);
-		Graph rg = PatternEngine.calculateReachabilityGraph(carGraph, patterns);
-		Assert.assertEquals(1, rg.getNodes().size());
+//		GraphEngine.prepareGraphAsJsonFileForSigmaJs(carGraph);
+
+		begin = System.nanoTime(); // TODO: remove debug
+		Assert.assertTrue(GraphEngine.isIsomorphTo(carGraph, carGraph));
+		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
+		System.out.println("GraphEngine: " + duration + "ms"); // TODO: remove debug
+		
+		begin = System.nanoTime(); // TODO: remove debug
+		Assert.assertTrue(GraphEngineSortBased.isIsomorphTo(carGraph, carGraph));
+		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
+		System.out.println("GraphEngineSortBased: " + duration + "ms"); // TODO: remove debug
+
+		/**
+		 * the following example uses the new search-based isomorphism check
+		 * from my 3 hour sunday night hackathon (2016-12-11 until 2016-12-12)
+		 * and it probably should work in like every situation.
+		 * if it does, i'm kinda proud i did this flawless coding so damn fast!
+		 */
+		begin = System.nanoTime(); // TODO: remove debug
+		Assert.assertTrue(GraphEngineSearchBased.isIsomorphTo(carGraph, carGraph));
+		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
+		System.out.println("GraphEngineSearchBased: " + duration + "ms"); // TODO: remove debug
+
+//		// test if the reachability graph doesn't go rogue and somehow find multiple graphs:
+//		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
+//		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
+//		priorityLevel.add(carWithoutBlueWheel);
+//		patterns.add(priorityLevel);
+//		begin = System.nanoTime(); // TODO: remove debug
+//		Graph rg = PatternEngine.calculateReachabilityGraph(carGraph, patterns);
+//		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
+//		System.out.println(duration + "ms"); // TODO: remove debug
+//		Assert.assertEquals(1, rg.getNodes().size());
 	}
 	
 	/**
