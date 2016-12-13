@@ -1,4 +1,4 @@
-package org.fujaba.graphengine.isomorphismtools;
+package org.fujaba.graphengine.isomorphismtools.csp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,9 @@ import java.util.HashMap;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.isomorphismtools.sort.GraphEngineSortBased;
 
-public class GraphEngineSearchBased extends GraphEngine {
+public class GraphEngineCSPBased extends GraphEngine {
 
 	public static HashMap<Node, Node> mappingFrom(Graph subGraph, Graph baseGraph) {
 		if (subGraph.getNodes().size() == 0) {
@@ -114,6 +115,12 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 		if (one.getNodes().size() != other.getNodes().size()) {
 			return false;
 		}
+		System.out.println(one); // TODO: remove debug
+		System.out.println(other); // TODO: remove debug
+		one = GraphEngineSortBased.normalized(one); // TODO: remove debug
+		other = GraphEngineSortBased.normalized(other); // TODO: remove debug
+		System.out.println(one); // TODO: remove debug
+		System.out.println(other); // TODO: remove debug
 		HashMap<Node, Node> mapping = mappingFrom(other, one);
 		if (mapping != null && mappingIsReversable(mapping)) {
 			return true;
@@ -131,7 +138,9 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 		for (Node newSubNode: reverseMapping.keySet()) {
 			// check attributes
 			for (String attributeName: newSubNode.getAttributes().keySet()) {
-				if (!reverseMapping.get(newSubNode).getAttribute(attributeName).equals(newSubNode.getAttribute(attributeName))) {
+				Object attr1 = reverseMapping.get(newSubNode).getAttribute(attributeName);
+				Object attr2 = newSubNode.getAttribute(attributeName);
+				if ((attr1 == null && attr2 != null) || (attr1 != null && attr2 == null) || !attr1.equals(attr2)) {
 					return false;
 				}
 			}

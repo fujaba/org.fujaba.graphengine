@@ -1,4 +1,4 @@
-package org.fujaba.graphengine.isomorphismtools;
+package org.fujaba.graphengine.isomorphismtools.csp;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -155,10 +155,16 @@ public class GraphTreeNode {
 					if (subNodeTarget == childSubNode) {
 						// there is an edge named 'key' from 'parentSubNode' to 'childSubNode'
 						boolean found = false;
-						for (Node baseNodeTarget: parentBaseNode.getEdges(key)) {
-							if (baseNodeTarget == childBaseNode) {
+						if (parentBaseNode.getEdges(key) != null) {
+							for (Node baseNodeTarget: parentBaseNode.getEdges(key)) {
+								if (baseNodeTarget == childBaseNode) {
+									found = true;
+									break;
+								}
+							}
+						} else {
+							if (parentBaseNode.getEdges(key) == null && childBaseNode.getEdges(key) == null) {
 								found = true;
-								break;
 							}
 						}
 						if (!found) {
@@ -172,10 +178,16 @@ public class GraphTreeNode {
 					if (subNodeTarget == parentSubNode) {
 						// there is an edge named 'key' from 'childSubNode' to 'parentSubNode'
 						boolean found = false;
-						for (Node baseNodeTarget: childBaseNode.getEdges(key)) {
-							if (baseNodeTarget == parentBaseNode) {
+						if (childBaseNode.getEdges(key) != null) {
+							for (Node baseNodeTarget: childBaseNode.getEdges(key)) {
+								if (baseNodeTarget == parentBaseNode) {
+									found = true;
+									break;
+								}
+							}
+						} else {
+							if (parentBaseNode.getEdges(key) == null && childBaseNode.getEdges(key) == null) {
 								found = true;
-								break;
 							}
 						}
 						if (!found) {

@@ -1,4 +1,4 @@
-package org.fujaba.graphengine.isomorphismtools;
+package org.fujaba.graphengine.isomorphismtools.csp;
 
 import java.util.ArrayList;
 
@@ -65,8 +65,8 @@ public class GraphTree {
 					}
 				}
 			}
-			open.addAll(succ);
-			openNodes.addAll(succNodes);
+			open.addAll(succ); // add at the end for depth-first search
+			openNodes.addAll(succNodes); // add at the end for depth-first search
 		}
 	}
 

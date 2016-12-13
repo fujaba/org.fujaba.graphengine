@@ -12,6 +12,8 @@ import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.graph.adapter.GraphAdapter;
 import org.fujaba.graphengine.graph.adapter.GraphToSigmaJsAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
+import org.fujaba.graphengine.isomorphismtools.sort.NodeSortTree;
+import org.fujaba.graphengine.isomorphismtools.sort.adapter.NodeSortTreeAdapter;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
@@ -30,6 +32,7 @@ import com.google.gson.GsonBuilder;
 public class GraphEngine {
 	
 	private static Gson gson;
+	private static Gson gsonForSigmaJs;
 
 	/**
 	 * Getter for the GraphEngine's gson
@@ -44,6 +47,7 @@ public class GraphEngine {
 					.registerTypeAdapter(PatternEdge.class, new PatternEdgeAdapter())
 					.registerTypeAdapter(PatternNode.class, new PatternNodeAdapter())
 					.registerTypeAdapter(PatternGraph.class, new PatternGraphAdapter())
+					.registerTypeAdapter(NodeSortTree.class, new NodeSortTreeAdapter())
 //					.setPrettyPrinting()
 //					.serializeNulls()
 					.create();
@@ -57,11 +61,14 @@ public class GraphEngine {
 	 * @return a gson-Object with the necessary custom TypeAdapters.
 	 */
 	public static Gson getGsonForSigmaJs() {
-		return new GsonBuilder()
-			.registerTypeAdapter(Graph.class, new GraphToSigmaJsAdapter())
-//				.setPrettyPrinting()
-//				.serializeNulls()
-			.create();
+		if (gsonForSigmaJs == null) {
+			gsonForSigmaJs = new GsonBuilder()
+					.registerTypeAdapter(Graph.class, new GraphToSigmaJsAdapter())
+//					.setPrettyPrinting()
+//					.serializeNulls()
+				.create();
+		}
+		return gsonForSigmaJs;
 	}
 	
 	public static void prepareGraphAsJsonFileForSigmaJs(Graph graph) {
@@ -204,7 +211,9 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 		for (Node newSubNode: reverseMapping.keySet()) {
 			// check attributes
 			for (String attributeName: newSubNode.getAttributes().keySet()) {
-				if (!reverseMapping.get(newSubNode).getAttribute(attributeName).equals(newSubNode.getAttribute(attributeName))) {
+				Object attr1 = reverseMapping.get(newSubNode).getAttribute(attributeName);
+				Object attr2 = newSubNode.getAttribute(attributeName);
+				if ((attr1 == null && attr2 != null) || (attr1 != null && attr2 == null) || !attr1.equals(attr2)) {
 					return false;
 				}
 			}

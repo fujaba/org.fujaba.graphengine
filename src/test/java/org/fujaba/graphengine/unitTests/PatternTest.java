@@ -9,8 +9,8 @@ import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.isomorphismtools.GraphEngineSearchBased;
-import org.fujaba.graphengine.isomorphismtools.GraphEngineSortBased;
+import org.fujaba.graphengine.isomorphismtools.csp.GraphEngineCSPBased;
+import org.fujaba.graphengine.isomorphismtools.sort.GraphEngineSortBased;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
@@ -254,13 +254,16 @@ public class PatternTest {
 
 //		GraphEngine.prepareGraphAsJsonFileForSigmaJs(carGraph);
 
+		Graph carGraphChangedNodeOrder = carGraph.clone();
+//		carGraphChangedNodeOrder.getNodes().add(carGraphChangedNodeOrder.getNodes().remove(0));
+		
 		begin = System.nanoTime(); // TODO: remove debug
-		Assert.assertTrue(GraphEngine.isIsomorphTo(carGraph, carGraph));
+		Assert.assertTrue(GraphEngine.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
 		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
 		System.out.println("GraphEngine: " + duration + "ms"); // TODO: remove debug
 		
 		begin = System.nanoTime(); // TODO: remove debug
-		Assert.assertTrue(GraphEngineSortBased.isIsomorphTo(carGraph, carGraph));
+		Assert.assertTrue(GraphEngineSortBased.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
 		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
 		System.out.println("GraphEngineSortBased: " + duration + "ms"); // TODO: remove debug
 
@@ -271,9 +274,9 @@ public class PatternTest {
 		 * if it does, i'm kinda proud i did this flawless coding so damn fast!
 		 */
 		begin = System.nanoTime(); // TODO: remove debug
-		Assert.assertTrue(GraphEngineSearchBased.isIsomorphTo(carGraph, carGraph));
+		Assert.assertTrue(GraphEngineCSPBased.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
 		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println("GraphEngineSearchBased: " + duration + "ms"); // TODO: remove debug
+		System.out.println("GraphEngineCSPBased: " + duration + "ms"); // TODO: remove debug
 
 //		// test if the reachability graph doesn't go rogue and somehow find multiple graphs:
 //		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
