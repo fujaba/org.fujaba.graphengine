@@ -6,7 +6,6 @@ import java.util.HashMap;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.isomorphismtools.sort.GraphEngineSortBased;
 
 public class GraphEngineCSPBased extends GraphEngine {
 
@@ -18,10 +17,10 @@ public class GraphEngineCSPBased extends GraphEngine {
 		if (subGraph.getNodes().size() > baseGraph.getNodes().size()) {
 			return null;
 		}
-		ArrayList<ArrayList<Integer>> couldMatch = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
 		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 			Node subNode = subGraph.getNodes().get(i);
-			couldMatch.add(new ArrayList<Integer>());
+			couldMatch.add(new ArrayList<Node>());
 nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				Node node = baseGraph.getNodes().get(j);
 				// check existence of outgoing edges and their count:
@@ -38,7 +37,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 						continue nodeMatch;
 					}
 				}
-				couldMatch.get(couldMatch.size() - 1).add(j);
+				couldMatch.get(couldMatch.size() - 1).add(node);
 			}
 			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
 				return null; // no mapping for this node => fail
@@ -60,7 +59,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 			GraphTreeNode current = graphTree.getRootGraphTreeNode().findGraphTreeNodeFromSubGraphNode(subGraph.getNodes().get(i));
 			ArrayList<Node> currentCandidates = new ArrayList<Node>();
 			for (int j = 0; j < couldMatch.get(i).size(); ++j) {
-				currentCandidates.add(subGraph.getNodes().get(couldMatch.get(i).get(j)));
+				currentCandidates.add(couldMatch.get(i).get(j));
 			}
 			current.setBaseGraphNodeCandidates(currentCandidates);
 		}
@@ -115,12 +114,6 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 		if (one.getNodes().size() != other.getNodes().size()) {
 			return false;
 		}
-		System.out.println(one); // TODO: remove debug
-		System.out.println(other); // TODO: remove debug
-		one = GraphEngineSortBased.normalized(one); // TODO: remove debug
-		other = GraphEngineSortBased.normalized(other); // TODO: remove debug
-		System.out.println(one); // TODO: remove debug
-		System.out.println(other); // TODO: remove debug
 		HashMap<Node, Node> mapping = mappingFrom(other, one);
 		if (mapping != null && mappingIsReversable(mapping)) {
 			return true;

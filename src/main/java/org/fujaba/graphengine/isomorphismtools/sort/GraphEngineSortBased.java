@@ -37,7 +37,21 @@ public class GraphEngineSortBased extends GraphEngine {
 		}
 		nf.getNodes().clear();
 		for (int i = 0; i < nodeSortTrees.size(); ++i) {
-			nf.getNodes().add(nodeSortTrees.get(i).getRootNode());
+			Node node = nodeSortTrees.get(i).getRootNode();
+			for (String key: node.getEdges().keySet()) {
+				ArrayList<Node> sortedTargets = new ArrayList<Node>();
+				for (int j = 0; j < nodeSortTrees.size(); ++j) {
+					for (int k = 0; k < node.getEdges(key).size(); ++k) {
+						Node target = node.getEdges(key).get(k);
+						if (target == nodeSortTrees.get(j).getRootNode()) {
+							sortedTargets.add(target);
+						}
+					}
+				}
+				node.getEdges(key).clear();
+				node.getEdges(key).addAll(sortedTargets);
+			}
+			nf.getNodes().add(node);
 		}
 		return nf;
 	}

@@ -2,6 +2,7 @@ package org.fujaba.graphengine.graph.adapter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.fujaba.graphengine.IdManager;
@@ -31,7 +32,9 @@ public class GraphAdapter extends TypeAdapter<Graph> {
 		    out.name("id").value(idManager.getId(node));
 		    out.name("attributes");
 		    out.beginObject();
-		    for (String key: node.getAttributes().keySet()) {
+		    ArrayList<String> keys = new ArrayList<String>(node.getAttributes().keySet());
+		    Collections.sort(keys);
+		    for (String key: keys) {
 		    	Object value = node.getAttribute(key);
 		    	if (value instanceof Integer) {
 			    	out.name(key).value((Integer)node.getAttribute(key));
@@ -52,7 +55,9 @@ public class GraphAdapter extends TypeAdapter<Graph> {
 		    out.endObject();
 		    out.name("edges");
 		    out.beginArray();
-		    for (String key: node.getEdges().keySet()) {
+		    keys = new ArrayList<String>(node.getEdges().keySet());
+		    Collections.sort(keys);
+		    for (String key: keys) {
 		    	out.beginObject();
 		    	out.name(key);
 	    		out.beginArray();

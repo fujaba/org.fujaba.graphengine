@@ -91,10 +91,10 @@ public class GraphEngine {
 		if (subGraph.getNodes().size() > baseGraph.getNodes().size()) {
 			return null;
 		}
-		ArrayList<ArrayList<Integer>> couldMatch = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
 		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 			Node subNode = subGraph.getNodes().get(i);
-			couldMatch.add(new ArrayList<Integer>());
+			couldMatch.add(new ArrayList<Node>());
 nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				Node node = baseGraph.getNodes().get(j);
 				// check existence of outgoing edges and their count:
@@ -111,7 +111,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 						continue nodeMatch;
 					}
 				}
-				couldMatch.get(couldMatch.size() - 1).add(j);
+				couldMatch.get(couldMatch.size() - 1).add(node);
 			}
 			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
 				return null; // no mapping for this node => fail
@@ -125,13 +125,13 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 		HashSet<Node> usedNodes = new HashSet<Node>();
 		// use next duplicate-free configuration (begin)
 fix:	for (int k = currentTry.size() - 1; k >= 0; --k) {
-			while (usedNodes.contains(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))))) {
+			while (usedNodes.contains(couldMatch.get(k).get(currentTry.get(k)))) {
 				if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
 					break fix;
 				}
 				currentTry.set(k, currentTry.get(k) + 1);
 			}
-			usedNodes.add(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))));
+			usedNodes.add(couldMatch.get(k).get(currentTry.get(k)));
 		} // use next duplicate-free configuration (end)
 		boolean canTryAnother = false;
 		do {
@@ -141,7 +141,7 @@ fix:	for (int k = currentTry.size() - 1; k >= 0; --k) {
 			boolean duplicateChoice = false;
 			for (int i = 0; i < couldMatch.size(); ++i) {
 				Node subNode = subGraph.getNodes().get(i);
-				Node node = baseGraph.getNodes().get(couldMatch.get(i).get(currentTry.get(i)));
+				Node node = couldMatch.get(i).get(currentTry.get(i));
 				mapping.put(subNode, node);
 				if (usedNodes.contains(node)) {
 					duplicateChoice = true;
@@ -181,13 +181,13 @@ edgesMatch:		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 					canTryAnother = true;
 					usedNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
 fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
-						while (usedNodes.contains(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))))) {
+						while (usedNodes.contains(couldMatch.get(k).get(currentTry.get(k)))) {
 							if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
 								break fix;
 							}
 							currentTry.set(k, currentTry.get(k) + 1);
 						}
-						usedNodes.add(baseGraph.getNodes().get(couldMatch.get(k).get(currentTry.get(k))));
+						usedNodes.add(couldMatch.get(k).get(currentTry.get(k)));
 					} // use next duplicate-free configuration (end)
 					break;
 				}

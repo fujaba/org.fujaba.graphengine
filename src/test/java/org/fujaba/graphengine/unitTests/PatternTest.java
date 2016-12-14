@@ -255,7 +255,7 @@ public class PatternTest {
 //		GraphEngine.prepareGraphAsJsonFileForSigmaJs(carGraph);
 
 		Graph carGraphChangedNodeOrder = carGraph.clone();
-//		carGraphChangedNodeOrder.getNodes().add(carGraphChangedNodeOrder.getNodes().remove(0));
+		carGraphChangedNodeOrder.getNodes().add(carGraphChangedNodeOrder.getNodes().remove(0));
 		
 		begin = System.nanoTime(); // TODO: remove debug
 		Assert.assertTrue(GraphEngine.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
