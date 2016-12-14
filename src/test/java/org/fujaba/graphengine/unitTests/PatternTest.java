@@ -12,8 +12,6 @@ import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
-import org.fujaba.graphengine.isomorphismtools.csp.GraphEngineCSPBased;
-import org.fujaba.graphengine.isomorphismtools.sort.GraphEngineSortBased;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
@@ -269,11 +267,6 @@ public class PatternTest {
 		Assert.assertTrue(new IsomorphismHandlerCombinatorial().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
 		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
 		System.out.println("IsomorphismHandlerCombinatorial: " + duration + "ms"); // TODO: remove debug
-
-		begin = System.nanoTime(); // TODO: remove debug
-		Assert.assertTrue(GraphEngineSortBased.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
-		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println("GraphEngineSortBased: " + duration + "ms"); // TODO: remove debug
 		
 		begin = System.nanoTime(); // TODO: remove debug
 		Assert.assertTrue(new IsomorphismHandlerSorting().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
@@ -286,11 +279,6 @@ public class PatternTest {
 		 * and it probably should work in like every situation.
 		 * if it does, i'm kinda proud i did this flawless coding so damn fast!
 		 */
-		begin = System.nanoTime(); // TODO: remove debug
-		Assert.assertTrue(GraphEngineCSPBased.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
-		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println("GraphEngineCSPBased: " + duration + "ms"); // TODO: remove debug
-
 		begin = System.nanoTime(); // TODO: remove debug
 		Assert.assertTrue(new IsomorphismHandlerCSP().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
 		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
