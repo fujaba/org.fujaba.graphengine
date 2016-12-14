@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
@@ -37,10 +36,26 @@ public class GraphEngine {
 	
 	private static Gson gson;
 	private static Gson gsonForSigmaJs;
+	private static IsomorphismHandler mainIsomorphismHandler;
 	private static IsomorphismHandler mappingFallback;
 	private static IsomorphismHandler normalizationFallback;
 	private static IsomorphismHandler splitGraphFallback;
 
+	public static void setMainIsomorphismHandler(IsomorphismHandler isomorphismHandler) {
+		if (isomorphismHandler != null) {
+			mainIsomorphismHandler = isomorphismHandler;
+		}
+	}
+	/**
+	 * Returns the current main IsomorphismHandler, that's used for all isomorphism checks, that it does support
+	 * @return the current main IsomorphismHandler, that's used for all isomorphism checks, that it does support
+	 */
+	public static IsomorphismHandler getMainIsomorphismHandler() {
+		if (mainIsomorphismHandler == null) {
+			mainIsomorphismHandler = new IsomorphismHandlerCombinatorial();
+		}
+		return mainIsomorphismHandler;
+	}
 	/**
 	 * Returns an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning mappingFrom-Function
 	 * @return an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning mappingFrom-Function
@@ -126,149 +141,10 @@ public class GraphEngine {
 	 * @return a mapping from the given sub-graph to nodes of this graph if possible, or null
 	 */
 	public static HashMap<Node, Node> mappingFrom(Graph subGraph, Graph baseGraph) {
-		if (subGraph.getNodes().size() > baseGraph.getNodes().size()) {
-			return null;
-		}
-		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
-		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
-			Node subNode = subGraph.getNodes().get(i);
-			couldMatch.add(new ArrayList<Node>());
-nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
-				Node node = baseGraph.getNodes().get(j);
-				// check existence of outgoing edges and their count:
-				for (String key: subNode.getEdges().keySet()) {
-					int currentSubNodeEdgeCount = subNode.getEdges(key).size();
-					int currentNodeEdgeCount = (node.getEdges(key) == null ? 0 : node.getEdges(key).size());
-					if (currentNodeEdgeCount < currentSubNodeEdgeCount) {
-						continue nodeMatch;
-					}
-				}
-				// check attributes:
-				for (String key: subNode.getAttributes().keySet()) {
-					if (!subNode.getAttribute(key).equals(node.getAttribute(key))) {
-						continue nodeMatch;
-					}
-				}
-				couldMatch.get(couldMatch.size() - 1).add(node);
-			}
-			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
-				return null; // no mapping for this node => fail
-			}
-		}
-		// now going through all valid combinations of those loosely fitted candidates to find a match:
-		ArrayList<Integer> currentTry = new ArrayList<Integer>();
-		for (int i = 0; i < couldMatch.size(); ++i) {
-			currentTry.add(0);
-		}
-		HashSet<Node> usedNodes = new HashSet<Node>();
-		// use next duplicate-free configuration (begin)
-fix:	for (int k = currentTry.size() - 1; k >= 0; --k) {
-			while (usedNodes.contains(couldMatch.get(k).get(currentTry.get(k)))) {
-				if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
-					break fix;
-				}
-				currentTry.set(k, currentTry.get(k) + 1);
-			}
-			usedNodes.add(couldMatch.get(k).get(currentTry.get(k)));
-		} // use next duplicate-free configuration (end)
-		boolean canTryAnother = false;
-		do {
-			canTryAnother = false;
-			HashMap<Node, Node> mapping = new HashMap<Node, Node>(); 
-			usedNodes = new HashSet<Node>();
-			boolean duplicateChoice = false;
-			for (int i = 0; i < couldMatch.size(); ++i) {
-				Node subNode = subGraph.getNodes().get(i);
-				Node node = couldMatch.get(i).get(currentTry.get(i));
-				mapping.put(subNode, node);
-				if (usedNodes.contains(node)) {
-					duplicateChoice = true;
-					break;
-				}
-				usedNodes.add(node);
-			}
-			if (!duplicateChoice) {
-				// check targets of outgoing edges:
-				boolean mismatch = false; 
-edgesMatch:		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
-					Node sourceSubNode = subGraph.getNodes().get(i);
-					for (String edgeName: sourceSubNode.getEdges().keySet()) {
-						for (Node targetSubNode: sourceSubNode.getEdges(edgeName)) {
-							Node sourceCheckNode = mapping.get(sourceSubNode);
-							Node targetCheckNode = mapping.get(targetSubNode);
-							if (!sourceCheckNode.getEdges(edgeName).contains(targetCheckNode)) {
-								mismatch = true;
-								break edgesMatch;
-							}
-						}
-					}
-				}
-				if (!mismatch) {
-					return mapping; // the mapping was found => success
-				}
-			}
-			// try to find the next valid configuration of currentTry:
-			for (int i = 0; i < currentTry.size(); ++i) {
-				int currentIndex = currentTry.get(i);
-				int maxIndex = couldMatch.get(i).size() - 1;
-				if (currentIndex < maxIndex) {
-					currentTry.set(i, currentIndex + 1);
-					for (int j = 0; j < i; ++j) {
-						currentTry.set(j, 0);
-					}
-					canTryAnother = true;
-					usedNodes = new HashSet<Node>(); // use next duplicate-free configuration (begin)
-fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
-						while (usedNodes.contains(couldMatch.get(k).get(currentTry.get(k)))) {
-							if (currentTry.get(k) >= couldMatch.get(k).size() - 1) {
-								break fix;
-							}
-							currentTry.set(k, currentTry.get(k) + 1);
-						}
-						usedNodes.add(couldMatch.get(k).get(currentTry.get(k)));
-					} // use next duplicate-free configuration (end)
-					break;
-				}
-			}
-		} while (canTryAnother);
-		return null; // nothing left to check => fail
+		return getMainIsomorphismHandler().mappingFrom(subGraph, baseGraph);
 	}
-	
-	/**
-	 * This function returns true if the given valid mapping from nodes of a sub-graph work in both directions
-	 * 
-	 * @param mapping the valid mapping from nodes of a sub-graph to nodes of its base-graph
-	 * @return true if the mapping works in both directions, or else false
-	 */
-	private static boolean mappingIsReversable(HashMap<Node, Node> mapping) {
-		HashMap<Node, Node> reverseMapping = new HashMap<Node, Node>();
-		// reverse the mapping
-		for (Node subNode: mapping.keySet()) {
-			reverseMapping.put(mapping.get(subNode), subNode);
-		}
-		for (Node newSubNode: reverseMapping.keySet()) {
-			// check attributes
-			for (String attributeName: newSubNode.getAttributes().keySet()) {
-				Object attr1 = reverseMapping.get(newSubNode).getAttribute(attributeName);
-				Object attr2 = newSubNode.getAttribute(attributeName);
-				if ((attr1 == null && attr2 != null) || (attr1 != null && attr2 == null) || !attr1.equals(attr2)) {
-					return false;
-				}
-			}
-			// check edges
-			for (String edgeName: newSubNode.getEdges().keySet()) {
-				for (Node newTargetSubNode: newSubNode.getEdges(edgeName)) {
-					if (!reverseMapping.get(newSubNode).getEdges(edgeName).contains(reverseMapping.get(newTargetSubNode))) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
-	
 	public static boolean isIsomorphicSubGraph(Graph subGraph, Graph baseGraph) {
-		return mappingFrom(subGraph, baseGraph) != null;
+		return getMainIsomorphismHandler().isIsomorphicSubGraph(subGraph, baseGraph);
 	}
 	
 	/**
@@ -278,15 +154,7 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 	 * @return true if the graphs are isomorph
 	 */
 	public static boolean isIsomorphTo(Graph one, Graph other) {
-		if (one.getNodes().size() != other.getNodes().size()) {
-			return false;
-		}
-		HashMap<Node, Node> mapping = mappingFrom(other, one);
-		if (mapping != null && mappingIsReversable(mapping)) {
-			return true;
-		} else{
-			return false;
-		}
+		return getMainIsomorphismHandler().isIsomorphTo(one, other);
 	}
 
 	/**
