@@ -12,6 +12,10 @@ import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.graph.adapter.GraphAdapter;
 import org.fujaba.graphengine.graph.adapter.GraphToSigmaJsAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.sort.NodeSortTree;
 import org.fujaba.graphengine.isomorphismtools.sort.adapter.NodeSortTreeAdapter;
 import org.fujaba.graphengine.pattern.PatternEdge;
@@ -33,6 +37,40 @@ public class GraphEngine {
 	
 	private static Gson gson;
 	private static Gson gsonForSigmaJs;
+	private static IsomorphismHandler mappingFallback;
+	private static IsomorphismHandler normalizationFallback;
+	private static IsomorphismHandler splitGraphFallback;
+
+	/**
+	 * Returns an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning mappingFrom-Function
+	 * @return an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning mappingFrom-Function
+	 */
+	public static IsomorphismHandler getMappingFallback() {
+		if (mappingFallback == null) {
+			mappingFallback = new IsomorphismHandlerCSP();
+		}
+		return mappingFallback;
+	}
+	/**
+	 * Returns an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning normalized-Function
+	 * @return an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning normalized-Function
+	 */
+	public static IsomorphismHandler getNormalizationFallback() {
+		if (normalizationFallback == null) {
+			normalizationFallback = new IsomorphismHandlerSorting();
+		}
+		return normalizationFallback;
+	}
+	/**
+	 * Returns an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning handling of split graphs
+	 * @return an IsomorphismHandler as fallback for an otherwise unimplemented/not functioning handling of split graphs
+	 */
+	public static IsomorphismHandler getSplitGraphFallback() {
+		if (splitGraphFallback == null) {
+			splitGraphFallback = new IsomorphismHandlerCombinatorial();
+		}
+		return splitGraphFallback;
+	}
 
 	/**
 	 * Getter for the GraphEngine's gson
