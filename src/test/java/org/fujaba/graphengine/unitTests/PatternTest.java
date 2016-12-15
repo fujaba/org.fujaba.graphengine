@@ -9,7 +9,6 @@ import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.pattern.PatternAttribute;
@@ -168,7 +167,7 @@ public class PatternTest {
 	}
 	
 	@Test
-	public void testNegativePatternVariants() {
+	public void testNegativePatternVariantsWithDifferentIsomorphismCheckApproaches() {
 
 		// example: find all cars, that have no blue wheel
 		
@@ -246,48 +245,48 @@ public class PatternTest {
 		long begin;
 		double duration;
 		// test if only the 4 cars without blue wheels are found:
-		begin = System.nanoTime(); // TODO: remove debug
+		begin = System.nanoTime();
 		ArrayList<Match> matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
 		matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
-		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println(duration + "ms"); // TODO: remove debug
+		duration = (System.nanoTime() - begin) / 1e6;
+		System.out.println("PatternEngine.matchPattern(): " + duration + "ms");
 		Assert.assertEquals(4, matches.size());
 
-//		GraphEngine.prepareGraphAsJsonFileForSigmaJs(carGraph);
+		GraphEngine.prepareGraphAsJsonFileForSigmaJs(carGraph);
 
 		Graph carGraphChangedNodeOrder = carGraph.clone();
 		carGraphChangedNodeOrder.getNodes().add(carGraphChangedNodeOrder.getNodes().remove(0));
 
-		begin = System.nanoTime(); // TODO: remove debug
+		begin = System.nanoTime();
 		Assert.assertTrue(GraphEngine.isIsomorphTo(carGraph, carGraphChangedNodeOrder));
-		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println("GraphEngine: " + duration + "ms"); // TODO: remove debug
+		duration = (System.nanoTime() - begin) / 1e6;
+		System.out.println("GraphEngine: " + duration + "ms");
 
-		begin = System.nanoTime(); // TODO: remove debug
+		begin = System.nanoTime();
 		Assert.assertTrue(new IsomorphismHandlerCSP().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
-		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println("IsomorphismHandlerCSP: " + duration + "ms"); // TODO: remove debug
+		duration = (System.nanoTime() - begin) / 1e6;
+		System.out.println("IsomorphismHandlerCSP: " + duration + "ms");
 		
-		begin = System.nanoTime(); // TODO: remove debug
+		begin = System.nanoTime();
 		Assert.assertTrue(new IsomorphismHandlerSorting().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
-		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-		System.out.println("IsomorphismHandlerSorting: " + duration + "ms"); // TODO: remove debug
+		duration = (System.nanoTime() - begin) / 1e6;
+		System.out.println("IsomorphismHandlerSorting: " + duration + "ms");
 
-//		begin = System.nanoTime(); // TODO: remove debug
+//		begin = System.nanoTime();
 //		Assert.assertTrue(new IsomorphismHandlerCombinatorial().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
-//		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-//		System.out.println("IsomorphismHandlerCombinatorial: " + duration + "ms"); // TODO: remove debug
+//		duration = (System.nanoTime() - begin) / 1e6;
+//		System.out.println("IsomorphismHandlerCombinatorial: " + duration + "ms");
 
-//		// test if the reachability graph doesn't go rogue and somehow find multiple graphs:
-//		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
-//		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
-//		priorityLevel.add(carWithoutBlueWheel);
-//		patterns.add(priorityLevel);
-//		begin = System.nanoTime(); // TODO: remove debug
-//		Graph rg = PatternEngine.calculateReachabilityGraph(carGraph, patterns);
-//		duration = (System.nanoTime() - begin) / 1e6; // TODO: remove debug
-//		System.out.println(duration + "ms"); // TODO: remove debug
-//		Assert.assertEquals(1, rg.getNodes().size());
+		// test if the reachability graph doesn't go rogue and somehow finds multiple graphs:
+		ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<ArrayList<PatternGraph>>();
+		ArrayList<PatternGraph> priorityLevel = new ArrayList<PatternGraph>();
+		priorityLevel.add(carWithoutBlueWheel);
+		patterns.add(priorityLevel);
+		begin = System.nanoTime();
+		Graph rg = PatternEngine.calculateReachabilityGraph(carGraph, patterns);
+		duration = (System.nanoTime() - begin) / 1e6;
+		System.out.println("PatternEngine.calculateReachabilityGraph(): " + duration + "ms");
+		Assert.assertEquals(1, rg.getNodes().size());
 	}
 	
 	/**

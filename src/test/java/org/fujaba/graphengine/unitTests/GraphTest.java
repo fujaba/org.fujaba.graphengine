@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -367,8 +371,13 @@ public class GraphTest {
 		
 		Graph two = one.clone();
 		
+		IsomorphismHandler isomorphismHandler = null;
+//		isomorphismHandler = GraphEngine.getMainIsomorphismHandler();
+//		isomorphismHandler = new IsomorphismHandlerCSP();
+//		isomorphismHandler = new IsomorphismHandlerSorting();
+		isomorphismHandler = new IsomorphismHandlerCombinatorial();
 	    long start = System.nanoTime();
-	    Assert.assertTrue(GraphEngine.isIsomorphTo(two, one));
+	    Assert.assertTrue(isomorphismHandler.isIsomorphTo(two, one));
 	    long duration = System.nanoTime() - start;
 	    System.out.println("test ismorphic check performance: " + duration / 1e6 + "ms");
 		
