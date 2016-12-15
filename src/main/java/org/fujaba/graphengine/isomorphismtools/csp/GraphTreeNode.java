@@ -137,7 +137,7 @@ public class GraphTreeNode {
 			return null;
 		}
 		for (GraphTreeNode childGraphTreeNode: childrenGraphTreeNodes) {
-			// TODO: right here!!!! check the connections between nodes of 'this' and 'childGraphTreeNode'
+			// check the connections between nodes of 'this' and 'childGraphTreeNode':
 			Node parentSubNode = this.getSubGraphNode();
 			Node childSubNode = childGraphTreeNode.getSubGraphNode();
 			Node parentBaseNode = this.getCurrentBaseGraphNodeCandidate();
