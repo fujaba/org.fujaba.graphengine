@@ -1,7 +1,11 @@
 package org.fujaba.graphengine.unitTests;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.gson.stream.JsonReader;
+
+import java.io.FileReader;
 import java.util.ArrayList;
 
 import org.fujaba.graphengine.GraphEngine;
@@ -41,6 +45,11 @@ public class TestVisualization {
 			}
 		}
 		GraphEngine.prepareGraphAsJsonFileForSigmaJs(graph);
+	}
+	
+	@Test
+	public void testBigGraphVisualization() {
+		GraphEngine.prepareGraphAsJsonFileForSigmaJs(GraphTest.constructBigGraph(20, 1, 2, 1, 3, 1));
 	}
 	
 	/**

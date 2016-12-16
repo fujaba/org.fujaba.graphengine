@@ -205,7 +205,7 @@ public class GraphTest {
 		}
 	}
 	
-	ArrayList<Graph> createTestGraphs(int nodeCount, int subGraphNodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
+	static ArrayList<Graph> createTestGraphs(int nodeCount, int subGraphNodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
 		if (nodeCount < 0) {
 			nodeCount = 0;
 		}
@@ -214,9 +214,6 @@ public class GraphTest {
 		}
 		if (edgeTypeCount < 1) {
 			edgeTypeCount = 1;
-		}
-		while (edgeTypeCount < nodeCount * edgeCountPerNode) {
-			++edgeTypeCount;
 		}
 		if (edgeCountPerNode < 0) {
 			edgeCountPerNode = 0;
@@ -276,15 +273,12 @@ public class GraphTest {
 		return result;
 	}
 	
-	Graph constructBigGraph(int nodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
+	static Graph constructBigGraph(int nodeCount, int edgeTypeCount, int edgeCountPerNode, int attributeTypeCount, int attributeValueCount, int attributeCountPerNode) {
 		if (nodeCount < 0) {
 			nodeCount = 0;
 		}
 		if (edgeTypeCount < 1) {
 			edgeTypeCount = 1;
-		}
-		while (edgeTypeCount < nodeCount * edgeCountPerNode) {
-			++edgeTypeCount;
 		}
 		if (edgeCountPerNode < 0) {
 			edgeCountPerNode = 0;
