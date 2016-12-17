@@ -40,8 +40,10 @@ public class PatternGraph {
 		this.patternNodes = patternNodes;
 		return this;
 	}
-	public PatternGraph addPatternNode(PatternNode patternNode) {
-		this.patternNodes.add(patternNode);
+	public PatternGraph addPatternNode(PatternNode... patternNodes) {
+		for (PatternNode patternNode: patternNodes) {
+			this.patternNodes.add(patternNode);
+		}
 		return this;
 	}
 	

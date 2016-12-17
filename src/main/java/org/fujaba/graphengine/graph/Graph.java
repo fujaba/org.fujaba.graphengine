@@ -48,14 +48,16 @@ public class Graph implements Cloneable {
         return this;
     }
 
-    public Graph removeNode(Node node) {
-        if (this.nodes == null) {
-            return this;
-        }
-        this.nodes.remove(node);
-        for (Node otherNode : this.nodes) {
-            otherNode.removeEdgesTo(node);
-        }
+    public Graph removeNode(Node... nodes) {
+    	for (Node node: nodes) {
+            if (this.nodes == null) {
+                return this;
+            }
+            this.nodes.remove(node);
+            for (Node otherNode : this.nodes) {
+                otherNode.removeEdgesTo(node);
+            }
+    	}
         return this;
     }
 

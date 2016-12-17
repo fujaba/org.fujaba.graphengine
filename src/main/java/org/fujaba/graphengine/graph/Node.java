@@ -53,11 +53,13 @@ public class Node implements Cloneable {
         return this;
     }
 
-    public Node removeAttribute(String name) {
-        if (this.attributes == null) {
-            return this;
-        }
-        this.attributes.remove(name);
+    public Node removeAttribute(String... names) {
+    	for (String name: names) {
+            if (this.attributes == null) {
+                continue;
+            }
+            this.attributes.remove(name);
+    	}
         return this;
     }
 
@@ -93,13 +95,13 @@ public class Node implements Cloneable {
     public Node removeEdge(String name, Node... targets) {
 	    for (Node target: targets) {
 	        if (target == null) {
-	            return this;
+	            continue;
 	        }
 	        if (this.edges == null) {
-	            return this;
+	            continue;
 	        }
 	        if (this.edges.get(name) == null) {
-	            return this;
+	            continue;
 	        }
 	        this.edges.get(name).remove(target);
 	        if (this.edges.get(name).size() == 0) {

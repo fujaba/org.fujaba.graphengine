@@ -63,15 +63,19 @@ public class PatternNode extends PatternElement {
 		patternAttributes.add(new PatternAttribute().setName(name).setValue(value));
 		return this;
 	}
-	public PatternNode addPatternAttribute(PatternAttribute patternAttribute) {
-		this.patternAttributes.add(patternAttribute);
+	public PatternNode addPatternAttribute(PatternAttribute... patternAttributes) {
+		for (PatternAttribute patternAttribute: patternAttributes) {
+			this.patternAttributes.add(patternAttribute);
+		}
 		return this;
 	}
-	public PatternNode removePatternAttribute(String name) {
-		for (int i = 0; i < patternAttributes.size(); ++i) {
-			if (patternAttributes.get(i).getName() == name) {
-				patternAttributes.remove(i);
-				return this;
+	public PatternNode removePatternAttribute(String... names) {
+		for (String name: names) {
+			for (int i = 0; i < patternAttributes.size(); ++i) {
+				if (patternAttributes.get(i).getName() == name) {
+					patternAttributes.remove(i);
+					continue;
+				}
 			}
 		}
 		return this;
@@ -83,8 +87,16 @@ public class PatternNode extends PatternElement {
 		this.patternEdges = patternEdges;
 		return this;
 	}
-	public PatternNode addPatternEdge(PatternEdge patternEdge) {
-		this.patternEdges.add(patternEdge);
+	public PatternNode addPatternEdge(PatternEdge... patternEdges) {
+		for (PatternEdge patternEdge: patternEdges) {
+			this.patternEdges.add(patternEdge);
+		}
+		return this;
+	}
+	public PatternNode addPatternEdge(String name, PatternNode... targets) {
+		for (PatternNode target: targets) {
+			this.patternEdges.add(new PatternEdge().setSource(this).setName(name).setTarget(target));
+		}
 		return this;
 	}
 	@Override
