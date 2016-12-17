@@ -70,24 +70,20 @@ public class RoadworkExample {
 	    PatternNode thisRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
 	    PatternNode nextRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
 	      
-	    prevRoad.addPatternEdge(new PatternEdge().setSource(prevRoad).setName("east").setTarget(thisRoad));
-	    thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("east").setTarget(nextRoad));
+	    prevRoad.addPatternEdge("east", thisRoad);
+	    thisRoad.addPatternEdge("east", nextRoad);
 	
 	    PatternNode existingCarAtEntrance = new PatternNode().setAttributeMatchExpression("#{type} == 'car'").setAction("!=");
 	    PatternNode nonExistingCarAtEntrance = new PatternNode().setAction("+");
 	    nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
 	    nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("east").setAction("+"));
 	
-        thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(existingCarAtEntrance));
+        thisRoad.addPatternEdge("car", existingCarAtEntrance);
         thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
-//	    existingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(existingCarAtEntrance).setName("at").setTarget(thisRoad));
+//	    existingCarAtEntrance.addPatternEdge("at", thisRoad);
 //	    nonExistingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(nonExistingCarAtEntrance).setName("at").setTarget(thisRoad).setAction("+"));
 	
-	    graph.addPatternNode(prevRoad);
-	    graph.addPatternNode(thisRoad);
-	    graph.addPatternNode(nextRoad);
-	    graph.addPatternNode(existingCarAtEntrance);
-	    graph.addPatternNode(nonExistingCarAtEntrance);
+	    graph.addPatternNode(prevRoad, thisRoad, nextRoad, existingCarAtEntrance, nonExistingCarAtEntrance);
 	      
 	    return graph;
     }
@@ -106,7 +102,8 @@ public class RoadworkExample {
 //        GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());
 //	
 //        System.out.println(createCarsPattern);
-//	    ArrayList<Match> matches = PatternEngine.matchPattern(startGraph, createCarsPattern, false);
+	    ArrayList<Match> matches = PatternEngine.matchPattern(startGraph, createCarsPattern, false);
+	    System.out.println(matches.size() + " initial match" + (matches.size() != 1 ? "es" : "") + " found for the 'createCarsPattern'");
 //	    Graph afterAppliedMatch = PatternEngine.applyMatch(matches.get(0));
 //	    Assert.assertTrue(!GraphEngine.isIsomorphTo(startGraph, afterAppliedMatch));
 //	      
@@ -117,7 +114,7 @@ public class RoadworkExample {
 //	    System.out.println(serializedNodeOutOfRG);
 //	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(nodeOutOfRG);
 //	
-//	    System.out.println(reachabilityGraph.getNodes().size());
+	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
     }
     
 }
