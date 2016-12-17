@@ -464,26 +464,30 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 			clonedNodeMatch.put(patternNode, clonedGraph.getNodes().get(match.getGraph().getNodes().indexOf(match.getNodeMatch().get(patternNode))));
 		}
 		
+		// first create new nodes, so it can be used for targets of new edges from other nodes and so on:
+		for (PatternNode patternNode: match.getPattern().getPatternNodes()) {
+			Node matchedNode;
+			switch (patternNode.getAction()) {
+			case "+": // create
+				matchedNode = new Node();
+				clonedNodeMatch.put(patternNode, matchedNode);
+			}
+		}
+		
+		// then do the rest, except for creating new attributes, because they could also be removed (could remove a new attribute):
 		for (PatternNode patternNode: match.getPattern().getPatternNodes()) {
 			Node matchedNode;
 			switch (patternNode.getAction()) {
 			case "-": // remove
 				clonedGraph.removeNode(clonedNodeMatch.get(patternNode));
 				continue;
-			case "+": // create
-				matchedNode = new Node();
-				clonedGraph.addNode(matchedNode);
-				break;
-			default: // match
+			default: // match or create
 				matchedNode = clonedNodeMatch.get(patternNode);
 			}
 			for (PatternAttribute patternAttribute: patternNode.getPatternAttributes()) {
 				switch (patternAttribute.getAction()) {
 				case "-": // remove
 					matchedNode.removeAttribute(patternAttribute.getName());
-					break;
-				case "+": // create
-					matchedNode.setAttribute(patternAttribute.getName(), patternAttribute.getValue());
 				}
 			}
 			for (PatternEdge patternEdge: patternNode.getPatternEdges()) {
@@ -493,6 +497,25 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 					break;
 				case "+": // create
 					matchedNode.addEdge(patternEdge.getName(), clonedNodeMatch.get(patternEdge.getTarget()));
+				}
+			}
+		}
+
+		// then create new attributes:
+		for (PatternNode patternNode: match.getPattern().getPatternNodes()) {
+			Node matchedNode;
+			switch (patternNode.getAction()) {
+			case "+":
+			case "==":
+				matchedNode = clonedNodeMatch.get(patternNode);
+				break;
+			default:
+				continue;
+			}
+			for (PatternAttribute patternAttribute: patternNode.getPatternAttributes()) {
+				switch (patternAttribute.getAction()) {
+				case "+": // create
+					matchedNode.setAttribute(patternAttribute.getName(), patternAttribute.getValue());
 				}
 			}
 		}

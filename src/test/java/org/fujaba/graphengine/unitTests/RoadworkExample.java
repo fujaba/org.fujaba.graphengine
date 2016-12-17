@@ -104,7 +104,7 @@ public class RoadworkExample {
 	    arrayList.get(0).add(createCarsPattern);
 	
 //        GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());
-	
+//	
 //        System.out.println(createCarsPattern);
 //	    ArrayList<Match> matches = PatternEngine.matchPattern(startGraph, createCarsPattern, false);
 //	    Graph afterAppliedMatch = PatternEngine.applyMatch(matches.get(0));
