@@ -208,6 +208,11 @@ public class GraphEngine {
 			ArrayList<Node> succ = new ArrayList<Node>();
 			for (String edgeName: current.getEdges().keySet()) {
 				for (Node outgoing: current.getEdges(edgeName)) {
+					if (outgoing == null) {
+						// how was this null????? TODO: debug
+						System.out.println("edgeName: " + edgeName); // TODO: remove debug
+						System.out.println("edgeTargets: " + current.getEdges(edgeName)); // TODO: remove debug
+					}
 					if (!open.contains(outgoing) && !closed.contains(outgoing) && !succ.contains(outgoing)) {
 						succ.add(outgoing);
 					}
