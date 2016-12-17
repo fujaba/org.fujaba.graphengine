@@ -219,7 +219,7 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 				}
 			}
 			// if there's not even one loosely matched candidate, there will be no match at all => return empty list!
-			if (!"!=".equals(patternNode.getAction()) && couldMatch.get(i).size() < 1) {
+			if (!"!=".equals(patternNode.getAction()) && couldMatch.get(couldMatch.size() - 1).size() < 1) {
 				return matches;
 			}
 		}

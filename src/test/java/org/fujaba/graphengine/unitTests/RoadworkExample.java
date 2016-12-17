@@ -78,10 +78,10 @@ public class RoadworkExample {
 	    nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
 	    nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("east").setAction("+"));
 	
-//        thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(existingCarAtEntrance));
-//        thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
-	    existingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(existingCarAtEntrance).setName("at").setTarget(thisRoad));
-	    nonExistingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(nonExistingCarAtEntrance).setName("at").setTarget(thisRoad).setAction("+"));
+        thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(existingCarAtEntrance));
+        thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
+//	    existingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(existingCarAtEntrance).setName("at").setTarget(thisRoad));
+//	    nonExistingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(nonExistingCarAtEntrance).setName("at").setTarget(thisRoad).setAction("+"));
 	
 	    graph.addPatternNode(prevRoad);
 	    graph.addPatternNode(thisRoad);
@@ -110,7 +110,7 @@ public class RoadworkExample {
 //	    Graph afterAppliedMatch = PatternEngine.applyMatch(matches.get(0));
 //	    Assert.assertTrue(!GraphEngine.isIsomorphTo(startGraph, afterAppliedMatch));
 //	      
-//	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(startGraph, arrayList);
+	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(startGraph, arrayList);
 //	
 //	    Graph nodeOutOfRG = GraphEngine.getGson().fromJson((String)reachabilityGraph.getNodes().get(4).getAttribute("graph"), Graph.class);
 //	    String serializedNodeOutOfRG = GraphEngine.getGson().toJson(nodeOutOfRG);
