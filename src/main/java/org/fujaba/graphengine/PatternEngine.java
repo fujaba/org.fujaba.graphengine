@@ -1,8 +1,11 @@
 package org.fujaba.graphengine;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import javax.naming.spi.DirStateFactory.Result;
 
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
@@ -155,6 +158,373 @@ public class PatternEngine {
 		}
 		return -1;
 	}
+	
+	private static ArrayList<ArrayList<PatternNode>> doDepthFirstExplore(ArrayList<PatternNode> patternNodes) {
+		ArrayList<ArrayList<PatternNode>> result = new ArrayList<ArrayList<PatternNode>>();
+		ArrayList<PatternNode> unprocessed = new ArrayList<PatternNode>(patternNodes);
+		while (unprocessed.size() > 0) {
+			PatternNode start = unprocessed.remove(0);
+			ArrayList<PatternNode> open = new ArrayList<PatternNode>();
+			ArrayList<PatternNode> closed = new ArrayList<PatternNode>();
+			open.add(start);
+			while (open.size() > 0) {
+				PatternNode current = open.remove(0);
+				closed.add(current);
+				ArrayList<PatternNode> succ = new ArrayList<PatternNode>();
+				for (PatternEdge patternEdge: current.getPatternEdges()) {
+					if (!open.contains(patternEdge.getTarget())
+							&& !closed.contains(patternEdge.getTarget())
+							&& !succ.contains(patternEdge.getTarget())
+							&& unprocessed.contains(patternEdge.getTarget())) {
+						succ.add(patternEdge.getTarget());
+					}
+				}
+				for (PatternNode ingoing: unprocessed) {
+					for (PatternEdge patternEdge: ingoing.getPatternEdges()) {
+						if (patternEdge.getTarget() == current
+								&& !open.contains(ingoing)
+								&& !closed.contains(ingoing)
+								&& !succ.contains(ingoing)) {
+							succ.add(ingoing);
+							break;
+						}
+					}
+				}
+				open.addAll(succ);
+			}
+			unprocessed.removeAll(closed);
+			result.add(closed);
+		}
+		return result;
+	}
+	
+	private static ArrayList<ArrayList<PatternNode>> calculateNodeMatchingLists(PatternGraph pattern) {
+		ArrayList<ArrayList<PatternNode>> result = new ArrayList<ArrayList<PatternNode>>();
+		result.add(new ArrayList<PatternNode>()); // positive list
+		
+		// first check which nodes are positive and which nodes are negative (don't mind 'neutral' nodes):
+		ArrayList<PatternNode> positiveNodes = new ArrayList<PatternNode>();
+		ArrayList<PatternNode> negativeNodes = new ArrayList<PatternNode>();
+		for (PatternNode node: pattern.getPatternNodes()) {
+			switch (node.getAction()) {
+			case "==":
+			case "-":
+				positiveNodes.add(node);
+				break;
+			case "+":
+				break;
+			case "!=":
+				negativeNodes.add(node);
+				break;
+			default:
+				try {
+					throw new IOException("can't handle PatternNode action '" + node.getAction() + "'!");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		// now do continuous depth-first 'explore's until all positive nodes are in a 'clever' order for later checks:
+		ArrayList<ArrayList<PatternNode>> positiveLists = doDepthFirstExplore(positiveNodes);
+		for (ArrayList<PatternNode> listPart: positiveLists) {
+			result.get(0).addAll(listPart);
+		}
+		
+		// finally do continuous depth-first 'explore's for negative nodes, but this time yielding separate node lists:
+		ArrayList<ArrayList<PatternNode>> negativeLists = doDepthFirstExplore(negativeNodes);
+		result.addAll(negativeLists);
+		
+		return result;
+	}
+	
+	private static ArrayList<ArrayList<ArrayList<Node>>> findPossibleMatchesForPositiveAndNegativeNodes(Graph graph, ArrayList<ArrayList<PatternNode>> nodeMatchLists) {
+		// now check for 'loosely matched candidates' of nodes to match (level == 0: positive nodes, level > 0: negative node sets):
+		ArrayList<ArrayList<ArrayList<Node>>> couldMatch = new ArrayList<ArrayList<ArrayList<Node>>>();
+		for (int level = 0; level < nodeMatchLists.size(); ++level) {
+			couldMatch.add(new ArrayList<ArrayList<Node>>());
+			for (int i = 0; i < nodeMatchLists.get(level).size(); ++i) {
+				PatternNode patternNode = nodeMatchLists.get(level).get(i);
+				couldMatch.get(level).add(new ArrayList<Node>());
+	nodeMatch:	for (int j = 0; j < graph.getNodes().size(); ++j) {
+					Node node = graph.getNodes().get(j);
+					// check node attribute expression:
+					if (!PatternEngine.evaluate(node, patternNode.getAttributeMatchExpression())) {
+						continue nodeMatch;
+					}
+					// check existence of outgoing edges:
+					for (PatternEdge patternEdge: patternNode.getPatternEdges()) {
+						if ("+".equals(patternEdge.getAction())) {
+							continue;
+						}
+						// TODO verify: we shouldn't mind edges from positive to negative nodes here (yet):
+						boolean dontMind = !"!=".equals(patternEdge.getSource().getAction()) && "!=".equals(patternEdge.getSource().getAction());
+						if (!dontMind) {
+							boolean exists = !(node.getEdges(patternEdge.getName()) == null || node.getEdges(patternEdge.getName()).size() == 0);
+							if (("!=".equals(patternEdge.getAction()) && exists) || !"!=".equals(patternEdge.getAction()) && !exists) {
+								continue nodeMatch;
+							}
+						}
+					}
+					// check every attribute's expression:
+					for (PatternAttribute patternAttribute: patternNode.getPatternAttributes()) {
+						if ("+".equals(patternAttribute.getAction())) {
+							continue;
+						}
+						boolean isSame = PatternEngine.evaluate(node, patternAttribute.getValue());
+						if (("!=".equals(patternAttribute.getAction()) && isSame) || (!"!=".equals(patternAttribute.getAction()) && !isSame)) {
+							continue nodeMatch;
+						}
+					}
+					couldMatch.get(level).get(couldMatch.get(level).size() - 1).add(node);
+				}
+				if (level == 0 && couldMatch.get(level).get(couldMatch.get(level).size() - 1).size() == 0) {
+					return null; // no mapping for this node => fail (only in level == 0)
+				}
+			}
+		}
+		return couldMatch;
+	}
+	
+	public static boolean doesntMatchNegativeNodes(HashMap<PatternNode, Node> map, Graph graph, ArrayList<ArrayList<PatternNode>> nodeMatchLists, ArrayList<ArrayList<ArrayList<Node>>> couldMatch) {
+		for (int level = 1; level < nodeMatchLists.size(); ++level) {
+			/*
+			 * now we check for each set of negative nodes (here: nodeMatchLists.get(level)),
+			 * if there is a possible match within the mapping of the positive match,
+			 * until a match for these negative nodes is found => return false!
+			 * or all level were completed without matching negative nodes => return true!
+			 */
+			HashMap<PatternNode, Node> mapping = (HashMap<PatternNode, Node>)map.clone();
+			ArrayList<Integer> currentTry = new ArrayList<Integer>();
+			for (int i = 0; i < couldMatch.get(level).size(); ++i) {
+				currentTry.add(0);
+				mapping.put(nodeMatchLists.get(level).get(i), couldMatch.get(level).get(i).get(0));
+			}
+			/*
+			 * only check this index against previous ones,
+			 * if ok, increment and check only that one, and so on
+			 */
+			int checkIndex = 0;
+	loop:	while (checkIndex > -1) {
+				for (int i = checkIndex; i < nodeMatchLists.get(level).size(); ++i) {
+					/*
+					 * check nodeMatchLists.get(0).get(i) only against all previous nodes,
+					 * if it is duplicate, or any edge (outgoing or incoming) is missing.
+					 * if it fails: count this nodes candidate up (++currentTry.get(i)) if possible,
+					 * if it can't be counted up, go one level back (i-1) and try increment there and so on.
+					 * if nothing can't be counted up, return null (or set checkIndex to -1 and break);
+					 * after incrementing a candidate, reset all currentTry-elements after it to 0,
+					 * and set the checkIndex to the index of the increment currentTry-element, finally break
+					 */
+					PatternNode currentSubNode = nodeMatchLists.get(level).get(i);
+					boolean fail = false;
+	match:			for (int j = 0; j < i; ++j) {
+						PatternNode otherSubNode = nodeMatchLists.get(level).get(j);
+						// check if the negative node has a duplicate mapping to another negative node of this set
+						if (mapping.get(currentSubNode) == mapping.get(otherSubNode)) {
+							fail = true; // found duplicate!
+							break match;
+						}
+						// check outgoing edges to previous negative nodes
+						for (PatternEdge patternEdge: currentSubNode.getPatternEdges()) {
+							if ("+".equals(patternEdge.getAction())) {
+								continue;
+							}
+							if (patternEdge.getTarget() == otherSubNode) {
+								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
+									fail = true; // failure at outgoing edge
+									break match;
+								}
+							}
+						}
+						// check incoming edges from previous negative nodes
+						for (PatternEdge patternEdge: otherSubNode.getPatternEdges()) {
+							if ("+".equals(patternEdge.getAction())) {
+								continue;
+							}
+							if (patternEdge.getTarget() == currentSubNode) {
+								boolean exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
+									fail = true; // failure at incoming edge
+									break match;
+								}
+							}
+						}
+					}
+					// check if the negative node has a duplicate mapping to a positive node
+					for (int k = 0; k < nodeMatchLists.get(0).size(); ++k) {
+						if (mapping.get(currentSubNode) == mapping.get(nodeMatchLists.get(0).get(k))) {
+							fail = true; // found duplicate!
+							break;
+						}
+					}
+					// check outgoing edges to positive nodes TODO: debug
+					for (int k = 0; k < nodeMatchLists.get(0).size(); ++k) {
+						for (PatternEdge patternEdge: currentSubNode.getPatternEdges()) {
+							if ("+".equals(patternEdge.getAction())) {
+								continue;
+							}
+							if (patternEdge.getTarget() == nodeMatchLists.get(0).get(k)) {
+								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(nodeMatchLists.get(0).get(k)));
+								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
+									fail = true; // failure at outgoing edge
+									break;
+								}
+							}
+						}
+					}
+					// check incoming edges from positive nodes TODO: debug
+					for (int k = 0; k < nodeMatchLists.get(0).size(); ++k) {
+						for (PatternEdge patternEdge: nodeMatchLists.get(0).get(k).getPatternEdges()) {
+							if ("+".equals(patternEdge.getAction())) {
+								continue;
+							}
+							if (patternEdge.getTarget() == currentSubNode) {
+								boolean exists = mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
+									fail = true; // failure at incoming edge
+									break;
+								}
+							}
+						}
+					}
+					if (fail) {
+						// found an error with the 'new' candidate at index i
+						/*
+						 * change candidate of node[i] or if not possible, the next possible earlier one,
+						 * reset the ones after it (also update the mapping)
+						 * and set checkIndex to the new index to check (the one that got incremented)
+						 */
+						checkIndex = i;
+						while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatch.get(level).get(checkIndex).size() - 1) {
+							--checkIndex;
+						}
+						if (checkIndex >= 0) {
+							currentTry.set(checkIndex, currentTry.get(checkIndex) + 1);
+							mapping.put(nodeMatchLists.get(level).get(checkIndex), couldMatch.get(level).get(checkIndex).get(currentTry.get(checkIndex)));
+							for (int j = checkIndex + 1; j < nodeMatchLists.get(level).size(); ++j) {
+								currentTry.set(j, 0);
+								mapping.put(nodeMatchLists.get(0).get(j), couldMatch.get(level).get(j).get(0));
+							}
+						}
+						continue loop;
+					}
+				}
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public static ArrayList<Match> matchPattern(Graph graph, PatternGraph pattern, boolean single, ArrayList<ArrayList<PatternNode>> nodeMatchLists, ArrayList<ArrayList<ArrayList<Node>>> couldMatch) {
+		ArrayList<Match> matches = new ArrayList<Match>();
+		
+		HashMap<PatternNode, Node> mapping = new HashMap<PatternNode, Node>();
+		// now going through all valid combinations (that make sense) of those loosely fitted candidates to find a match:
+		ArrayList<Integer> currentTry = new ArrayList<Integer>();
+		for (int i = 0; i < couldMatch.get(0).size(); ++i) {
+			currentTry.add(0);
+			mapping.put(nodeMatchLists.get(0).get(i), couldMatch.get(0).get(i).get(0));
+		}
+		/*
+		 * only check this index against previous ones,
+		 * if ok, increment and check only that one, and so on
+		 */
+		ArrayList<HashMap<PatternNode, Node>> mappings = new ArrayList<HashMap<PatternNode, Node>>();
+		int checkIndex = 1;
+loop:	while (checkIndex > -1) {
+			for (int i = checkIndex; i < nodeMatchLists.get(0).size(); ++i) {
+				/*
+				 * check nodeMatchLists.get(0).get(i) only against all previous nodes,
+				 * if it is duplicate, or any edge (outgoing or incoming) is missing.
+				 * if it fails: count this nodes candidate up (++currentTry.get(i)) if possible,
+				 * if it can't be counted up, go one level back (i-1) and try increment there and so on.
+				 * if nothing can't be counted up, return null (or set checkIndex to -1 and break);
+				 * after incrementing a candidate, reset all currentTry-elements after it to 0,
+				 * and set the checkIndex to the index of the increment currentTry-element, finally break
+				 */
+				PatternNode currentSubNode = nodeMatchLists.get(0).get(i);
+				boolean fail = false;
+match:			for (int j = 0; j < i; ++j) {
+					PatternNode otherSubNode = nodeMatchLists.get(0).get(j);
+					if (mapping.get(currentSubNode) == mapping.get(otherSubNode)) {
+						fail = true; // found duplicate!
+						break match;
+					}
+					for (PatternEdge patternEdge: currentSubNode.getPatternEdges()) {
+						if ("+".equals(patternEdge.getAction())) {
+							continue;
+						}
+						if (patternEdge.getTarget() == otherSubNode) {
+							boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+							if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
+								fail = true; // failure at outgoing edge
+								break match;
+							}
+						}
+					}
+					for (PatternEdge patternEdge: otherSubNode.getPatternEdges()) {
+						if ("+".equals(patternEdge.getAction())) {
+							continue;
+						}
+						if (patternEdge.getTarget() == currentSubNode) {
+							boolean exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+							if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
+								fail = true; // failure at incoming edge
+								break match;
+							}
+						}
+					}
+				}
+				if (fail) {
+					// found an error with the 'new' candidate at index i
+					/*
+					 * change candidate of node[i] or if not possible, the next possible earlier one,
+					 * reset the ones after it (also update the mapping)
+					 * and set checkIndex to the new index to check (the one that got incremented)
+					 */
+					checkIndex = i;
+					while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatch.get(0).get(checkIndex).size() - 1) {
+						--checkIndex;
+					}
+					if (checkIndex >= 0) {
+						currentTry.set(checkIndex, currentTry.get(checkIndex) + 1);
+						mapping.put(nodeMatchLists.get(0).get(checkIndex), couldMatch.get(0).get(checkIndex).get(currentTry.get(checkIndex)));
+						for (int j = checkIndex + 1; j < nodeMatchLists.get(0).size(); ++j) {
+							currentTry.set(j, 0);
+							mapping.put(nodeMatchLists.get(0).get(j), couldMatch.get(0).get(j).get(0));
+						}
+					}
+					continue loop;
+				}
+			}
+			if (doesntMatchNegativeNodes(mapping, graph, nodeMatchLists, couldMatch)) {
+				mappings.add((HashMap<PatternNode, Node>)mapping.clone()); // it ran through with no errors => success
+				if (single) {
+					break loop;
+				}
+			}
+			// even if a match was found: count up, to find the next match:
+			checkIndex = nodeMatchLists.get(0).size() - 1;
+			while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatch.get(0).get(checkIndex).size() - 1) {
+				--checkIndex;
+			}
+			if (checkIndex >= 0) {
+				currentTry.set(checkIndex, currentTry.get(checkIndex) + 1);
+				mapping.put(nodeMatchLists.get(0).get(checkIndex), couldMatch.get(0).get(checkIndex).get(currentTry.get(checkIndex)));
+				for (int j = checkIndex + 1; j < nodeMatchLists.get(0).size(); ++j) {
+					currentTry.set(j, 0);
+					mapping.put(nodeMatchLists.get(0).get(j), couldMatch.get(0).get(j).get(0));
+				}
+			}
+		}
+		// nothing left to check => return results
+		for (HashMap<PatternNode, Node> successfulMapping: mappings) {
+			matches.add(new Match(graph, pattern, successfulMapping));
+		}
+		return matches;
+	}
 
 	/**
 	 * finds matches for a pattern in a graph.
@@ -164,6 +534,27 @@ public class PatternEngine {
 	 * @return a list of matches for the pattern in the graph
 	 */
 	public static ArrayList<Match> matchPattern(Graph graph, PatternGraph pattern, boolean single) {
+		// first get a 'smart' list of first all positive nodes and then multiple lists of negative nodes that belong together:
+		ArrayList<ArrayList<PatternNode>> nodeMatchLists = calculateNodeMatchingLists(pattern);
+		
+		if (nodeMatchLists.get(0).size() > graph.getNodes().size()) {
+			return new ArrayList<Match>(); // more positive nodes to match, than existing -> fail
+		}
+		
+		// now check for 'loosely matched candidates' of nodes to match (level == 0: positive nodes, level > 0: negative node sets):
+		ArrayList<ArrayList<ArrayList<Node>>> couldMatch = findPossibleMatchesForPositiveAndNegativeNodes(graph, nodeMatchLists);
+		
+		// TODO: maybe do something like this 'remove impossible matches'...
+		
+		if (couldMatch == null) {
+			return new ArrayList<Match>(); // some positive node has no match -> fail
+		}
+		
+		// finally find those matches:
+		return matchPattern(graph, pattern, single, nodeMatchLists, couldMatch);
+	}
+	
+	public static ArrayList<Match> matchPatternOld(Graph graph, PatternGraph pattern, boolean single) {
 		ArrayList<Match> matches = new ArrayList<Match>();
 		// step 1: for every PatternNode, find all possible Nodes:
 		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
@@ -202,8 +593,8 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 				// now edges are being checked 'loosely'
 				for (int k = 0; k < patternNode.getPatternEdges().size(); ++k) {
 					PatternEdge patternEdge = patternNode.getPatternEdges().get(k);
-					// edges that shouldn't exist are skipped ("+" and "!=")
-					if ("+".equals(patternEdge.getAction()) || "!=".equals(patternEdge.getAction())) {
+					// edges that shouldn't exist are skipped ("+" and "!=" plus all edges to nodes with "!=")
+					if ("+".equals(patternEdge.getAction()) || "!=".equals(patternEdge.getAction()) || "!=".equals(patternEdge.getTarget().getAction())) {
 						continue;
 					}
 					// other edges ("==" and "-") should at least exist with this name at all...

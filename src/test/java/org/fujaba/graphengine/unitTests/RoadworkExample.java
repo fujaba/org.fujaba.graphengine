@@ -66,7 +66,7 @@ public class RoadworkExample {
     private PatternGraph createCarsPattern() {
 	    PatternGraph graph = new PatternGraph();
 	
-	    PatternNode prevRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'").setAction("!=");
+	    PatternNode prevRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
 	    PatternNode thisRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
 	    PatternNode nextRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
 	      
@@ -80,8 +80,8 @@ public class RoadworkExample {
 	
         thisRoad.addPatternEdge("car", existingCarAtEntrance);
         thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
-//	    existingCarAtEntrance.addPatternEdge("at", thisRoad);
-//	    nonExistingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(nonExistingCarAtEntrance).setName("at").setTarget(thisRoad).setAction("+"));
+	    existingCarAtEntrance.addPatternEdge("at", thisRoad);
+	    nonExistingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(nonExistingCarAtEntrance).setName("at").setTarget(thisRoad).setAction("+"));
 	
 	    graph.addPatternNode(prevRoad, thisRoad, nextRoad, existingCarAtEntrance, nonExistingCarAtEntrance);
 	      

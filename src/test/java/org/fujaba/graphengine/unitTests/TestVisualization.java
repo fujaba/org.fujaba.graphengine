@@ -124,7 +124,7 @@ public class TestVisualization {
 		eater.setAction("!=");
 		getsEaten.setAttributeMatchExpression("#{type} == 'Cargo'");
 		getsEaten.addPatternEdge(new PatternEdge()
-				.setTarget(getsEaten)
+				.setSource(getsEaten)
 				.setName("at")
 				.setTarget(bankHere));
 		getsEaten.setAction("!=");
@@ -173,7 +173,7 @@ public class TestVisualization {
 		eater.setAction("!=");
 		getsEaten.setAttributeMatchExpression("#{type} == 'Cargo'");
 		getsEaten.addPatternEdge(new PatternEdge()
-				.setTarget(getsEaten)
+				.setSource(getsEaten)
 				.setName("at")
 				.setTarget(bankHere));
 		getsEaten.setAction("!=");
