@@ -53,7 +53,10 @@ public class PatternNode extends PatternElement {
 		this.patternAttributes = patternAttributes;
 		return this;
 	}
-	public PatternNode setPatternAttribute(String name, String value) {
+	public PatternNode setPatternAttribute(String name, Object value) {
+		return setPatternAttribute("==", name, value);
+	}
+	public PatternNode setPatternAttribute(String action, String name, Object value) {
 		for (int i = 0; i < patternAttributes.size(); ++i) {
 			if (patternAttributes.get(i).getName() == name) {
 				patternAttributes.get(i).setValue(value);
@@ -94,8 +97,11 @@ public class PatternNode extends PatternElement {
 		return this;
 	}
 	public PatternNode addPatternEdge(String name, PatternNode... targets) {
+		return addPatternEdge("==", name, targets);
+	}
+	public PatternNode addPatternEdge(String action, String name, PatternNode... targets) {
 		for (PatternNode target: targets) {
-			this.patternEdges.add(new PatternEdge().setSource(this).setName(name).setTarget(target));
+			this.patternEdges.add(new PatternEdge().setSource(this).setName(name).setTarget(target).setAction(action));
 		}
 		return this;
 	}

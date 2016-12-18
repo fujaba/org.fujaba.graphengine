@@ -42,7 +42,17 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 			    out.beginObject();
 		    	out.name("action").value(attribute.getAction());
 		    	out.name("name").value(attribute.getName());
-		    	out.name("value").value(attribute.getValue());
+		    	if (attribute.getValue() instanceof Boolean) {
+			    	out.name("value").value((Boolean)attribute.getValue());
+		    	} else if (attribute.getValue() instanceof Integer) {
+			    	out.name("value").value((Integer)attribute.getValue());
+		    	} else if (attribute.getValue() instanceof Long) {
+			    	out.name("value").value((Long)attribute.getValue());
+		    	} else if (attribute.getValue() instanceof Double) {
+			    	out.name("value").value((Double)attribute.getValue());
+		    	} else {
+			    	out.name("value").value((String)attribute.getValue());
+		    	}
 		    	out.endObject();
 		    }
 		    out.endArray();
@@ -114,6 +124,27 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 					    	    		attribute.setName(in.nextString());
 					    	    		break;
 					    	    	case "value":
+					    	    		try {
+						    	    		attribute.setValue(in.nextBoolean());
+					    	    		} catch (IOException wrongTypeBoolean) {
+					    	    			try {
+							    	    		attribute.setValue(in.nextInt());
+						    	    		} catch (IOException wrongTypeInteger) {
+						    	    			try {
+								    	    		attribute.setValue(in.nextLong());
+							    	    		} catch (IOException wrongTypeLong) {
+							    	    			try {
+									    	    		attribute.setValue(in.nextDouble());
+								    	    		} catch (IOException wrongTypeDouble) {
+								    	    			try {
+										    	    		attribute.setValue(in.nextString());
+									    	    		} catch (IOException wrongTypeString) {
+									    	    			wrongTypeString.printStackTrace();
+									    	    		}
+								    	    		}
+							    	    		}
+						    	    		}
+					    	    		}
 					    	    		attribute.setValue(in.nextString());
 					    	    		break;
 					    	    	}
