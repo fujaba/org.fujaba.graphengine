@@ -258,7 +258,7 @@ public class PatternEngine {
 							continue;
 						}
 						// TODO verify: we shouldn't mind edges from positive to negative nodes here (yet):
-						boolean dontMind = !"!=".equals(patternEdge.getSource().getAction()) && "!=".equals(patternEdge.getSource().getAction());
+						boolean dontMind = !"!=".equals(patternEdge.getSource().getAction()) && "!=".equals(patternEdge.getTarget().getAction());
 						if (!dontMind) {
 							boolean exists = !(node.getEdges(patternEdge.getName()) == null || node.getEdges(patternEdge.getName()).size() == 0);
 							if (("!=".equals(patternEdge.getAction()) && exists) || !"!=".equals(patternEdge.getAction()) && !exists) {
@@ -287,7 +287,7 @@ public class PatternEngine {
 	}
 	
 	public static boolean doesntMatchNegativeNodes(HashMap<PatternNode, Node> map, Graph graph, ArrayList<ArrayList<PatternNode>> nodeMatchLists, ArrayList<ArrayList<ArrayList<Node>>> couldMatch) {
-		for (int level = 1; level < nodeMatchLists.size(); ++level) {
+level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 			/*
 			 * now we check for each set of negative nodes (here: nodeMatchLists.get(level)),
 			 * if there is a possible match within the mapping of the positive match,
@@ -297,8 +297,12 @@ public class PatternEngine {
 			HashMap<PatternNode, Node> mapping = (HashMap<PatternNode, Node>)map.clone();
 			ArrayList<Integer> currentTry = new ArrayList<Integer>();
 			for (int i = 0; i < couldMatch.get(level).size(); ++i) {
-				currentTry.add(0);
-				mapping.put(nodeMatchLists.get(level).get(i), couldMatch.get(level).get(i).get(0));
+				if (couldMatch.get(level).get(i) != null && couldMatch.get(level).get(i).size() > 0) {
+					currentTry.add(0);
+					mapping.put(nodeMatchLists.get(level).get(i), couldMatch.get(level).get(i).get(0));
+				} else {
+					continue level;
+				}
 			}
 			/*
 			 * only check this index against previous ones,
@@ -861,6 +865,7 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 			switch (patternNode.getAction()) {
 			case "+": // create
 				matchedNode = new Node();
+				clonedGraph.addNode(matchedNode);
 				clonedNodeMatch.put(patternNode, matchedNode);
 			}
 		}

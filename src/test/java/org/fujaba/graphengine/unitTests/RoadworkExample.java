@@ -63,7 +63,7 @@ public class RoadworkExample {
 		return g;
 	}
 
-    private PatternGraph createCarsPattern() {
+    private PatternGraph createCarsAtWestPattern() {
 	    PatternGraph graph = new PatternGraph();
 	
 	    PatternNode prevRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'").setAction("!=");
@@ -73,16 +73,38 @@ public class RoadworkExample {
 	    thisRoad.addPatternEdge("east", nextRoad);
 	    graph.addPatternNode(prevRoad, thisRoad, nextRoad);
 	
-	    // TODO: find the bug! it only occurs when the following 3 lines are active - then no match even goes to the negative check
 		PatternNode existingCarAtEntrance = new PatternNode().setAttributeMatchExpression("#{type} == 'car'").setAction("!=");
 		thisRoad.addPatternEdge("car", existingCarAtEntrance);
 		graph.addPatternNode(existingCarAtEntrance);
 		
-//		PatternNode nonExistingCarAtEntrance = new PatternNode().setAction("+");
-//		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
-//		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("east").setAction("+"));
-//		thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
-//		graph.addPatternNode(nonExistingCarAtEntrance);
+		PatternNode nonExistingCarAtEntrance = new PatternNode().setAction("+");
+		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
+		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("east").setAction("+"));
+		thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
+		graph.addPatternNode(nonExistingCarAtEntrance);
+	      
+	    return graph;
+    }
+
+    private PatternGraph createCarsAtEastPattern() {
+	    PatternGraph graph = new PatternGraph();
+	
+	    PatternNode prevRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'").setAction("!=");
+	    PatternNode thisRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
+	    PatternNode nextRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
+	    prevRoad.addPatternEdge("west", thisRoad);
+	    thisRoad.addPatternEdge("west", nextRoad);
+	    graph.addPatternNode(prevRoad, thisRoad, nextRoad);
+	
+		PatternNode existingCarAtEntrance = new PatternNode().setAttributeMatchExpression("#{type} == 'car'").setAction("!=");
+		thisRoad.addPatternEdge("car", existingCarAtEntrance);
+		graph.addPatternNode(existingCarAtEntrance);
+		
+		PatternNode nonExistingCarAtEntrance = new PatternNode().setAction("+");
+		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
+		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("west").setAction("+"));
+		thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
+		graph.addPatternNode(nonExistingCarAtEntrance);
 	      
 	    return graph;
     }
@@ -90,29 +112,25 @@ public class RoadworkExample {
     @Test
     public void test() {
 	    Graph startGraph = getStartGraph();
-	
-	    PatternGraph createCarsPattern = createCarsPattern();
+
+	    PatternGraph createCarsAtWestPattern = createCarsAtWestPattern();
+	    PatternGraph createCarsAtEastPattern = createCarsAtEastPattern();
 	
 	    ArrayList<ArrayList<PatternGraph>> arrayList = new ArrayList<>();
 	    arrayList.add(new ArrayList<>());
+
+	    //arrayList.get(0).add(createCarsAtWestPattern);
+	    arrayList.get(0).add(createCarsAtEastPattern);
 	
-	    arrayList.get(0).add(createCarsPattern);
-	
-//        GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());
-//	
-//        System.out.println(createCarsPattern);
-	    ArrayList<Match> matches = PatternEngine.matchPattern(startGraph, createCarsPattern, false);
-	    System.out.println(matches.size() + " initial match" + (matches.size() != 1 ? "es" : "") + " found for the 'createCarsPattern'");
-//	    Graph afterAppliedMatch = PatternEngine.applyMatch(matches.get(0));
-//	    Assert.assertTrue(!GraphEngine.isIsomorphTo(startGraph, afterAppliedMatch));
-//	      
+        GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());
+
 	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(startGraph, arrayList);
-//	
-//	    Graph nodeOutOfRG = GraphEngine.getGson().fromJson((String)reachabilityGraph.getNodes().get(4).getAttribute("graph"), Graph.class);
-//	    String serializedNodeOutOfRG = GraphEngine.getGson().toJson(nodeOutOfRG);
-//	    System.out.println(serializedNodeOutOfRG);
-//	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(nodeOutOfRG);
-//	
+
+	    Graph nodeOutOfRG = GraphEngine.getGson().fromJson((String)reachabilityGraph.getNodes().get(reachabilityGraph.getNodes().size() - 1).getAttribute("graph"), Graph.class);
+	    String serializedNodeOutOfRG = GraphEngine.getGson().toJson(nodeOutOfRG);
+	    System.out.println(serializedNodeOutOfRG);
+	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(nodeOutOfRG);
+
 	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
     }
     
