@@ -119,7 +119,7 @@ public class RoadworkExample {
 	    ArrayList<ArrayList<PatternGraph>> arrayList = new ArrayList<>();
 	    arrayList.add(new ArrayList<>());
 
-	    //arrayList.get(0).add(createCarsAtWestPattern);
+	    arrayList.get(0).add(createCarsAtWestPattern);
 	    arrayList.get(0).add(createCarsAtEastPattern);
 	
         GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());

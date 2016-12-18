@@ -335,7 +335,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == otherSubNode) {
-								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null && mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at outgoing edge
 									break match;
@@ -348,7 +348,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == currentSubNode) {
-								boolean exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+								boolean exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()) != null && mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at incoming edge
 									break match;
@@ -370,7 +370,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == nodeMatchLists.get(0).get(k)) {
-								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(nodeMatchLists.get(0).get(k)));
+								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null && mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(nodeMatchLists.get(0).get(k)));
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at outgoing edge
 									break;
@@ -385,7 +385,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == currentSubNode) {
-								boolean exists = mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+								boolean exists = mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()) != null && mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at incoming edge
 									break;
