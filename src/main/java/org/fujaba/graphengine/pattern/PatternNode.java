@@ -62,10 +62,10 @@ public class PatternNode extends PatternElement {
 		this.patternAttributes = patternAttributes;
 		return this;
 	}
-	public PatternNode setPatternAttribute(String name, String value) {
+	public PatternNode setPatternAttribute(String name, Object value) {
 		return setPatternAttribute("==", name, value);
 	}
-	public PatternNode setPatternAttribute(String action, String name, String value) {
+	public PatternNode setPatternAttribute(String action, String name, Object value) {
 		for (int i = 0; i < patternAttributes.size(); ++i) {
 			if (patternAttributes.get(i).getName() == name) {
 				patternAttributes.get(i).setValue(value).setAction(action);

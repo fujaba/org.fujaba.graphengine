@@ -49,8 +49,8 @@ public class RoadworkExample {
 		n5.addEdge("east", s6);
 		s6.addEdge("east", s7);
 
-		Node signalW = new Node().setAttribute("type", "signal").setAttribute("pass", "true");
-		Node signalE = new Node().setAttribute("type", "signal").setAttribute("pass", "true");
+		Node signalW = new Node().setAttribute("type", "signal").setAttribute("pass", true);
+		Node signalE = new Node().setAttribute("type", "signal").setAttribute("pass", true);
 		
 		s2.addEdge("signal", signalW);
 		n6.addEdge("signal", signalE);
@@ -82,11 +82,47 @@ public class RoadworkExample {
 		s1.addEdge("east", n2);
 		n2.addEdge("east", s3);
 
-		Node signalW = new Node().setAttribute("type", "signal").setAttribute("pass", "true");
-		Node signalE = new Node().setAttribute("type", "signal").setAttribute("pass", "true");
+		Node signalW = new Node().setAttribute("type", "signal").setAttribute("pass", true);
+		Node signalE = new Node().setAttribute("type", "signal").setAttribute("pass", true);
 		
 		s1.addEdge("signal", signalW);
 		n3.addEdge("signal", signalE);
+		g.addNode(signalW, signalE);
+		
+		Node map = new Node();
+		map.setAttribute("type", "map");
+		map.addEdge("road", n1, n2, n3, s1, s3);
+		g.addNode(map);
+		
+		return g;
+	}
+	Graph getMinimalPlusOneStartGraph() {
+		Graph g = new Graph();
+		
+		Node n1 = new Node().setAttribute("type", "road");
+		Node n2 = new Node().setAttribute("type", "road");
+		Node n3 = new Node().setAttribute("type", "road");
+		Node n4 = new Node().setAttribute("type", "road");
+		
+		Node s1 = new Node().setAttribute("type", "road");
+		Node s4 = new Node().setAttribute("type", "road");
+		
+		g.addNode(n1, n2, n3, n4,
+		          s1,         s4);
+
+		n4.addEdge("west", n3);
+		n3.addEdge("west", n2);
+		n2.addEdge("west", n1);
+		n2.addEdge("west", n1);
+		
+		s1.addEdge("east", n2);
+		n3.addEdge("east", s4);
+
+		Node signalW = new Node().setAttribute("type", "signal").setAttribute("pass", true);
+		Node signalE = new Node().setAttribute("type", "signal").setAttribute("pass", true);
+		
+		s1.addEdge("signal", signalW);
+		n4.addEdge("signal", signalE);
 		g.addNode(signalW, signalE);
 		
 //		Node map = new Node();
@@ -127,7 +163,7 @@ public class RoadworkExample {
 	    PatternNode newRoad = new PatternNode("#{type} == 'road'");
 	    PatternNode carGoingWest = new PatternNode("#{type} == 'car' && #{direction} == 'west'");
 	    PatternNode carInFront = new PatternNode("#{type} == 'car'").setAction("!=");
-	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && #{pass} == 'false'").setAction("!=");
+	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && #{pass} == 0.0").setAction("!=");
 
 	    oldRoad.addPatternEdge("-", "car", carGoingWest);
 	    oldRoad.addPatternEdge("signal", redSignal);
@@ -185,7 +221,7 @@ public class RoadworkExample {
 	    PatternNode newRoad = new PatternNode("#{type} == 'road'");
 	    PatternNode carGoingWest = new PatternNode("#{type} == 'car' && #{direction} == 'east'");
 	    PatternNode carInFront = new PatternNode("#{type} == 'car'").setAction("!=");
-	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && #{pass} == 'false'").setAction("!=");
+	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && #{pass} == 0.0").setAction("!=");
 
 	    oldRoad.addPatternEdge("-", "car", carGoingWest);
 	    oldRoad.addPatternEdge("signal", redSignal);
@@ -216,15 +252,15 @@ public class RoadworkExample {
     private PatternGraph signalToGreenPattern() {
 	    PatternGraph graph = new PatternGraph("signalToGreenPattern");
 	    
-	    PatternNode signalAboutToTurnGreen = new PatternNode("#{type} == 'signal' && #{pass} == 'false'");
-	    PatternNode signalStaysRed = new PatternNode("#{type} == 'signal' && #{pass} == 'false'");
+	    PatternNode signalAboutToTurnGreen = new PatternNode("#{type} == 'signal' && #{pass} == 0.0");
+	    PatternNode signalStaysRed = new PatternNode("#{type} == 'signal' && #{pass} == 0.0");
 	    PatternNode carNeedsGreen = new PatternNode("#{type} == 'car'");
 	    PatternNode roadAtCar = new PatternNode("#{type} == 'road'");
 
 	    roadAtCar.addPatternEdge("car", carNeedsGreen);
 	    roadAtCar.addPatternEdge("signal", signalAboutToTurnGreen);
 	    
-	    signalAboutToTurnGreen.setPatternAttribute("+", "pass", "true");
+	    signalAboutToTurnGreen.setPatternAttribute("+", "pass", true);
 	    
 	    graph.addPatternNode(signalAboutToTurnGreen, signalStaysRed, carNeedsGreen, roadAtCar);
 	    
@@ -234,14 +270,14 @@ public class RoadworkExample {
     private PatternGraph signalToRedPattern() {
 	    PatternGraph graph = new PatternGraph("signalToRedPattern");
 	    
-	    PatternNode signalAboutToTurnRed = new PatternNode("#{type} == 'signal' && #{pass} == 'true'");
+	    PatternNode signalAboutToTurnRed = new PatternNode("#{type} == 'signal' && #{pass} == 1.0");
 	    PatternNode noCarAtSignal = new PatternNode("#{type} == 'car'").setAction("!=");
 	    PatternNode roadAtCar = new PatternNode("#{type} == 'road'");
 	    
 	    roadAtCar.addPatternEdge("car", noCarAtSignal);
 	    roadAtCar.addPatternEdge("signal", signalAboutToTurnRed);
 	    
-	    signalAboutToTurnRed.setPatternAttribute("+", "pass", "false");
+	    signalAboutToTurnRed.setPatternAttribute("+", "pass", false);
 	    
 	    graph.addPatternNode(signalAboutToTurnRed, noCarAtSignal, roadAtCar);
 	    
@@ -263,27 +299,30 @@ public class RoadworkExample {
 	    patterns.get(0).add(deleteCarWestPattern());
 	    patterns.get(0).add(createCarWestPattern());
 	    patterns.get(0).add(moveCarWestPattern());
-
-
-	    //Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(getStartGraph(), patterns);
+	    
+	    long begin;
+	    
+	    
+	    System.out.println("\n(minimal) starting to build reachability graph for RoadworkExample...");
+	    begin = System.nanoTime();
 	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalStartGraph(), patterns);
-
-	    Graph nodeOutOfRG = GraphEngine.getGson().fromJson((String)reachabilityGraph.getNodes().get(reachabilityGraph.getNodes().size() - 1).getAttribute("graph"), Graph.class);
-	    String serializedNodeOutOfRG = GraphEngine.getGson().toJson(nodeOutOfRG);
-	    System.out.println(serializedNodeOutOfRG);
-//	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(GraphEngine.getGson().fromJson((String)reachabilityGraph.getNodes().get(47).getAttribute("graph"), Graph.class));
-	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(nodeOutOfRG);
-//	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(reachabilityGraph);
-
-	    ArrayList<Match> matches = PatternEngine.matchPattern(nodeOutOfRG, deleteCarEastPattern(), false);
-	    System.out.println(matches.size());
-	    Graph after = PatternEngine.applyMatch(matches.get(0));
-	    matches = PatternEngine.matchPattern(after, deleteCarEastPattern(), false);
-	    System.out.println("before: " + nodeOutOfRG);
-	    System.out.println("after: " + after);
-	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(after);
-
+	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
 	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+	    
+
+	    System.out.println("\n(minimal + 1) starting to build reachability graph for RoadworkExample...");
+	    begin = System.nanoTime();
+	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalPlusOneStartGraph(), patterns);
+	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+
+    
     }
     
 }
