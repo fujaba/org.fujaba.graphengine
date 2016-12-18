@@ -22,14 +22,23 @@ public class PatternNode extends PatternElement {
 	 */
 	private ArrayList<PatternEdge> patternEdges = new ArrayList<PatternEdge>();
 
-	
+
 	/**
 	 * public constructor, setting default value of action-attribute to "==" (match).
 	 */
 	public PatternNode() {
 		setAction("==");
 	}
-	
+	/**
+	 * public constructor, setting default value of action-attribute to "==" (match)
+	 * and setting the attributeMatchExpression to the specified value.
+	 * 
+	 * @param attributeMatchExpression the specified attributeMatchExpression for this PatternNode
+	 */
+	public PatternNode(String attributeMatchExpression) {
+		setAttributeMatchExpression(attributeMatchExpression);
+		setAction("==");
+	}
 
 	public String getAttributeMatchExpression() {
 		return attributeMatchExpression;
@@ -53,10 +62,10 @@ public class PatternNode extends PatternElement {
 		this.patternAttributes = patternAttributes;
 		return this;
 	}
-	public PatternNode setPatternAttribute(String name, Object value) {
+	public PatternNode setPatternAttribute(String name, String value) {
 		return setPatternAttribute("==", name, value);
 	}
-	public PatternNode setPatternAttribute(String action, String name, Object value) {
+	public PatternNode setPatternAttribute(String action, String name, String value) {
 		for (int i = 0; i < patternAttributes.size(); ++i) {
 			if (patternAttributes.get(i).getName() == name) {
 				patternAttributes.get(i).setValue(value);

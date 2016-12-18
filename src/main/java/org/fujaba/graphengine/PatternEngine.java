@@ -271,7 +271,7 @@ public class PatternEngine {
 						if ("+".equals(patternAttribute.getAction())) {
 							continue;
 						}
-						boolean isSame = PatternEngine.evaluate(node, (String)patternAttribute.getValue());
+						boolean isSame = PatternEngine.evaluate(node, patternAttribute.getValue());
 						if (("!=".equals(patternAttribute.getAction()) && isSame) || (!"!=".equals(patternAttribute.getAction()) && !isSame)) {
 							continue nodeMatch;
 						}
@@ -586,7 +586,7 @@ nodes:		for (int j = 0; j < graph.getNodes().size(); ++j) {
 						continue;
 					}
 					// other attributes are being checked ("==" and "-" are checked normally; "!=" is checked negatively)
-					boolean attributeValueMatch = PatternEngine.evaluate(node, (String)patternAttribute.getValue());
+					boolean attributeValueMatch = PatternEngine.evaluate(node, patternAttribute.getValue());
 					if (("!=".equals(patternAttribute.getAction()) && attributeValueMatch) || (!"!=".equals(patternAttribute.getAction()) && !attributeValueMatch)) {
 						continue nodes;
 					}

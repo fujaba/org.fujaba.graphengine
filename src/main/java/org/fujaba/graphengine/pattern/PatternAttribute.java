@@ -20,7 +20,7 @@ public class PatternAttribute extends PatternElement {
 	/**
 	 * the value of this PatternAttribute - it can be an expression or a value depending on context
 	 */
-	private Object value;
+	private String value;
 	
 	public String getName() {
 		return name;
@@ -29,10 +29,10 @@ public class PatternAttribute extends PatternElement {
 		this.name = name;
 		return this;
 	}
-	public Object getValue() {
+	public String getValue() {
 		return value;
 	}
-	public PatternAttribute setValue(Object value) {
+	public PatternAttribute setValue(String value) {
 		this.value = value;
 		return this;
 	}
