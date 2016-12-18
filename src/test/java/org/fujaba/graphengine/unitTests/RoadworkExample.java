@@ -122,7 +122,7 @@ public class RoadworkExample {
 	    arrayList.get(0).add(createCarsAtWestPattern);
 	    arrayList.get(0).add(createCarsAtEastPattern);
 	
-        GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());
+//        GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCombinatorial());
 
 	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(startGraph, arrayList);
 
