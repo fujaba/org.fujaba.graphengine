@@ -75,7 +75,7 @@ public class TestVisualization {
 	 * @return the (corrected) 'transport rule' of the ferryman's problem graph
 	 */
 	private PatternGraph getCorrectTranportRule() {
-		PatternGraph pattern = new PatternGraph();
+		PatternGraph pattern = new PatternGraph("correctTranportRule");
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
 		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
 		cargo.setAttributeMatchExpression("#{type} == 'Cargo'");
@@ -137,7 +137,7 @@ public class TestVisualization {
 	 * @return the (corrected) 'empty transport rule' of the ferryman's problem graph
 	 */
 	private PatternGraph getCorrectEmptyTranportRule() {
-		PatternGraph pattern = new PatternGraph();
+		PatternGraph pattern = new PatternGraph("correctEmptyTranportRule");
 		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
 		pattern.addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
 		ferry.setAttributeMatchExpression("#{type} == 'Ferry'");

@@ -234,7 +234,7 @@ public class PatternTest {
 		carE.addEdge("next", carF);
 		
 		// build a pattern that says 'car without a blue wheel':
-		PatternGraph carWithoutBlueWheel = new PatternGraph();
+		PatternGraph carWithoutBlueWheel = new PatternGraph("carWithoutBlueWheel");
 		PatternNode car = new PatternNode()
 				.setAttributeMatchExpression("#{type} == 'Car'");
 		PatternNode wheel = new PatternNode()
@@ -295,7 +295,7 @@ public class PatternTest {
 	 */
 	private PatternGraph getEatingRule() {
 		PatternNode cargoEats = new PatternNode(), cargoGetsEaten = new PatternNode(), ferry = new PatternNode(), bank = new PatternNode();
-		return new PatternGraph()
+		return new PatternGraph("eatingRule")
 		.addPatternNode(cargoEats
 				.setAttributeMatchExpression("#{type} == 'Cargo'")
 		.addPatternEdge(new PatternEdge()
@@ -335,7 +335,7 @@ public class PatternTest {
 	 */
 	private PatternGraph getTranportRule() {
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
-		return new PatternGraph()
+		return new PatternGraph("tranportRule")
 		.addPatternNode(cargo
 				.setAttributeMatchExpression("#{type} == 'Cargo'")
 		.addPatternEdge(new PatternEdge()
@@ -378,7 +378,7 @@ public class PatternTest {
 	 */
 	private PatternGraph getEmptyTranportRule() {
 		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode();
-		return new PatternGraph()
+		return new PatternGraph("emptyTranportRule")
 		.addPatternNode(ferry
 				.setAttributeMatchExpression("#{type} == 'Ferry'")
 		.addPatternEdge(new PatternEdge()
@@ -408,7 +408,7 @@ public class PatternTest {
 	 * @return the (corrected) 'transport rule' of the ferryman's problem graph
 	 */
 	private PatternGraph getCorrectTranportRule() {
-		PatternGraph pattern = new PatternGraph();
+		PatternGraph pattern = new PatternGraph("correctTranportRule");
 		PatternNode cargo = new PatternNode(), ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
 		pattern.addPatternNode(cargo).addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
 		cargo.setAttributeMatchExpression("#{type} == 'Cargo'");
@@ -470,7 +470,7 @@ public class PatternTest {
 	 * @return the (corrected) 'empty transport rule' of the ferryman's problem graph
 	 */
 	private PatternGraph getCorrectEmptyTranportRule() {
-		PatternGraph pattern = new PatternGraph();
+		PatternGraph pattern = new PatternGraph("correctEmptyTranportRule");
 		PatternNode ferry = new PatternNode(), bankHere = new PatternNode(), bankThere = new PatternNode(), eater = new PatternNode(), getsEaten = new PatternNode();
 		pattern.addPatternNode(ferry).addPatternNode(bankHere).addPatternNode(bankThere).addPatternNode(eater).addPatternNode(getsEaten);
 		ferry.setAttributeMatchExpression("#{type} == 'Ferry'");

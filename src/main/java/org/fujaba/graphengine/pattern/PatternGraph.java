@@ -21,6 +21,10 @@ public class PatternGraph {
 	 * the PatternNode contained in this PatternGraph (not in sub-PatternGraphs)
 	 */
 	private ArrayList<PatternNode> patternNodes = new ArrayList<PatternNode>();
+	/**
+	 * the PatternNode contained in this PatternGraph (not in sub-PatternGraphs)
+	 */
+	private String name = "unnamed pattern";
 	
 //	public ArrayList<PatternGraph> getSubPatternGraphs() {
 //		return subPatternGraphs;
@@ -33,6 +37,10 @@ public class PatternGraph {
 //		this.subPatternGraphs.add(subPatternGraph);
 //		return this;
 //	}
+	
+	public PatternGraph(String name) {
+		setName(name);
+	}
 	public ArrayList<PatternNode> getPatternNodes() {
 		return patternNodes;
 	}
@@ -46,7 +54,12 @@ public class PatternGraph {
 		}
 		return this;
 	}
-	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	@Override
 	public String toString() {
 		return GraphEngine.getGson().toJson(this);

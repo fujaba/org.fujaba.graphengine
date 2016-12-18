@@ -98,7 +98,7 @@ public class RoadworkExample {
 	}
 
     private PatternGraph createCarWestPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("createCarWestPattern");
 	
 	    PatternNode prevRoad = new PatternNode("#{type} == 'road'").setAction("!=");
 	    PatternNode thisRoad = new PatternNode("#{type} == 'road'");
@@ -121,7 +121,7 @@ public class RoadworkExample {
     }
     
     private PatternGraph moveCarWestPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("moveCarWestPattern");
 
 	    PatternNode oldRoad = new PatternNode("#{type} == 'road'");
 	    PatternNode newRoad = new PatternNode("#{type} == 'road'");
@@ -141,7 +141,7 @@ public class RoadworkExample {
     }
     
     private PatternGraph deleteCarWestPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("deleteCarWestPattern");
 	    
 	    PatternNode car = new PatternNode("#{type} == 'car' && #{direction} == 'west'").setAction("-");
 	    PatternNode thisRoad = new PatternNode("#{type} == 'road'");
@@ -156,7 +156,7 @@ public class RoadworkExample {
     }
 
     private PatternGraph createCarEastPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("createCarEastPattern");
 	
 	    PatternNode prevRoad = new PatternNode("#{type} == 'road'").setAction("!=");
 	    PatternNode thisRoad = new PatternNode("#{type} == 'road'");
@@ -179,7 +179,7 @@ public class RoadworkExample {
     }
     
     private PatternGraph moveCarEastPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("moveCarEastPattern");
 
 	    PatternNode oldRoad = new PatternNode("#{type} == 'road'");
 	    PatternNode newRoad = new PatternNode("#{type} == 'road'");
@@ -199,7 +199,7 @@ public class RoadworkExample {
     }
     
     private PatternGraph deleteCarEastPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("deleteCarEastPattern");
 	    
 	    PatternNode car = new PatternNode("#{type} == 'car' && #{direction} == 'east'").setAction("-");
 	    PatternNode thisRoad = new PatternNode("#{type} == 'road'");
@@ -214,7 +214,7 @@ public class RoadworkExample {
     }
     
     private PatternGraph signalToGreenPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("signalToGreenPattern");
 	    
 	    PatternNode signalAboutToTurnGreen = new PatternNode("#{type} == 'signal' && #{pass} == 'false'");
 	    PatternNode signalStaysRed = new PatternNode("#{type} == 'signal' && #{pass} == 'false'");
@@ -232,18 +232,18 @@ public class RoadworkExample {
     }
     
     private PatternGraph signalToRedPattern() {
-	    PatternGraph graph = new PatternGraph();
+	    PatternGraph graph = new PatternGraph("signalToRedPattern");
 	    
 	    PatternNode signalAboutToTurnRed = new PatternNode("#{type} == 'signal' && #{pass} == 'true'");
-	    PatternNode carNeedsRed = new PatternNode("#{type} == 'car'").setAction("!=");
+	    PatternNode noCarAtSignal = new PatternNode("#{type} == 'car'").setAction("!=");
 	    PatternNode roadAtCar = new PatternNode("#{type} == 'road'");
 	    
-	    roadAtCar.addPatternEdge("car", carNeedsRed);
+	    roadAtCar.addPatternEdge("car", noCarAtSignal);
 	    roadAtCar.addPatternEdge("signal", signalAboutToTurnRed);
 	    
 	    signalAboutToTurnRed.setPatternAttribute("+", "pass", "false");
 	    
-	    graph.addPatternNode(signalAboutToTurnRed, carNeedsRed, roadAtCar);
+	    graph.addPatternNode(signalAboutToTurnRed, noCarAtSignal, roadAtCar);
 	    
     	return graph; 
     }
@@ -253,16 +253,17 @@ public class RoadworkExample {
 	    ArrayList<ArrayList<PatternGraph>> patterns = new ArrayList<>();
 	    patterns.add(new ArrayList<>());
 
-	    patterns.get(0).add(createCarWestPattern());
-	    patterns.get(0).add(moveCarWestPattern());
-	    patterns.get(0).add(deleteCarWestPattern());
+	    patterns.get(0).add(signalToRedPattern());
+	    patterns.get(0).add(signalToGreenPattern());
 
+	    patterns.get(0).add(deleteCarEastPattern());
 	    patterns.get(0).add(createCarEastPattern());
 	    patterns.get(0).add(moveCarEastPattern());
-	    patterns.get(0).add(deleteCarEastPattern());
+	    
+	    patterns.get(0).add(deleteCarWestPattern());
+	    patterns.get(0).add(createCarWestPattern());
+	    patterns.get(0).add(moveCarWestPattern());
 
-	    patterns.get(0).add(signalToGreenPattern());
-	    patterns.get(0).add(signalToRedPattern());
 
 	    //Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(getStartGraph(), patterns);
 	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalStartGraph(), patterns);
@@ -274,10 +275,13 @@ public class RoadworkExample {
 	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(nodeOutOfRG);
 //	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(reachabilityGraph);
 
-//	    ArrayList<Match> matches = PatternEngine.matchPattern(nodeOutOfRG, deleteCarEastPattern(), false);
-//	    System.out.println(matches.size());
-//	    Graph after = PatternEngine.applyMatch(matches.get(0));
-//	    matches = PatternEngine.matchPattern(after, deleteCarEastPattern(), false);
+	    ArrayList<Match> matches = PatternEngine.matchPattern(nodeOutOfRG, deleteCarEastPattern(), false);
+	    System.out.println(matches.size());
+	    Graph after = PatternEngine.applyMatch(matches.get(0));
+	    matches = PatternEngine.matchPattern(after, deleteCarEastPattern(), false);
+	    System.out.println("before: " + nodeOutOfRG);
+	    System.out.println("after: " + after);
+	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(after);
 
 	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
     }

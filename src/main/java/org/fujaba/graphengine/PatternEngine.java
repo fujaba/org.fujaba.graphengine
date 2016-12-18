@@ -86,6 +86,7 @@ public class PatternEngine {
 					Node target = findGraphInReachabilityGraph(rg, successor);
 					source.addEdge(match.getPattern().toString(), target); // new edge
 				} else {
+//					System.out.println("reached new state with '" + match.getPattern().getName() + "'"); // TODO: remove debug
 					// no, the graph didn't exist before => add a new node
 					Node target = new Node().setAttribute("graph", successor.toString()); // new node
 					rg.addNode(target);
@@ -363,7 +364,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 							break;
 						}
 					}
-					// check outgoing edges to positive nodes TODO: debug
+					// check outgoing edges to positive nodes
 					for (int k = 0; k < nodeMatchLists.get(0).size(); ++k) {
 						for (PatternEdge patternEdge: currentSubNode.getPatternEdges()) {
 							if ("+".equals(patternEdge.getAction())) {
@@ -378,7 +379,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 							}
 						}
 					}
-					// check incoming edges from positive nodes TODO: debug
+					// check incoming edges from positive nodes
 					for (int k = 0; k < nodeMatchLists.get(0).size(); ++k) {
 						for (PatternEdge patternEdge: nodeMatchLists.get(0).get(k).getPatternEdges()) {
 							if ("+".equals(patternEdge.getAction())) {
@@ -527,6 +528,9 @@ match:			for (int j = 0; j < i; ++j) {
 		for (HashMap<PatternNode, Node> successfulMapping: mappings) {
 			matches.add(new Match(graph, pattern, successfulMapping));
 		}
+//		if (matches.size() > 0 && pattern.getName().startsWith("signalTo")) { // TODO: remove debug
+//			System.out.println("found " + matches.size() + " matches for '" + pattern.getName() + "'"); // TODO: remove debug
+//		} // TODO: remove debug
 		return matches;
 	}
 
@@ -852,7 +856,7 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 	 * @return the resulting graph
 	 */
 	public static Graph applyMatch(Match match) {
-		
+//		System.out.println("applying match for '" + match.getPattern().getName() + "'"); // TODO: remove debug
 		Graph clonedGraph = match.getGraph().clone();
 		HashMap<PatternNode, Node> clonedNodeMatch = new HashMap<PatternNode, Node>();
 		for (PatternNode patternNode: match.getNodeMatch().keySet()) {

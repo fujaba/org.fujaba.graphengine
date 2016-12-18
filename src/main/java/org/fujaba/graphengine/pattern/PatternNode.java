@@ -68,11 +68,11 @@ public class PatternNode extends PatternElement {
 	public PatternNode setPatternAttribute(String action, String name, String value) {
 		for (int i = 0; i < patternAttributes.size(); ++i) {
 			if (patternAttributes.get(i).getName() == name) {
-				patternAttributes.get(i).setValue(value);
+				patternAttributes.get(i).setValue(value).setAction(action);
 				return this;
 			}
 		}
-		patternAttributes.add(new PatternAttribute().setName(name).setValue(value));
+		patternAttributes.add(new PatternAttribute().setName(name).setValue(value).setAction(action));
 		return this;
 	}
 	public PatternNode addPatternAttribute(PatternAttribute... patternAttributes) {

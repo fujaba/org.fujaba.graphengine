@@ -28,6 +28,7 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 	public void writeWithManager(JsonWriter out, PatternGraph graph, IdManager idManager) throws IOException {
 		out.beginObject();
 //	    out.name("negative").value(graph.isNegative());
+	    out.name("name").value(graph.getName());
 		out.name("nodes");
 		out.beginArray();
 		for (PatternNode node: graph.getPatternNodes()) {
@@ -86,13 +87,16 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 	public PatternGraph readWithManager(JsonReader in, IdManager idManager) throws IOException {
 		HashMap<Long, HashMap<String, ArrayList<Long>>> edgesToBuild = new HashMap<Long, HashMap<String, ArrayList<Long>>>();
 		HashMap<Long, HashMap<String, ArrayList<String>>> edgesToBuildAction = new HashMap<Long, HashMap<String, ArrayList<String>>>();
-	    final PatternGraph graph = new PatternGraph();
+	    final PatternGraph graph = new PatternGraph("unnamed pattern");
 	    in.beginObject();
 	    while (in.hasNext()) {
 	    	switch (in.nextName()) {
 //	    	case "negative":
 //	    		graph.setNegative(in.nextBoolean());
 //	    		break;
+	    	case "name":
+	    		graph.setName(in.nextString());
+	    		break;
 	    	case "nodes":
 	    		in.beginArray();
 	    	    while (in.hasNext()) {
