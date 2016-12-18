@@ -193,45 +193,45 @@ public class PatternTest {
 		carB.addEdge("has", wheelB1).addEdge("has", wheelB2).addEdge("has", wheelB3).addEdge("has", wheelB4);
 		carA.addEdge("next", carB);
 
-//		// build a car 'C' with 4 blue wheels:
-//		Node carC = new Node().setAttribute("type", "Car");
-//		Node wheelC1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
-//		Node wheelC2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
-//		Node wheelC3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
-//		Node wheelC4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
-//		carGraph.addNode(carC).addNode(wheelC1).addNode(wheelC2).addNode(wheelC3).addNode(wheelC4);
-//		carC.addEdge("has", wheelC1).addEdge("has", wheelC2).addEdge("has", wheelC3).addEdge("has", wheelC4);
-//		carB.addEdge("next", carC);
-//
-//		// build a car 'D' with 4 orange wheels
-//		Node carD = new Node().setAttribute("type", "Car");
-//		Node wheelD1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
-//		Node wheelD2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
-//		Node wheelD3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
-//		Node wheelD4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
-//		carGraph.addNode(carD).addNode(wheelD1).addNode(wheelD2).addNode(wheelD3).addNode(wheelD4);
-//		carD.addEdge("has", wheelD1).addEdge("has", wheelD2).addEdge("has", wheelD3).addEdge("has", wheelD4);
-//		carC.addEdge("next", carD);
-//
-//		// build a car 'E' with 4 red wheels
-//		Node carE = new Node().setAttribute("type", "Car");
-//		Node wheelE1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
-//		Node wheelE2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
-//		Node wheelE3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
-//		Node wheelE4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
-//		carGraph.addNode(carE).addNode(wheelE1).addNode(wheelE2).addNode(wheelE3).addNode(wheelE4);
-//		carE.addEdge("has", wheelE1).addEdge("has", wheelE2).addEdge("has", wheelE3).addEdge("has", wheelE4);
-//		carD.addEdge("next", carE);
-//
-//		// build a car 'F' with 4 green wheels
-//		Node carF = new Node().setAttribute("type", "Car");
-//		Node wheelF1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
-//		Node wheelF2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
-//		Node wheelF3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
-//		Node wheelF4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
-//		carGraph.addNode(carF).addNode(wheelF1).addNode(wheelF2).addNode(wheelF3).addNode(wheelF4);
-//		carF.addEdge("has", wheelF1).addEdge("has", wheelF2).addEdge("has", wheelF3).addEdge("has", wheelF4);
-//		carE.addEdge("next", carF);
+		// build a car 'C' with 4 blue wheels:
+		Node carC = new Node().setAttribute("type", "Car");
+		Node wheelC1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+		Node wheelC2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+		Node wheelC3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+		Node wheelC4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "blue");
+		carGraph.addNode(carC).addNode(wheelC1).addNode(wheelC2).addNode(wheelC3).addNode(wheelC4);
+		carC.addEdge("has", wheelC1).addEdge("has", wheelC2).addEdge("has", wheelC3).addEdge("has", wheelC4);
+		carB.addEdge("next", carC);
+
+		// build a car 'D' with 4 orange wheels
+		Node carD = new Node().setAttribute("type", "Car");
+		Node wheelD1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+		Node wheelD2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+		Node wheelD3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+		Node wheelD4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "orange");
+		carGraph.addNode(carD).addNode(wheelD1).addNode(wheelD2).addNode(wheelD3).addNode(wheelD4);
+		carD.addEdge("has", wheelD1).addEdge("has", wheelD2).addEdge("has", wheelD3).addEdge("has", wheelD4);
+		carC.addEdge("next", carD);
+
+		// build a car 'E' with 4 red wheels
+		Node carE = new Node().setAttribute("type", "Car");
+		Node wheelE1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+		Node wheelE2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+		Node wheelE3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+		Node wheelE4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "red");
+		carGraph.addNode(carE).addNode(wheelE1).addNode(wheelE2).addNode(wheelE3).addNode(wheelE4);
+		carE.addEdge("has", wheelE1).addEdge("has", wheelE2).addEdge("has", wheelE3).addEdge("has", wheelE4);
+		carD.addEdge("next", carE);
+
+		// build a car 'F' with 4 green wheels
+		Node carF = new Node().setAttribute("type", "Car");
+		Node wheelF1 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+		Node wheelF2 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+		Node wheelF3 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+		Node wheelF4 = new Node().setAttribute("type", "Wheel").setAttribute("color", "green");
+		carGraph.addNode(carF).addNode(wheelF1).addNode(wheelF2).addNode(wheelF3).addNode(wheelF4);
+		carF.addEdge("has", wheelF1).addEdge("has", wheelF2).addEdge("has", wheelF3).addEdge("has", wheelF4);
+		carE.addEdge("next", carF);
 		
 		// build a pattern that says 'car without a blue wheel':
 		PatternGraph carWithoutBlueWheel = new PatternGraph();
@@ -250,7 +250,7 @@ public class PatternTest {
 		matches = PatternEngine.matchPattern(carGraph, carWithoutBlueWheel, false);
 		duration = (System.nanoTime() - begin) / 1e6;
 		System.out.println("PatternEngine.matchPattern(): " + duration + "ms");
-		Assert.assertEquals(1, matches.size());
+		Assert.assertEquals(4, matches.size());
 
 		GraphEngine.prepareGraphAsJsonFileForSigmaJs(carGraph);
 

@@ -66,24 +66,23 @@ public class RoadworkExample {
     private PatternGraph createCarsPattern() {
 	    PatternGraph graph = new PatternGraph();
 	
-	    PatternNode prevRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
+	    PatternNode prevRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'").setAction("!=");
 	    PatternNode thisRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
 	    PatternNode nextRoad = new PatternNode().setAttributeMatchExpression("#{type} == 'road'");
-	      
 	    prevRoad.addPatternEdge("east", thisRoad);
 	    thisRoad.addPatternEdge("east", nextRoad);
+	    graph.addPatternNode(prevRoad, thisRoad, nextRoad);
 	
-	    PatternNode existingCarAtEntrance = new PatternNode().setAttributeMatchExpression("#{type} == 'car'").setAction("!=");
-	    PatternNode nonExistingCarAtEntrance = new PatternNode().setAction("+");
-	    nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
-	    nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("east").setAction("+"));
-	
-        thisRoad.addPatternEdge("car", existingCarAtEntrance);
-        thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
-	    existingCarAtEntrance.addPatternEdge("at", thisRoad);
-	    nonExistingCarAtEntrance.addPatternEdge(new PatternEdge().setSource(nonExistingCarAtEntrance).setName("at").setTarget(thisRoad).setAction("+"));
-	
-	    graph.addPatternNode(prevRoad, thisRoad, nextRoad, existingCarAtEntrance, nonExistingCarAtEntrance);
+	    // TODO: find the bug! it only occurs when the following 3 lines are active - then no match even goes to the negative check
+		PatternNode existingCarAtEntrance = new PatternNode().setAttributeMatchExpression("#{type} == 'car'").setAction("!=");
+		thisRoad.addPatternEdge("car", existingCarAtEntrance);
+		graph.addPatternNode(existingCarAtEntrance);
+		
+//		PatternNode nonExistingCarAtEntrance = new PatternNode().setAction("+");
+//		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("type").setValue("car").setAction("+"));
+//		nonExistingCarAtEntrance.addPatternAttribute(new PatternAttribute().setName("direction").setValue("east").setAction("+"));
+//		thisRoad.addPatternEdge(new PatternEdge().setSource(thisRoad).setName("car").setTarget(nonExistingCarAtEntrance).setAction("+"));
+//		graph.addPatternNode(nonExistingCarAtEntrance);
 	      
 	    return graph;
     }
