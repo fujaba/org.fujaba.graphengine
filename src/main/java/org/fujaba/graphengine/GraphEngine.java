@@ -124,7 +124,11 @@ public class GraphEngine {
 	}
 	
 	public static void prepareGraphAsJsonFileForSigmaJs(Graph graph) {
-		try (Writer writer = new FileWriter("src/main/resources/data.json")) {
+		prepareGraphAsJsonFileForSigmaJs(graph, "data.json");
+	}
+	
+	public static void prepareGraphAsJsonFileForSigmaJs(Graph graph, String filename) {
+		try (Writer writer = new FileWriter("src/main/resources/" + filename)) {
 			getGsonForSigmaJs().toJson(graph, writer);
 		} catch (IOException e) {
 			e.printStackTrace();

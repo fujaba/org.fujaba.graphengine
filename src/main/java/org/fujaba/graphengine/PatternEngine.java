@@ -410,7 +410,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 							mapping.put(nodeMatchLists.get(level).get(checkIndex), couldMatch.get(level).get(checkIndex).get(currentTry.get(checkIndex)));
 							for (int j = checkIndex + 1; j < nodeMatchLists.get(level).size(); ++j) {
 								currentTry.set(j, 0);
-								mapping.put(nodeMatchLists.get(0).get(j), couldMatch.get(level).get(j).get(0));
+								mapping.put(nodeMatchLists.get(level).get(j), couldMatch.get(level).get(j).get(0));
 							}
 						}
 						continue loop;
