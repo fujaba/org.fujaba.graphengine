@@ -325,14 +325,14 @@ public class RoadworkExample {
 	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
 	    
 
-	    System.out.println("\n(original) starting to build reachability graph for RoadworkExample...");
-	    begin = System.nanoTime();
-	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getStartGraph(), patterns);
-	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
-	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
-	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
-	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
-	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+//	    System.out.println("\n(original) starting to build reachability graph for RoadworkExample...");
+//	    begin = System.nanoTime();
+//	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getStartGraph(), patterns);
+//	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+//	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
 
 	    
 	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(
