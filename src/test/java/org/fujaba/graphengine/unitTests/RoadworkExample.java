@@ -163,7 +163,7 @@ public class RoadworkExample {
 	    PatternNode newRoad = new PatternNode("#{type} == 'road'");
 	    PatternNode carGoingWest = new PatternNode("#{type} == 'car' && #{direction} == 'west'");
 	    PatternNode carInFront = new PatternNode("#{type} == 'car'").setAction("!=");
-	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && #{pass} == 0.0").setAction("!=");
+	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && !#{pass}").setAction("!=");
 
 	    oldRoad.addPatternEdge("-", "car", carGoingWest);
 	    oldRoad.addPatternEdge("signal", redSignal);
@@ -221,7 +221,7 @@ public class RoadworkExample {
 	    PatternNode newRoad = new PatternNode("#{type} == 'road'");
 	    PatternNode carGoingWest = new PatternNode("#{type} == 'car' && #{direction} == 'east'");
 	    PatternNode carInFront = new PatternNode("#{type} == 'car'").setAction("!=");
-	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && #{pass} == 0.0").setAction("!=");
+	    PatternNode redSignal = new PatternNode("#{type} == 'signal' && !#{pass}").setAction("!=");
 
 	    oldRoad.addPatternEdge("-", "car", carGoingWest);
 	    oldRoad.addPatternEdge("signal", redSignal);
@@ -252,8 +252,8 @@ public class RoadworkExample {
     private PatternGraph signalToGreenPattern() {
 	    PatternGraph graph = new PatternGraph("signalToGreenPattern");
 	    
-	    PatternNode signalAboutToTurnGreen = new PatternNode("#{type} == 'signal' && #{pass} == 0.0");
-	    PatternNode signalStaysRed = new PatternNode("#{type} == 'signal' && #{pass} == 0.0");
+	    PatternNode signalAboutToTurnGreen = new PatternNode("#{type} == 'signal' && !#{pass}");
+	    PatternNode signalStaysRed = new PatternNode("#{type} == 'signal' && !#{pass}");
 	    PatternNode carNeedsGreen = new PatternNode("#{type} == 'car'");
 	    PatternNode roadAtCar = new PatternNode("#{type} == 'road'");
 
@@ -270,7 +270,7 @@ public class RoadworkExample {
     private PatternGraph signalToRedPattern() {
 	    PatternGraph graph = new PatternGraph("signalToRedPattern");
 	    
-	    PatternNode signalAboutToTurnRed = new PatternNode("#{type} == 'signal' && #{pass} == 1.0")
+	    PatternNode signalAboutToTurnRed = new PatternNode("#{type} == 'signal' && #{pass}")
 	    		.setPatternAttribute("+", "pass", false);
 	    
 	    PatternNode carAtBidirectionRoad = new PatternNode("#{type} == 'car'").setAction("!=");
