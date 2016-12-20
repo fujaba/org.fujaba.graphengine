@@ -9,7 +9,7 @@ import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPWithHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
@@ -263,9 +263,9 @@ public class PatternTest {
 		System.out.println("GraphEngine: " + duration + "ms");
 
 		begin = System.nanoTime();
-		Assert.assertTrue(new IsomorphismHandlerCSP().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
+		Assert.assertTrue(new IsomorphismHandlerCSPWithHeuristics().isIsomorphTo(carGraph, carGraphChangedNodeOrder));
 		duration = (System.nanoTime() - begin) / 1e6;
-		System.out.println("IsomorphismHandlerCSP: " + duration + "ms");
+		System.out.println("IsomorphismHandlerCSPWithHeuristics: " + duration + "ms");
 		
 		begin = System.nanoTime();
 		Assert.assertTrue(new IsomorphismHandlerSorting().isIsomorphTo(carGraph, carGraphChangedNodeOrder));

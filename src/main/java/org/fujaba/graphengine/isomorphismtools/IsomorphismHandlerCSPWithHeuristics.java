@@ -7,11 +7,11 @@ import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 
-public class IsomorphismHandlerCSP extends IsomorphismHandler {
+public class IsomorphismHandlerCSPWithHeuristics extends IsomorphismHandler {
 	
 	private static ArrayList<Node> getDepthFirstSortedNodeList(Graph graph) {
 		// obtain all parts of the graph - where each part's nodes are connected with each other:
-		ArrayList<Graph> splitted = GraphEngine.split(graph);
+		ArrayList<Graph> splitted = GraphEngine.split(graph, true);
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		for (Graph connectedGraph: splitted) {
 			// add the nodes to the node-list (note: each part's nodes are already sorted in a depth-first explore's order):
@@ -29,15 +29,21 @@ public class IsomorphismHandlerCSP extends IsomorphismHandler {
 	 * @param subGraph the given sub-graph
 	 * @return a mapping from the given sub-graph to nodes of this graph if possible, or null
 	 */
-	public HashMap<Node, Node> mappingFrom(Graph subGraph, Graph baseGraph) {
-		if (subGraph.getNodes().size() > baseGraph.getNodes().size()) {
+	public HashMap<Node, Node> mappingFrom(Graph subGraphInitial, Graph baseGraph) {
+		if (subGraphInitial.getNodes().size() == 0) {
+			// no nodes in sub-graph => empty mapping is the match (success)
+			return new HashMap<Node, Node>();
+		}
+		if (subGraphInitial.getNodes().size() > baseGraph.getNodes().size()) {
+			// too many sub-graph nodes => fail
 			return null;
 		}
-		ArrayList<Node> sortedNodes = getDepthFirstSortedNodeList(subGraph);
-		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
-		for (int i = 0; i < sortedNodes.size(); ++i) {
-			Node subNode = sortedNodes.get(i);
-			couldMatch.add(new ArrayList<Node>());
+		// now I'm trying to find 'loosely matched candidates':
+		Graph subGraph = subGraphInitial.clone();
+		ArrayList<ArrayList<Node>> couldMatch2 = new ArrayList<ArrayList<Node>>();
+		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
+			Node subNode = subGraph.getNodes().get(i);
+			couldMatch2.add(new ArrayList<Node>());
 nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				Node node = baseGraph.getNodes().get(j);
 				// check existence of outgoing edges and their count:
@@ -54,29 +60,69 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 						continue nodeMatch;
 					}
 				}
-				couldMatch.get(couldMatch.size() - 1).add(node);
+				couldMatch2.get(couldMatch2.size() - 1).add(node);
 			}
-			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
+			if (couldMatch2.get(couldMatch2.size() - 1).size() == 0) {
 				return null; // no mapping for this node => fail
 			}
 		}
-		couldMatch = removeImpossibleCandidates(couldMatch);
-		if (couldMatch == null) {
+		couldMatch2 = removeImpossibleCandidates(couldMatch2);
+		if (couldMatch2 == null) {
+			// after removing 'impossible' candidates, there's no match anymore => fail
 			return null;
 		}
-		/**
-		 * TODO (optimization):
-		 * - we could check each expected edge between each candidate of one node and each candidate of the other node
-		 *   (removing those candidates who don't match to any opposite candidate)
-		 *   
-		 * - we could now again do things like eliminate candidates that are the only candidate for another node
-		 */
-		// if there's only one node and it has any candidate, that is already a successful match:
-		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
-		if (couldMatch.size() == 1) {
-			mapping.put(sortedNodes.get(0), couldMatch.get(0).get(0));
-			return mapping;
+		if (subGraph.getNodes().size() == 1) {
+			// a single node with a candidate is a match => success
+			HashMap<Node, Node> singleNodeMapping = new HashMap<Node, Node>();
+			singleNodeMapping.put(subGraph.getNodes().get(0), couldMatch2.get(0).get(0));
+			return singleNodeMapping;
 		}
+		/*
+		 * here I'm starting the application of the heuristics of the maximum restricted variable (H1) and the minimum node order (H2):
+		 */
+		// first save the old order of the matches:
+		HashMap<Node, Integer> oldIndizes = new HashMap<Node, Integer>();
+		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
+			oldIndizes.put(subGraph.getNodes().get(i), i);
+		}
+		// now check for the maximum restricted variables (H1):
+		ArrayList<Integer> minimumIndices = new ArrayList<Integer>();
+		int minimumValue = Integer.MAX_VALUE;
+		for (int i = 0; i < subGraph.getNodes().size(); ++i) { // minimum candidates
+			if (couldMatch2.get(i).size() <= minimumValue) {
+				if (couldMatch2.get(i).size() < minimumValue) {
+					minimumIndices = new ArrayList<Integer>();
+					minimumValue = couldMatch2.get(i).size();
+				}
+				minimumIndices.add(i);
+			}
+		}
+		// now check within those for the minimum node order (H2):
+		int indicesIndex = -1;
+		minimumValue = Integer.MAX_VALUE;
+		for (int i = 0; i < minimumIndices.size(); ++i) { // minimum node order (outgoing)
+			int outgoingCount = 0;
+			Node currentNode = subGraph.getNodes().get(minimumIndices.get(i));
+			for (String key: currentNode.getEdges().keySet()) {
+				outgoingCount += currentNode.getEdges(key).size();
+			}
+			if (outgoingCount < minimumValue) {
+				minimumValue = outgoingCount;
+				indicesIndex = i;
+			}
+		}
+		// here we have the 'best' node to start with:
+		Node heuristicallySelectedFirstNode = subGraph.getNodes().get(minimumIndices.get(indicesIndex));
+		subGraph.getNodes().remove(heuristicallySelectedFirstNode); // remove from old position
+		subGraph.getNodes().add(0, heuristicallySelectedFirstNode); // put in front
+		// now order the nodes in a depth-first fashion, with the heuristically selected first node as 'root':
+		ArrayList<Node> sortedNodes = getDepthFirstSortedNodeList(subGraph);
+		// restore the matches to the new order:
+		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
+		for (int i = 0; i < sortedNodes.size(); ++i) {
+			couldMatch.add(couldMatch2.get(oldIndizes.get(sortedNodes.get(i))));
+		}
+		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
 		// now going through all valid combinations (that make sense) of those loosely fitted candidates to find a match:
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
 		for (int i = 0; i < couldMatch.size(); ++i) {

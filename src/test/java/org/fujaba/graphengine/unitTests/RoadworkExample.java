@@ -1,12 +1,17 @@
 package org.fujaba.graphengine.unitTests;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPWithHeuristics;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPWithMoreHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
@@ -303,11 +308,89 @@ public class RoadworkExample {
 	    patterns.get(0).add(moveCarWestPattern());
 	    
 	    long begin;
+	    Graph reachabilityGraph;
+	    
+	    
+	    GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCSPWithMoreHeuristics());
+	    System.out.println("\nnew IsomorphismHandlerCSPWithMoreHeuristics()");
+	    
 	    
 	    
 	    System.out.println("\n(minimal) starting to build reachability graph for RoadworkExample...");
 	    begin = System.nanoTime();
-	    Graph reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalStartGraph(), patterns);
+	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalStartGraph(), patterns);
+	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+	    
+
+	    System.out.println("\n(minimal + 1) starting to build reachability graph for RoadworkExample...");
+	    begin = System.nanoTime();
+	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalPlusOneStartGraph(), patterns);
+	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+	    
+
+//	    System.out.println("\n(original) starting to build reachability graph for RoadworkExample...");
+//	    begin = System.nanoTime();
+//	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getStartGraph(), patterns);
+//	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+//	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+	    
+	    
+	    
+	    GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCSP());
+	    System.out.println("\nnew IsomorphismHandlerCSP()");
+	    
+	    
+	    
+	    System.out.println("\n(minimal) starting to build reachability graph for RoadworkExample...");
+	    begin = System.nanoTime();
+	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalStartGraph(), patterns);
+	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+	    
+
+	    System.out.println("\n(minimal + 1) starting to build reachability graph for RoadworkExample...");
+	    begin = System.nanoTime();
+	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalPlusOneStartGraph(), patterns);
+	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+	    
+
+//	    System.out.println("\n(original) starting to build reachability graph for RoadworkExample...");
+//	    begin = System.nanoTime();
+//	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getStartGraph(), patterns);
+//	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+//	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
+//	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+
+	    
+	    
+	    GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCSPWithHeuristics());
+	    System.out.println("\nnew IsomorphismHandlerCSPWithHeuristics()");
+	    
+	    
+	    
+	    System.out.println("\n(minimal) starting to build reachability graph for RoadworkExample...");
+	    begin = System.nanoTime();
+	    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getMinimalStartGraph(), patterns);
 	    System.out.println("done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e6) + " ms.");
 	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9) + " s");
 	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");

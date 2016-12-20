@@ -12,7 +12,7 @@ import org.fujaba.graphengine.graph.adapter.GraphAdapter;
 import org.fujaba.graphengine.graph.adapter.GraphToSigmaJsAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSP;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPWithHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.sort.NodeSortTree;
 import org.fujaba.graphengine.isomorphismtools.sort.adapter.NodeSortTreeAdapter;
@@ -51,7 +51,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getMainIsomorphismHandler() {
 		if (mainIsomorphismHandler == null) {
-			mainIsomorphismHandler = new IsomorphismHandlerCSP();
+			mainIsomorphismHandler = new IsomorphismHandlerCSPWithHeuristics();
 		}
 		return mainIsomorphismHandler;
 	}
@@ -61,7 +61,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getMappingFallback() {
 		if (mappingFallback == null) {
-			mappingFallback = new IsomorphismHandlerCSP();
+			mappingFallback = new IsomorphismHandlerCSPWithHeuristics();
 		}
 		return mappingFallback;
 	}
@@ -81,7 +81,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getSplitGraphFallback() {
 		if (splitGraphFallback == null) {
-			splitGraphFallback = new IsomorphismHandlerCSP();
+			splitGraphFallback = new IsomorphismHandlerCSPWithHeuristics();
 		}
 		return splitGraphFallback;
 	}
@@ -162,16 +162,29 @@ public class GraphEngine {
 
 	/**
 	 * Returns all separate graphs (parts of this graph with no edges in between) as new graphs.
+	 * @param graph the graph to split
 	 * @return all separate graphs (parts of this graph with no edges in between) as new graphs
 	 */
 	public static ArrayList<Graph> split(Graph graph) {
+		return split(graph, false);
+	}
+	/**
+	 * Returns all separate graphs (parts of this graph with no edges in between) as new graphs.
+	 * @param graph the graph to split
+	 * @param keepGraph whether to keep the graph-nodes (true) or to use a clone (false)
+	 * @return all separate graphs (parts of this graph with no edges in between) as new graphs
+	 */
+	public static ArrayList<Graph> split(Graph graph, boolean keepGraph) {
 		ArrayList<Graph> result = new ArrayList<Graph>();
 		if (graph.getNodes().size() <= 1) {
 			result.add(graph.clone());
 			return result;
 		}
 		int count = 0;
-		Graph clone = graph.clone();
+		Graph clone = graph;
+		if (!keepGraph) {
+			clone = clone.clone();
+		}
 		while (count < graph.getNodes().size()) {
 			Graph subGraph = new Graph();
 			ArrayList<Node> subGraphNodes = connectedNodes(clone, clone.getNodes().get(0));
@@ -179,6 +192,10 @@ public class GraphEngine {
 			subGraph.getNodes().addAll(subGraphNodes);
 			result.add(subGraph);
 			count += subGraphNodes.size();
+		}
+		clone.getNodes().clear();
+		for (int i = 0; i < result.size(); ++i) {
+			clone.getNodes().addAll(result.get(i).getNodes());
 		}
 		return result;
 	}
