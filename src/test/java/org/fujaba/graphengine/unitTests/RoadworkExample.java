@@ -3,6 +3,7 @@ package org.fujaba.graphengine.unitTests;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.fujaba.graphengine.GraphDumper;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
@@ -417,6 +418,7 @@ public class RoadworkExample {
 //	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
 //	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
 
+	    new GraphDumper(reachabilityGraph).dumpGraph("test.html");;
 	    
 	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(
 	    	GraphEngine.getGson().fromJson(
