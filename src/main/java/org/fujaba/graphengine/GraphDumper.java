@@ -155,23 +155,23 @@ public class GraphDumper {
 		"         }\n" +
 		"      }" +
 		",     \n" +
-		"       nodeClick: function OpenInNewTab(node) {\n" +
-		"               var win = window.open('objectgraphs/graph'+node.id+'.html', '_blank');\n" +
-		"               if (win) {\n" +
-		"                     win.focus();\n" +
-		"               } else {\n" +
-		"                     alert('Please allow popups for this website');\n" +
-		"               }\n" +
-		"            }     \n" +
-		",     \n" +
-		"       edgeClick: function OpenInNewTab(edge) {\n" +
-		"               var win = window.open('rulegraphs/graph'+edge._properties.nr+'.html', '_blank');\n" +
-		"               if (win) {\n" +
-		"                     win.focus();\n" +
-		"               } else {\n" +
-		"                     alert('Please allow popups for this website');\n" +
-		"               }\n" +
-		"            }     \n" +
+//		"       nodeClick: function OpenInNewTab(node) {\n" +
+//		"               var win = window.open('objectgraphs/graph'+node.id+'.html', '_blank');\n" +
+//		"               if (win) {\n" +
+//		"                     win.focus();\n" +
+//		"               } else {\n" +
+//		"                     alert('Please allow popups for this website');\n" +
+//		"               }\n" +
+//		"            }     \n" +
+//		",     \n" +
+//		"       edgeClick: function OpenInNewTab(edge) {\n" +
+//		"               var win = window.open('rulegraphs/graph'+edge._properties.nr+'.html', '_blank');\n" +
+//		"               if (win) {\n" +
+//		"                     win.focus();\n" +
+//		"               } else {\n" +
+//		"                     alert('Please allow popups for this website');\n" +
+//		"               }\n" +
+//		"            }     \n" +
 		"    };\n";
 
 //    private static final String ALCHEMY_CONFIG_GRAPHROOTS = "   var config = {\n" + "            dataSource: data,\n" +

@@ -382,7 +382,8 @@ public class RoadworkExample {
 //	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
 //	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
 
-	    
+
+//	    new GraphDumper(reachabilityGraph).dumpGraph("roadwork.html");
 	    
 	    GraphEngine.setMainIsomorphismHandler(new IsomorphismHandlerCSPWithHeuristics());
 	    System.out.println("\nnew IsomorphismHandlerCSPWithHeuristics()");
@@ -418,7 +419,7 @@ public class RoadworkExample {
 //	    System.out.println("== " + ((System.nanoTime() - begin) / 1e9 / 60 / 60) + " h");
 //	    System.out.println(reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
 
-	    new GraphDumper(reachabilityGraph).dumpGraph("test.html");;
+//	    new GraphDumper(reachabilityGraph).dumpGraph("test.html");
 	    
 	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(
 	    	GraphEngine.getGson().fromJson(

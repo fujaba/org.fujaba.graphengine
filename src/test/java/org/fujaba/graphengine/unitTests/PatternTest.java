@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import org.fujaba.graphengine.GraphDumper;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
@@ -164,6 +165,9 @@ public class PatternTest {
 		Graph rg = PatternEngine.calculateReachabilityGraph(ferrymansGraph, patterns);
 		// check if the solution is contained in the reachability graph:
 		Assert.assertNotNull(PatternEngine.findGraphInReachabilityGraph(rg, getFerrymansSolutionGraph()));
+		
+
+//	    new GraphDumper(rg).dumpGraph("test.html");
 	}
 	
 	@Test
