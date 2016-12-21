@@ -9,7 +9,7 @@ import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.isomorphismtools.heuristics.NodeWithConflict;
 
-public class IsomorphismHandlerCSPWithMoreHeuristics extends IsomorphismHandler {
+public abstract class IsomorphismHandlerCSPHighHeuristics extends IsomorphismHandler {
 	
 	private static ArrayList<Node> getDepthFirstSortedNodeList(Graph graph) {
 		// obtain all parts of the graph - where each part's nodes are connected with each other:
@@ -42,10 +42,10 @@ public class IsomorphismHandlerCSPWithMoreHeuristics extends IsomorphismHandler 
 		}
 		// now I'm trying to find 'loosely matched candidates':
 		Graph subGraph = subGraphInitial.clone();
-		ArrayList<ArrayList<Node>> couldMatch2 = new ArrayList<ArrayList<Node>>();
+		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
 		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 			Node subNode = subGraph.getNodes().get(i);
-			couldMatch2.add(new ArrayList<Node>());
+			couldMatch.add(new ArrayList<Node>());
 nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				Node node = baseGraph.getNodes().get(j);
 				// check existence of outgoing edges and their count:
@@ -62,68 +62,24 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 						continue nodeMatch;
 					}
 				}
-				couldMatch2.get(couldMatch2.size() - 1).add(node);
+				couldMatch.get(couldMatch.size() - 1).add(node);
 			}
-			if (couldMatch2.get(couldMatch2.size() - 1).size() == 0) {
+			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
 				return null; // no mapping for this node => fail
 			}
 		}
-		couldMatch2 = removeImpossibleCandidates(couldMatch2);
-		if (couldMatch2 == null) {
+		couldMatch = removeImpossibleCandidates(couldMatch);
+		if (couldMatch == null) {
 			// after removing 'impossible' candidates, there's no match anymore => fail
 			return null;
 		}
 		if (subGraph.getNodes().size() == 1) {
 			// a single node with a candidate is a match => success
 			HashMap<Node, Node> singleNodeMapping = new HashMap<Node, Node>();
-			singleNodeMapping.put(subGraph.getNodes().get(0), couldMatch2.get(0).get(0));
+			singleNodeMapping.put(subGraph.getNodes().get(0), couldMatch.get(0).get(0));
 			return singleNodeMapping;
 		}
-		/*
-		 * here I'm starting the application of the heuristics of the maximum restricted variable (H1) and the minimum node order (H2):
-		 */
-		// first save the old order of the matches:
-		HashMap<Node, Integer> oldIndices = new HashMap<Node, Integer>();
-		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
-			oldIndices.put(subGraph.getNodes().get(i), i);
-		}
-		// now check for the maximum restricted variables (H1):
-		ArrayList<Integer> minimumIndices = new ArrayList<Integer>();
-		int minimumValue = Integer.MAX_VALUE;
-		for (int i = 0; i < subGraph.getNodes().size(); ++i) { // minimum candidates
-			if (couldMatch2.get(i).size() <= minimumValue) {
-				if (couldMatch2.get(i).size() < minimumValue) {
-					minimumIndices = new ArrayList<Integer>();
-					minimumValue = couldMatch2.get(i).size();
-				}
-				minimumIndices.add(i);
-			}
-		}
-		// now check within those for the minimum node order (H2):
-		int indicesIndex = -1;
-		minimumValue = Integer.MAX_VALUE;
-		for (int i = 0; i < minimumIndices.size(); ++i) { // minimum node order (outgoing)
-			int outgoingCount = 0;
-			Node currentNode = subGraph.getNodes().get(minimumIndices.get(i));
-			for (String key: currentNode.getEdges().keySet()) {
-				outgoingCount += currentNode.getEdges(key).size();
-			}
-			if (outgoingCount < minimumValue) {
-				minimumValue = outgoingCount;
-				indicesIndex = i;
-			}
-		}
-		// here we have the 'best' node to start with:
-		Node heuristicallySelectedFirstNode = subGraph.getNodes().get(minimumIndices.get(indicesIndex));
-		subGraph.getNodes().remove(heuristicallySelectedFirstNode); // remove from old position
-		subGraph.getNodes().add(0, heuristicallySelectedFirstNode); // put in front
-		// now order the nodes in a depth-first fashion, with the heuristically selected first node as 'root':
 		ArrayList<Node> sortedNodes = getDepthFirstSortedNodeList(subGraph);
-		// restore the matches to the new order:
-		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
-		for (int i = 0; i < sortedNodes.size(); ++i) {
-			couldMatch.add(couldMatch2.get(oldIndices.get(sortedNodes.get(i))));
-		}
 		// and build candidates into objects, that contain an additional conflict-value and are sortable
 		ArrayList<ArrayList<NodeWithConflict>> couldMatchWithConflict = new ArrayList<ArrayList<NodeWithConflict>>();
 		for (int i = 0; i < couldMatch.size(); ++i) {
@@ -164,13 +120,13 @@ loop:	while (checkIndex != -1) {
 				 * here I'm starting the application of the heuristics of the maximum restricted variable (H1) and the minimum node order (H2):
 				 */
 				// first save the old order of the matches:
-				oldIndices = new HashMap<Node, Integer>();
+				HashMap<Node, Integer> oldIndices = new HashMap<Node, Integer>();
 				for (int i = 0; i < sortedNodes.size(); ++i) {
 					oldIndices.put(sortedNodes.get(i), i);
 				}
 				// now check for the maximum restricted variables (H1):
-				minimumIndices = new ArrayList<Integer>();
-				minimumValue = Integer.MAX_VALUE;
+				ArrayList<Integer> minimumIndices = new ArrayList<Integer>();
+				int minimumValue = Integer.MAX_VALUE;
 				for (int i = startThisHeuristicsAtIndex; i < sortedNodes.size(); ++i) { // minimum candidates
 					if (couldMatchWithConflict.get(i).size() <= minimumValue) {
 						if (couldMatchWithConflict.get(i).size() < minimumValue) {
@@ -181,7 +137,7 @@ loop:	while (checkIndex != -1) {
 					}
 				}
 				// now check within those for the minimum node order (H2):
-				indicesIndex = -1;
+				int indicesIndex = -1;
 				minimumValue = Integer.MAX_VALUE;
 				for (int i = 0; i < minimumIndices.size(); ++i) { // minimum node order (outgoing)
 					int outgoingCount = 0;
@@ -195,9 +151,9 @@ loop:	while (checkIndex != -1) {
 					}
 				}
 				// here we have the 'best' node to start with:
-				heuristicallySelectedFirstNode = subGraph.getNodes().get(minimumIndices.get(indicesIndex));
-//				sortedNodes.remove(heuristicallySelectedFirstNode); // remove from old position
-//				sortedNodes.add(startThisHeuristicsAtIndex, heuristicallySelectedFirstNode); // put in front
+				Node heuristicallySelectedFirstNode = subGraph.getNodes().get(minimumIndices.get(indicesIndex));
+				sortedNodes.remove(heuristicallySelectedFirstNode); // remove from old position
+				sortedNodes.add(startThisHeuristicsAtIndex, heuristicallySelectedFirstNode); // put in front
 				// restore the matches to the new order:
 				ArrayList<ArrayList<NodeWithConflict>> couldMatchWithConflict2 = new ArrayList<ArrayList<NodeWithConflict>>();
 				for (int i = 0; i < sortedNodes.size(); ++i) {

@@ -7,7 +7,7 @@ import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 
-public class IsomorphismHandlerCSP extends IsomorphismHandler {
+public class IsomorphismHandlerDepthFirstBacktracking extends IsomorphismHandler {
 	
 	private static ArrayList<Node> getDepthFirstSortedNodeList(Graph graph) {
 		// obtain all parts of the graph - where each part's nodes are connected with each other:

@@ -12,7 +12,8 @@ import org.fujaba.graphengine.graph.adapter.GraphAdapter;
 import org.fujaba.graphengine.graph.adapter.GraphToSigmaJsAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPWithHeuristics;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPHighHeuristics;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.sort.NodeSortTree;
 import org.fujaba.graphengine.isomorphismtools.sort.adapter.NodeSortTreeAdapter;
@@ -51,7 +52,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getMainIsomorphismHandler() {
 		if (mainIsomorphismHandler == null) {
-			mainIsomorphismHandler = new IsomorphismHandlerCSPWithHeuristics();
+			mainIsomorphismHandler = new IsomorphismHandlerCSPLowHeuristics();
 		}
 		return mainIsomorphismHandler;
 	}
@@ -61,7 +62,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getMappingFallback() {
 		if (mappingFallback == null) {
-			mappingFallback = new IsomorphismHandlerCSPWithHeuristics();
+			mappingFallback = new IsomorphismHandlerCSPLowHeuristics();
 		}
 		return mappingFallback;
 	}
@@ -81,7 +82,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getSplitGraphFallback() {
 		if (splitGraphFallback == null) {
-			splitGraphFallback = new IsomorphismHandlerCSPWithHeuristics();
+			splitGraphFallback = new IsomorphismHandlerCSPLowHeuristics();
 		}
 		return splitGraphFallback;
 	}
