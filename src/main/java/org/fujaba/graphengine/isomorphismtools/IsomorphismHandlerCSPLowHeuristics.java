@@ -233,4 +233,9 @@ match:			for (int j = 0; j < i; ++j) {
 		return GraphEngine.getNormalizationFallback().normalized(graph);
 	}
 
+	@Override
+	public String toString() {
+		return "'contraint satisfaction problem'-based isomorphism handler (using heuristics just for the start)";
+	}
+
 }

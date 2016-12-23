@@ -248,5 +248,35 @@ public class GraphEngine {
 		}
 		return closed;
 	}
+	public static ArrayList<ArrayList<Node>> removeImpossibleCandidates(ArrayList<ArrayList<Node>> couldMatch) {
+		ArrayList<ArrayList<Node>> cantMatch = new ArrayList<ArrayList<Node>>();
+		for (int i = 0; i < couldMatch.size(); ++i) {
+			cantMatch.add(new ArrayList<Node>());
+		}
+		// go through all candidates:
+		for (int i = 0; i < couldMatch.size(); ++i) {
+			if (couldMatch.get(i).size() == 1) {
+				// one node has only one candidate, all other nodes can't have this candidate
+				for (int j = 0; j < couldMatch.size(); ++j) {
+					if (i != j) {
+						// 'tell' all other nodes, they can't have this candidate:
+						cantMatch.get(j).add(couldMatch.get(i).get(0));
+					}
+				}
+			}
+		}
+		// go through all candidatzes again:
+		for (int i = 0; i < couldMatch.size(); ++i) {
+			// remove all impossible candidates:
+			for (int j = 0; j < cantMatch.get(i).size(); ++j) {
+				couldMatch.get(i).remove(cantMatch.get(i).get(j));
+			}
+			// if one node has no candidates anymore, return null
+			if (couldMatch.get(i).size() < 1) {
+				return null;
+			}
+		}
+		return couldMatch;
+	}
 	
 }

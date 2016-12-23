@@ -65,4 +65,9 @@ public class IsomorphismHandlerSorting extends IsomorphismHandler {
 		return nf;
 	}
 
+	@Override
+	public String toString() {
+		return "'normalization/sorting'-based isomorphism handler";
+	}
+
 }

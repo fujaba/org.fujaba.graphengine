@@ -9,6 +9,7 @@ abstract public class IsomorphismHandler {
 
 	abstract public Graph normalized(Graph graph);
 	abstract public HashMap<Node, Node> mappingFrom(Graph subGraph, Graph baseGraph);
+	abstract public String toString();
 	
 	public boolean isIsomorphicSubGraph(Graph subGraph, Graph baseGraph) {
 		return mappingFrom(subGraph, baseGraph) != null;

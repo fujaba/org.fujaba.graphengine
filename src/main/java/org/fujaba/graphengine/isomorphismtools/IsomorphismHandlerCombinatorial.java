@@ -133,4 +133,9 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 		return GraphEngine.getNormalizationFallback().normalized(graph);
 	}
 
+	@Override
+	public String toString() {
+		return "'combinatorics'-based isomorphism handler";
+	}
+
 }

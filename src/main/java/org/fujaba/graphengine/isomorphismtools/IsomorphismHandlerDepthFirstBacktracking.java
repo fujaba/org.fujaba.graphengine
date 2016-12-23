@@ -187,4 +187,9 @@ match:			for (int j = 0; j < i; ++j) {
 		return GraphEngine.getNormalizationFallback().normalized(graph);
 	}
 
+	@Override
+	public String toString() {
+		return "'depth-first backtracking'-based isomorphism handler";
+	}
+
 }

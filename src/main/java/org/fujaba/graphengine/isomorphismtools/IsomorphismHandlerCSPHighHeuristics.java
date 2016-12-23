@@ -1,26 +1,14 @@
 package org.fujaba.graphengine.isomorphismtools;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.isomorphismtools.heuristics.NodeWithConflict;
+import org.w3c.dom.NodeList;
 
-public abstract class IsomorphismHandlerCSPHighHeuristics extends IsomorphismHandler {
-	
-	private static ArrayList<Node> getDepthFirstSortedNodeList(Graph graph) {
-		// obtain all parts of the graph - where each part's nodes are connected with each other:
-		ArrayList<Graph> splitted = GraphEngine.split(graph, true);
-		ArrayList<Node> nodes = new ArrayList<Node>();
-		for (Graph connectedGraph: splitted) {
-			// add the nodes to the node-list (note: each part's nodes are already sorted in a depth-first explore's order):
-			nodes.addAll(connectedGraph.getNodes());
-		}
-		return nodes;
-	}
+public class IsomorphismHandlerCSPHighHeuristics extends IsomorphismHandler {
 
 	@Override
 	/**
@@ -31,17 +19,16 @@ public abstract class IsomorphismHandlerCSPHighHeuristics extends IsomorphismHan
 	 * @param subGraph the given sub-graph
 	 * @return a mapping from the given sub-graph to nodes of this graph if possible, or null
 	 */
-	public HashMap<Node, Node> mappingFrom(Graph subGraphInitial, Graph baseGraph) {
-		if (subGraphInitial.getNodes().size() == 0) {
+	public HashMap<Node, Node> mappingFrom(Graph subGraph, Graph baseGraph) {
+		if (subGraph.getNodes().size() == 0) {
 			// no nodes in sub-graph => empty mapping is the match (success)
 			return new HashMap<Node, Node>();
 		}
-		if (subGraphInitial.getNodes().size() > baseGraph.getNodes().size()) {
+		if (subGraph.getNodes().size() > baseGraph.getNodes().size()) {
 			// too many sub-graph nodes => fail
 			return null;
 		}
 		// now I'm trying to find 'loosely matched candidates':
-		Graph subGraph = subGraphInitial.clone();
 		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
 		for (int i = 0; i < subGraph.getNodes().size(); ++i) {
 			Node subNode = subGraph.getNodes().get(i);
@@ -68,7 +55,7 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 				return null; // no mapping for this node => fail
 			}
 		}
-		couldMatch = removeImpossibleCandidates(couldMatch);
+		couldMatch = GraphEngine.removeImpossibleCandidates(couldMatch);
 		if (couldMatch == null) {
 			// after removing 'impossible' candidates, there's no match anymore => fail
 			return null;
@@ -79,161 +66,30 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 			singleNodeMapping.put(subGraph.getNodes().get(0), couldMatch.get(0).get(0));
 			return singleNodeMapping;
 		}
-		ArrayList<Node> sortedNodes = getDepthFirstSortedNodeList(subGraph);
-		// and build candidates into objects, that contain an additional conflict-value and are sortable
-		ArrayList<ArrayList<NodeWithConflict>> couldMatchWithConflict = new ArrayList<ArrayList<NodeWithConflict>>();
-		for (int i = 0; i < couldMatch.size(); ++i) {
-			ArrayList<Node> nodesToAdd = couldMatch.get(i);
-			couldMatchWithConflict.add(new ArrayList<NodeWithConflict>());
-			for (int j = 0; j < nodesToAdd.size(); ++j) {
-				couldMatchWithConflict.get(i).add(new NodeWithConflict(nodesToAdd.get(j)));
-			}
-		}
-		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
-		// now going through all valid combinations (that make sense) of those loosely fitted candidates to find a match:
-		ArrayList<Integer> currentTry = new ArrayList<Integer>();
-		for (int i = 0; i < couldMatchWithConflict.size(); ++i) {
-			currentTry.add(0);
-			mapping.put(sortedNodes.get(i), couldMatchWithConflict.get(i).get(0).getNode());
-		}
-		/*
-		 * only check this index against previous ones,
-		 * if ok, increment and check only that one, and so on
+		
+		/**
+		 * TODO: implement a true and proper CSP algorithm for this problem
 		 */
+		ArrayList<Node> nodeList = new ArrayList<Node>(subGraph.getNodes());
+		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
+		ArrayList<Integer> currentTry = new ArrayList<Integer>();
+		for (int i = 0; i < couldMatch.size(); ++i) { // initialize mapping
+			currentTry.add(0);
+			mapping.put(nodeList.get(i), couldMatch.get(i).get(0));
+		}
+		heuristicallyChangeNodeOrder(0, nodeList, couldMatch, currentTry);
 		int checkIndex = 1;
 		int lastIndex = checkIndex - 1;
-loop:	while (checkIndex != -1) {
-			if (checkIndex > lastIndex) {
-				
-				
-				int startThisHeuristicsAtIndex = checkIndex;
-				
-				
-				
-				
-				
-				
-	
-				
-				
-				/*
-				 * here I'm starting the application of the heuristics of the maximum restricted variable (H1) and the minimum node order (H2):
-				 */
-				// first save the old order of the matches:
-				HashMap<Node, Integer> oldIndices = new HashMap<Node, Integer>();
-				for (int i = 0; i < sortedNodes.size(); ++i) {
-					oldIndices.put(sortedNodes.get(i), i);
-				}
-				// now check for the maximum restricted variables (H1):
-				ArrayList<Integer> minimumIndices = new ArrayList<Integer>();
-				int minimumValue = Integer.MAX_VALUE;
-				for (int i = startThisHeuristicsAtIndex; i < sortedNodes.size(); ++i) { // minimum candidates
-					if (couldMatchWithConflict.get(i).size() <= minimumValue) {
-						if (couldMatchWithConflict.get(i).size() < minimumValue) {
-							minimumIndices = new ArrayList<Integer>();
-							minimumValue = couldMatchWithConflict.get(i).size();
-						}
-						minimumIndices.add(i);
-					}
-				}
-				// now check within those for the minimum node order (H2):
-				int indicesIndex = -1;
-				minimumValue = Integer.MAX_VALUE;
-				for (int i = 0; i < minimumIndices.size(); ++i) { // minimum node order (outgoing)
-					int outgoingCount = 0;
-					Node currentNode = sortedNodes.get(minimumIndices.get(i));
-					for (String key: currentNode.getEdges().keySet()) {
-						outgoingCount += currentNode.getEdges(key).size();
-					}
-					if (outgoingCount < minimumValue) {
-						minimumValue = outgoingCount;
-						indicesIndex = i;
-					}
-				}
-				// here we have the 'best' node to start with:
-				Node heuristicallySelectedFirstNode = subGraph.getNodes().get(minimumIndices.get(indicesIndex));
-				sortedNodes.remove(heuristicallySelectedFirstNode); // remove from old position
-				sortedNodes.add(startThisHeuristicsAtIndex, heuristicallySelectedFirstNode); // put in front
-				// restore the matches to the new order:
-				ArrayList<ArrayList<NodeWithConflict>> couldMatchWithConflict2 = new ArrayList<ArrayList<NodeWithConflict>>();
-				for (int i = 0; i < sortedNodes.size(); ++i) {
-					couldMatchWithConflict2.add(couldMatchWithConflict.get(oldIndices.get(sortedNodes.get(i))));
-				}
-				couldMatchWithConflict.clear();
-				couldMatchWithConflict.addAll(couldMatchWithConflict2);
-				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-//				/*
-//				 * we now use the heuristics of minimal conflict (H3) - regarding the initial situation,
-//				 * to sort the 'couldMatch'-lists by that measure.
-//				 */
-//				ArrayList<NodeWithConflict> nodesWithConflictToCheck = couldMatchWithConflict.get(startThisHeuristicsAtIndex);
-//				for (int index = 0; index < nodesWithConflictToCheck.size(); ++index) {
-//					NodeWithConflict nodeWithConflictToCheckMapped = nodesWithConflictToCheck.get(index);
-//					Node nodeToCheckMapped = nodeWithConflictToCheckMapped.getNode();
-//					// check available outgoing candidates for conflict:
-//					for (int k = startThisHeuristicsAtIndex + 1; k < sortedNodes.size(); ++k) {
-//						for (String key: sortedNodes.get(startThisHeuristicsAtIndex).getEdges().keySet()) {
-//							for (Node target: sortedNodes.get(startThisHeuristicsAtIndex).getEdges(key)) {
-//								if (target == sortedNodes.get(k)) {
-//									ArrayList<NodeWithConflict> mappingsToTarget = couldMatchWithConflict.get(sortedNodes.indexOf(sortedNodes.get(startThisHeuristicsAtIndex)));
-//									for (int j = 0; j < mappingsToTarget.size(); ++j) {
-//										NodeWithConflict mappingToTarget = mappingsToTarget.get(j);
-//										Node nodeMappedToTarget = mappingToTarget.getNode();
-//										if (!nodeToCheckMapped.getEdges(key).contains(nodeMappedToTarget)) {
-//											nodeWithConflictToCheckMapped.incrementConflict();
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//					// check available incoming candidates for conflict:
-//					for (int k = startThisHeuristicsAtIndex + 1; k < sortedNodes.size(); ++k) {
-//						for (String key: sortedNodes.get(k).getEdges().keySet()) {
-//							for (Node target: sortedNodes.get(k).getEdges(key)) {
-//								if (target == sortedNodes.get(startThisHeuristicsAtIndex)) {
-//									ArrayList<NodeWithConflict> mappingsToSource = couldMatchWithConflict.get(sortedNodes.indexOf(sortedNodes.get(k)));
-//									for (int j = 0; j < mappingsToSource.size(); ++j) {
-//										NodeWithConflict mappingToSource = mappingsToSource.get(j);
-//										Node nodeMappedToSource = mappingToSource.getNode();
-//										if (!nodeMappedToSource.getEdges(key).contains(nodeToCheckMapped)) {
-//											nodeWithConflictToCheckMapped.incrementConflict();
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//				Collections.sort(nodesWithConflictToCheck);
-				// ok, done the candidates are sorted according to minimum conflict heuristics (H3)	
+loop:	while (checkIndex != -1) { // do a depth-first csp-solver backtracking with heuristics:
+			if (checkIndex > lastIndex && checkIndex + 1 <= nodeList.size() - 1) {
+				heuristicallyChangeNodeOrder(checkIndex + 1, nodeList, couldMatch, currentTry);
 			}
-			for (int i = checkIndex; i < sortedNodes.size(); ++i) {
-				/*
-				 * check sortedNodes.get(i) only against all previous nodes,
-				 * if it is duplicate, or any edge (outgoing or incoming) is missing.
-				 * if it fails: count this nodes candidate up (++currentTry.get(i)) if possible,
-				 * if it can't be counted up, go one level back (i-1) and try increment there and so on.
-				 * if nothing can't be counted up, return null (or set checkIndex to -1 and break);
-				 * after incrementing a candidate, reset all currentTry-elements after it to 0,
-				 * and set the checkIndex to the index of the increment currentTry-element, finally break
-				 */
-				Node currentSubNode = sortedNodes.get(i);
+			lastIndex = checkIndex;
+			for (int i = checkIndex; i < nodeList.size(); ++i) {
+				Node currentSubNode = nodeList.get(i);
 				boolean fail = false;
 match:			for (int j = 0; j < i; ++j) {
-					Node otherSubNode = sortedNodes.get(j);
+					Node otherSubNode = nodeList.get(j);
 					if (mapping.get(currentSubNode) == mapping.get(otherSubNode)) {
 						fail = true; // found duplicate!
 						break match;
@@ -256,23 +112,16 @@ match:			for (int j = 0; j < i; ++j) {
 					}
 				}
 				if (fail) {
-					// found an error with the 'new' candidate at index i
-					/*
-					 * change candidate of node[i] or if not possible, the next possible earlier one,
-					 * reset the ones after it (also update the mapping)
-					 * and set checkIndex to the new index to check (the one that got incremented)
-					 */
-					lastIndex = checkIndex;
 					checkIndex = i;
-					while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatchWithConflict.get(checkIndex).size() - 1) {
+					while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatch.get(checkIndex).size() - 1) {
 						--checkIndex;
 					}
 					if (checkIndex >= 0) {
 						currentTry.set(checkIndex, currentTry.get(checkIndex) + 1);
-						mapping.put(sortedNodes.get(checkIndex), couldMatchWithConflict.get(checkIndex).get(currentTry.get(checkIndex)).getNode());
-						for (int j = checkIndex + 1; j < sortedNodes.size(); ++j) {
+						mapping.put(nodeList.get(checkIndex), couldMatch.get(checkIndex).get(currentTry.get(checkIndex)));
+						for (int j = checkIndex + 1; j < nodeList.size(); ++j) {
 							currentTry.set(j, 0);
-							mapping.put(sortedNodes.get(j), couldMatchWithConflict.get(j).get(0).getNode());
+							mapping.put(nodeList.get(j), couldMatch.get(j).get(0));
 						}
 					}
 					continue loop;
@@ -282,41 +131,95 @@ match:			for (int j = 0; j < i; ++j) {
 		}
 		return null; // nothing left to check => fail
 	}
-	
-	private ArrayList<ArrayList<Node>> removeImpossibleCandidates(ArrayList<ArrayList<Node>> couldMatch) {
-		ArrayList<ArrayList<Node>> cantMatch = new ArrayList<ArrayList<Node>>();
-		for (int i = 0; i < couldMatch.size(); ++i) {
-			cantMatch.add(new ArrayList<Node>());
+
+	private void heuristicallyChangeNodeOrder(int fromIndex, ArrayList<Node> nodeList, ArrayList<ArrayList<Node>> couldMatch, ArrayList<Integer> currentTry) {
+		
+		/**
+		 * H1 minds the current mapping of earlier nodes, and don't count candidates, that ain't possible right now.
+		 * 
+		 * H2 only minds edges to future nodes, and minds incoming edges, too!
+		 * 
+		 */
+		
+		// now check for the maximum restricted variables (H1):
+		ArrayList<Integer> minimumIndices = new ArrayList<Integer>();
+		int minimumValue = Integer.MAX_VALUE;
+		for (int i = fromIndex; i < nodeList.size(); ++i) { // minimum unassigned candidates for node
+			int possibleCandidatesHere = couldMatch.get(i).size();
+			for (Node node: couldMatch.get(i)) {
+				for (int j = 0; j < fromIndex; ++j) {
+					if (couldMatch.get(j).get(currentTry.get(j)) == node) {
+						--possibleCandidatesHere;
+						break;
+					}
+				}
+			}
+			if (possibleCandidatesHere <= minimumValue && possibleCandidatesHere >= 1) {
+				if (possibleCandidatesHere < minimumValue) {
+					minimumIndices = new ArrayList<Integer>();
+					minimumValue = possibleCandidatesHere;
+				}
+				minimumIndices.add(i);
+			}
 		}
-		// go through all candidates:
-		for (int i = 0; i < couldMatch.size(); ++i) {
-			if (couldMatch.get(i).size() == 1) {
-				// one node has only one candidate, all other nodes can't have this candidate
-				for (int j = 0; j < couldMatch.size(); ++j) {
-					if (i != j) {
-						// 'tell' all other nodes, they can't have this candidate:
-						cantMatch.get(j).add(couldMatch.get(i).get(0));
+		if (minimumIndices.size() == 0) { // no nodes to check? then return!
+			return;
+		}
+		// now check within those for the minimum node order (H2):
+		int indicesIndex = 0;
+		ArrayList<Integer> degrees = new ArrayList<Integer>();
+		for (int i = 0; i < nodeList.size(); ++i) {
+			degrees.add(0);
+		}
+		if (minimumIndices.size() > 1) {
+			for (int i = fromIndex; i < nodeList.size(); ++i) {
+				int outgoingCount = 0;
+				for (String key: nodeList.get(i).getEdges().keySet()) {
+					for (Node target: nodeList.get(i).getEdges(key)) {
+						int targetIndex = nodeList.indexOf(target);
+						if (targetIndex >= fromIndex) {
+							outgoingCount += 1;
+						}
+					}
+				}
+				degrees.set(i, outgoingCount);
+			}
+			for (int i = fromIndex; i < nodeList.size(); ++i) {
+				for (String key: nodeList.get(i).getEdges().keySet()) {
+					for (Node target: nodeList.get(i).getEdges(key)) {
+						int targetIndex = nodeList.indexOf(target);
+						if (targetIndex >= fromIndex) {
+							degrees.set(targetIndex, degrees.get(targetIndex) + 1);
+						}
 					}
 				}
 			}
 		}
-		// go through all candidatzes again:
-		for (int i = 0; i < couldMatch.size(); ++i) {
-			// remove all impossible candidates:
-			for (int j = 0; j < cantMatch.get(i).size(); ++j) {
-				couldMatch.get(i).remove(cantMatch.get(i).get(j));
-			}
-			// if one node has no candidates anymore, return null
-			if (couldMatch.get(i).size() < 1) {
-				return null;
+		minimumValue = Integer.MAX_VALUE;
+		for (int i = 0; i < minimumIndices.size(); ++i) { // minimum node order (outgoing edges only)
+			if (degrees.get(i) < minimumValue) {
+				minimumValue = degrees.get(i);
+				indicesIndex = i;
 			}
 		}
-		return couldMatch;
+		// now we switch the node at the given index with a 'better one', that comes later in the list
+		int switchIndex = minimumIndices.get(indicesIndex);
+		Node tempNode = nodeList.get(fromIndex);
+		ArrayList<Node> tempMatches = couldMatch.get(fromIndex);
+		nodeList.set(fromIndex, nodeList.get(switchIndex));
+		couldMatch.set(fromIndex, couldMatch.get(switchIndex));
+		nodeList.set(switchIndex, tempNode);
+		couldMatch.set(switchIndex, tempMatches);
 	}
 
 	@Override
 	public Graph normalized(Graph graph) {
 		return GraphEngine.getNormalizationFallback().normalized(graph);
+	}
+
+	@Override
+	public String toString() {
+		return "'contraint satisfaction problem'-based isomorphism handler (using heuristics wherever it helps)";
 	}
 
 }

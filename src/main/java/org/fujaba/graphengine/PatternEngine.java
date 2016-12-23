@@ -9,6 +9,8 @@ import javax.naming.spi.DirStateFactory.Result;
 
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
@@ -63,6 +65,9 @@ public class PatternEngine {
 		 */
 		
 		// the first rg-node is the base-graph:
+		if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
+			graph = GraphEngine.getMainIsomorphismHandler().normalized(graph);
+		}
 		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
 		ArrayList<Graph> added = new ArrayList<Graph>(); // a list with graphs that were added
 		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
@@ -75,12 +80,19 @@ public class PatternEngine {
 			ArrayList<Match> matches = calculateReachabilityNodeMatches(unprocessed.get(0), patterns);
 			// look up the rg-node, that represents the unprocessed graph:
 			Node source = findGraphInReachabilityGraph(rg, unprocessed.get(0));
+			unprocessed.remove(0);
 			// now handle matches:
 			for (Match match: matches) {
 				// construct the graph, that's the result of this match:
 				Graph successor = applyMatch(match);
 				// check if the graph was previously added:
-				int index = indexOf(added, successor);
+				int index = -1;
+				if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
+					successor = GraphEngine.getMainIsomorphismHandler().normalized(successor);
+					index = normalizedIndexOf(added, successor);
+				} else {
+					index = indexOf(added, successor);
+				}
 				if (index != -1) {
 					// yes, the graph already did exist => just build edge to an existing node
 					Node target = findGraphInReachabilityGraph(rg, successor);
@@ -95,12 +107,11 @@ public class PatternEngine {
 					unprocessed.add(successor);
 				}
 			}
-			unprocessed.remove(0);
 		}
 		// done
 		return rg;
 	}
-	
+
 	/**
 	 * Function to find a graph as a node inside of a reachability graph.
 	 * @param rg the reachability graph
@@ -154,6 +165,16 @@ public class PatternEngine {
 		for (int i = 0; i < graphs.size(); ++i) {
 			Graph g = graphs.get(i);
 			if (GraphEngine.isIsomorphTo(g, graph)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	private static int normalizedIndexOf(ArrayList<Graph> graphs, Graph graph) {
+       	for (int i = 0; i < graphs.size(); ++i) {
+			Graph g = graphs.get(i);
+			if (g.toString().equals(graph.toString())) {
 				return i;
 			}
 		}
@@ -289,6 +310,9 @@ public class PatternEngine {
 	
 	public static boolean doesntMatchNegativeNodes(HashMap<PatternNode, Node> map, Graph graph, ArrayList<ArrayList<PatternNode>> nodeMatchLists, ArrayList<ArrayList<ArrayList<Node>>> couldMatch) {
 level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
+			if (couldMatch.get(level) == null) {
+				continue;
+			}
 			/*
 			 * now we check for each set of negative nodes (here: nodeMatchLists.get(level)),
 			 * if there is a possible match within the mapping of the positive match,
@@ -552,10 +576,16 @@ match:			for (int j = 0; j < i; ++j) {
 		// now check for 'loosely matched candidates' of nodes to match (level == 0: positive nodes, level > 0: negative node sets):
 		ArrayList<ArrayList<ArrayList<Node>>> couldMatch = findPossibleMatchesForPositiveAndNegativeNodes(graph, nodeMatchLists);
 		
-		// TODO: maybe do something like this 'remove impossible matches'...
-		
 		if (couldMatch == null) {
 			return new ArrayList<Match>(); // some positive node has no match -> fail
+		}
+		
+		// remove 'impossible' matches:
+		for (int i = 0; i < couldMatch.size(); ++i) {
+			couldMatch.set(i, GraphEngine.removeImpossibleCandidates(couldMatch.get(i)));
+			if (i == 0 && couldMatch.get(i) == null) {
+				return new ArrayList<Match>(); // some positive node has no match -> fail
+			}
 		}
 		
 		// finally find those matches:
