@@ -11,6 +11,7 @@ import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerDepthFirstBacktracking;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerParallel;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPHighHeuristics;
@@ -378,15 +379,16 @@ public class RoadworkExample {
     public void testRoadworkExample() {
     	
     	ArrayList<IsomorphismHandler> toTest = new ArrayList<IsomorphismHandler>();
-    	toTest.add(new IsomorphismHandlerCSPHighHeuristics());
+    	//toTest.add(new IsomorphismHandlerParallel());
+    	//toTest.add(new IsomorphismHandlerCombinatorial());
+    	//toTest.add(new IsomorphismHandlerCSPHighHeuristics());
     	toTest.add(new IsomorphismHandlerCSPLowHeuristics());
-    	toTest.add(new IsomorphismHandlerDepthFirstBacktracking());
-//    	toTest.add(new IsomorphismHandlerSorting());
-//    	toTest.add(new IsomorphismHandlerCombinatorial());
+    	//toTest.add(new IsomorphismHandlerDepthFirstBacktracking());
+    	//toTest.add(new IsomorphismHandlerSorting());
 
     	boolean debug = false;
-    	int fromLevel = 2;
-    	int toLevel = 2;
+    	int fromLevel = 3;
+    	int toLevel = 3;
     	boolean drawSigmaJs = false;
     	boolean drawAlchemyJs = false;
     	

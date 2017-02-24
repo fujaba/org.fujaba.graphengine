@@ -62,6 +62,19 @@ public class TestUseExpressionLibrary {
 		}
 		Assert.assertTrue(matched);
 	}
+
+	@Test
+	public void testComplexExpression() {
+		Node n = new Node();
+		n.setAttribute("type", "Product");
+		n.setAttribute("name", "Raspberry Pi 3");
+		n.setAttribute("netPrice", 30.25);
+		n.setAttribute("tax", 0.19);
+		n.setAttribute("amount", 3);
+		
+		Assert.assertTrue(PatternEngine.evaluate(n, "#{type} == 'Product' && #{netPrice} * (1 + #{tax}) * #{amount} > 100"));
+		Assert.assertTrue(PatternEngine.evaluate(n, "#{type} == 'Product' && indexOf(#{name}, 'Raspberry Pi', 0) != -1"));
+	}
 	
 	/**
 	 * Method to obtain an adjusted initial situation of the ferryman's problem as a graph.
