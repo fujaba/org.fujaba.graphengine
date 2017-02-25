@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.spi.DirStateFactory.Result;
 
@@ -16,6 +17,10 @@ import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 import net.sourceforge.jeval.Evaluator;
 
 /**
@@ -24,6 +29,23 @@ import net.sourceforge.jeval.Evaluator;
  * @author Philipp Kolodziej
  */
 public class PatternEngine {
+	
+	private static LoadingCache<Node, Evaluator> evaluatorCache = null;
+	
+	public static Evaluator getNodeEvaluator(Node node) {
+		if (evaluatorCache == null) {
+			CacheLoader<Node, Evaluator> evaluatorCacheLoader = new CacheLoader<Node, Evaluator>() {
+                public Evaluator load(Node node) {
+                    return buildNodeEvaluator(node);
+                }
+            };
+			evaluatorCache = CacheBuilder.newBuilder()
+					.maximumSize(5000)
+					.expireAfterWrite(10, TimeUnit.MINUTES)
+					.build(evaluatorCacheLoader);
+		}
+		return evaluatorCache.getUnchecked(node);
+	}
 	
 	/**
 	 * Calculates a reachability graph based on a graph of the initial situation
@@ -953,7 +975,8 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 	}
 	
 	public static boolean evaluate(Node node, String expression) {
-		return evaluate(buildNodeEvaluator(node), expression);
+		//return evaluate(buildNodeEvaluator(node), expression); // uncached
+		return evaluate(getNodeEvaluator(node), expression); // cached
 	}
 	public static Evaluator buildNodeEvaluator(Node node) {
 		Evaluator evaluator = new Evaluator();
