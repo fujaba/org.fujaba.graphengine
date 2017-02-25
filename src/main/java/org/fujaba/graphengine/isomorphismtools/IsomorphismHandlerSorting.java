@@ -36,14 +36,43 @@ public class IsomorphismHandlerSorting extends IsomorphismHandler {
 			nodeSortTrees.add(new NodeSortTree(graph, node));
 		}
 		ArrayList<NodeSortTree> nodeSortTreesCopy = null;
+//		// sort the list of nodeSortTrees:
+//		while (!nodeSortTrees.equals(nodeSortTreesCopy)) {
+//			nodeSortTreesCopy = (ArrayList<NodeSortTree>)nodeSortTrees.clone();
+//			Collections.sort(nodeSortTrees);
+//			for (NodeSortTree nodeSortTree: nodeSortTrees) {
+//				nodeSortTree.doInnerSort(nodeSortTrees);
+//			}
+//		}
 		// sort the list of nodeSortTrees:
-		while (!nodeSortTrees.equals(nodeSortTreesCopy)) {
-			nodeSortTreesCopy = (ArrayList<NodeSortTree>)nodeSortTrees.clone();
-			Collections.sort(nodeSortTrees);
+		ArrayList<String> nodeSortTreesStrings = new ArrayList<String>();
+		for (NodeSortTree nst: nodeSortTrees) {
+			nodeSortTreesStrings.add(GraphEngine.getGson().toJson(nst));
+		}
+		ArrayList<String> nodeSortTreesCopyStrings = null;
+		while (!nodeSortTreesStrings.equals(nodeSortTreesCopyStrings)) {
+			nodeSortTreesCopyStrings = (ArrayList<String>)nodeSortTreesStrings.clone();
+			HashMap<String, NodeSortTree> mapping = new HashMap<String, NodeSortTree>();
+			for (NodeSortTree nst: nodeSortTrees) {
+				mapping.put(GraphEngine.getGson().toJson(nst), nst);
+			}
+			Collections.sort(nodeSortTreesStrings);
+			nodeSortTreesCopy = new ArrayList<NodeSortTree>();
+			for (String s: nodeSortTreesStrings) {
+				nodeSortTreesCopy.add(mapping.get(s));
+			}
+			nodeSortTrees = nodeSortTreesCopy;
 			for (NodeSortTree nodeSortTree: nodeSortTrees) {
 				nodeSortTree.doInnerSort(nodeSortTrees);
 			}
+			nodeSortTreesStrings = new ArrayList<String>();
+			for (NodeSortTree nst: nodeSortTrees) {
+				nodeSortTreesStrings.add(GraphEngine.getGson().toJson(nst));
+			}
 		}
+//
+//
+//
 		nf.getNodes().clear();
 		for (int i = 0; i < nodeSortTrees.size(); ++i) {
 			Node node = nodeSortTrees.get(i).getRootNode();

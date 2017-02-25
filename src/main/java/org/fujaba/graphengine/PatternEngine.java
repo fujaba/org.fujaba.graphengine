@@ -87,14 +87,15 @@ public class PatternEngine {
 		 */
 		
 		// the first rg-node is the base-graph:
-		if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
-			graph = GraphEngine.getMainIsomorphismHandler().normalized(graph);
-		}
 		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
 		ArrayList<Graph> added = new ArrayList<Graph>(); // a list with graphs that were added
 		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
 		added.add(graph);
 		unprocessed.add(graph);
+		
+		if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
+			return calculateReachabilityGraphWithNormalForm(graph, patterns);
+		}
 		
 		// as long as a single graph wasn't checked for successors, the search continues:
 		while (unprocessed.size() > 0) {
@@ -108,13 +109,7 @@ public class PatternEngine {
 				// construct the graph, that's the result of this match:
 				Graph successor = applyMatch(match);
 				// check if the graph was previously added:
-				int index = -1;
-				if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
-					successor = GraphEngine.getMainIsomorphismHandler().normalized(successor);
-					index = normalizedIndexOf(added, successor);
-				} else {
-					index = indexOf(added, successor);
-				}
+				int index = indexOf(added, successor);
 				if (index != -1) {
 					// yes, the graph already did exist => just build edge to an existing node
 					Node target = findGraphInReachabilityGraph(rg, successor);
@@ -123,6 +118,47 @@ public class PatternEngine {
 //					System.out.println("reached new state with '" + match.getPattern().getName() + "'"); // TODO: remove debug
 					// no, the graph didn't exist before => add a new node
 					Node target = new Node().setAttribute("graph", successor.toString()); // new node
+					rg.addNode(target);
+					source.addEdge(match.getPattern().toString(), target); // edge to new node
+					added.add(successor);
+					unprocessed.add(successor);
+				}
+			}
+		}
+		// done
+		return rg;
+	}
+	
+	public static Graph calculateReachabilityGraphWithNormalForm(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
+		// the first rg-node is the base-graph:
+		graph = GraphEngine.getMainIsomorphismHandler().normalized(graph);
+		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
+		ArrayList<Graph> added = new ArrayList<Graph>(); // a list with graphs that were added
+		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
+		added.add(graph);
+		unprocessed.add(graph);
+		// as long as a single graph wasn't checked for successors, the search continues:
+		while (unprocessed.size() > 0) {
+			// looking for matches:
+			ArrayList<Match> matches = calculateReachabilityNodeMatches(unprocessed.get(0), patterns);
+			// look up the rg-node, that represents the unprocessed graph:
+			Node source = findGraphInReachabilityGraph(rg, unprocessed.get(0));
+			unprocessed.remove(0);
+			// now handle matches:
+			for (Match match: matches) {
+				// construct the graph, that's the result of this match:
+				Graph successor = applyMatch(match);
+				// check if the graph was previously added:
+				successor = GraphEngine.getMainIsomorphismHandler().normalized(successor);
+				String serializedGraph = successor.toString();
+				int index = normalizedIndexOf(rg.getNodes(), serializedGraph);
+				if (index != -1) {
+					// yes, the graph already did exist => just build edge to an existing node
+					Node target = rg.getNodes().get(index);
+					source.addEdge(match.getPattern().toString(), target); // new edge
+				} else {
+					// no, the graph didn't exist before => add a new node
+					Node target = new Node().setAttribute("graph", serializedGraph); // new node
 					rg.addNode(target);
 					source.addEdge(match.getPattern().toString(), target); // edge to new node
 					added.add(successor);
@@ -193,10 +229,10 @@ public class PatternEngine {
 		return -1;
 	}
 	
-	private static int normalizedIndexOf(ArrayList<Graph> graphs, Graph graph) {
-       	for (int i = 0; i < graphs.size(); ++i) {
-			Graph g = graphs.get(i);
-			if (g.toString().equals(graph.toString())) {
+	private static int normalizedIndexOf(ArrayList<Node> nodes, String serializedGraph) {
+       	for (int i = 0; i < nodes.size(); ++i) {
+			Node n = nodes.get(i);
+			if (n.getAttribute("graph").equals(serializedGraph)) {
 				return i;
 			}
 		}

@@ -379,16 +379,16 @@ public class RoadworkExample {
     public void testRoadworkExample() {
     	
     	ArrayList<IsomorphismHandler> toTest = new ArrayList<IsomorphismHandler>();
-    	toTest.add(new IsomorphismHandlerParallel());
-    	toTest.add(new IsomorphismHandlerCombinatorial());
     	toTest.add(new IsomorphismHandlerCSPHighHeuristics());
     	toTest.add(new IsomorphismHandlerCSPLowHeuristics());
     	toTest.add(new IsomorphismHandlerDepthFirstBacktracking());
+    	toTest.add(new IsomorphismHandlerCombinatorial());
+    	toTest.add(new IsomorphismHandlerParallel());
     	toTest.add(new IsomorphismHandlerSorting());
 
     	boolean debug = false;
-    	int fromLevel = 1;
-    	int toLevel = 1;
+    	int fromLevel = 2;
+    	int toLevel = 2;
     	boolean drawSigmaJs = false;
     	boolean drawAlchemyJs = false;
     	
