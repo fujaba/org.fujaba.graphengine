@@ -279,4 +279,30 @@ public class GraphEngine {
 		return couldMatch;
 	}
 	
+	public static int generateHash(Graph g) {
+		int hash = ((Integer)g.getNodes().size()).hashCode();
+		for (Node n: g.getNodes()) {
+			for (String key: n.getEdges().keySet()) {
+				hash += key.hashCode();
+				hash += ((Integer)n.getEdges(key).size()).hashCode();
+			}
+			for (String key: n.getAttributes().keySet()) {
+				hash += key.hashCode();
+				Object value = n.getAttribute(key);
+				if (value instanceof Double) {
+					hash += ((Double)value).hashCode();
+				} else if (value instanceof Long) {
+					hash += ((Long)value).hashCode();
+				} else if (value instanceof Integer) {
+					hash += ((Integer)value).hashCode();
+				} else if (value instanceof Boolean) {
+					hash += ((Boolean)value).hashCode();
+				} else if (value instanceof String) {
+					hash += ((String)value).hashCode();
+				}
+			}
+		}
+		return hash;
+	}
+	
 }

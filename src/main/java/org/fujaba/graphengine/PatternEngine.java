@@ -54,7 +54,7 @@ public class PatternEngine {
 	 * @param patterns a prioritized list of patterns. the first list is the highest priority-level and so on.
 	 * @return returns the reachability graph, that was calculated
 	 */
-	public static Graph calculateReachabilityGraph(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
+	public static Graph calculateReachabilityGraphOld(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
 		/*
 		 * ok right now i think im going for this priority concept, where i have an arraylist of 'priority-levels'
 		 * inside each priority-level, there's a list of patterns to match.
@@ -86,16 +86,16 @@ public class PatternEngine {
 		 * of unprocessed nodes. just as simple as that...
 		 */
 		
+		if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
+			return calculateReachabilityGraphWithNormalForm(graph, patterns);
+		}
+		
 		// the first rg-node is the base-graph:
 		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
 		ArrayList<Graph> added = new ArrayList<Graph>(); // a list with graphs that were added
 		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
 		added.add(graph);
 		unprocessed.add(graph);
-		
-		if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
-			return calculateReachabilityGraphWithNormalForm(graph, patterns);
-		}
 		
 		// as long as a single graph wasn't checked for successors, the search continues:
 		while (unprocessed.size() > 0) {
@@ -129,6 +129,113 @@ public class PatternEngine {
 		return rg;
 	}
 	
+	/**
+	 * Calculates a reachability graph based on a graph of the initial situation
+	 * and a prioritized list of patterns to match and apply on the graph and resulting graphs.
+	 * @param graph the initial graph
+	 * @param patterns a prioritized list of patterns. the first list is the highest priority-level and so on.
+	 * @return returns the reachability graph, that was calculated
+	 */
+	public static Graph calculateReachabilityGraph(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
+		/*
+		 * ok right now i think im going for this priority concept, where i have an arraylist of 'priority-levels'
+		 * inside each priority-level, there's a list of patterns to match.
+		 * 
+		 * the first level, where there's a match found inside is used -> children of that graph will be all graphs
+		 * with the applied matches of that level and that level alone.
+		 * 
+		 * with this approach im kind of very flexible on whatever priority concept really will be needed!
+		 */
+		
+		/*
+		 * the graph itself is made up like this:
+		 * 
+		 * each node represents a graph and has an attribute 'graph' and as value the serialized graph.
+		 * the edges represent the application of a certain pattern-graph, with its serialization as a node-name.
+		 * 
+		 */
+		
+		/*
+		 * the algorithm for calculating the graph itself is like this:
+		 * 
+		 * first add the base-graph itself to the RG. and add it to a list with unprocessed nodes.
+		 * from then on go though all unprocessed nodes and check for successors,
+		 * add them according to the naming scheme to the RG and add em to the list of unprocessed nodes.
+		 * and so on.
+		 * 
+		 * just take care when finding successors, to always check if they were already existing,
+		 * if they did, make the edge go to the previously added nodes in the EG and DON'T add them to the list
+		 * of unprocessed nodes. just as simple as that...
+		 */
+		
+		if (GraphEngine.getMainIsomorphismHandler() instanceof IsomorphismHandlerSorting) {
+			return calculateReachabilityGraphWithNormalForm(graph, patterns);
+		}
+		
+		// the first rg-node is the base-graph:
+		Graph rg = new Graph().addNode(new Node().setAttribute("graph", graph.toString()));
+		ArrayList<Graph> added = new ArrayList<Graph>(); // a list with graphs that were added
+		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
+		added.add(graph);
+		unprocessed.add(graph);
+		
+		HashMap<Integer, ArrayList<Integer>> hashMap = new HashMap<Integer, ArrayList<Integer>>(); // map hash-code of serialization to node-index within the RG
+		int rgNodeCount = 0;
+		ArrayList<Integer> firstList = new ArrayList<Integer>();
+		firstList.add(rgNodeCount++);
+		hashMap.put(GraphEngine.generateHash(graph), firstList); // add first hash mapped to index
+		
+		// as long as a single graph wasn't checked for successors, the search continues:
+		while (unprocessed.size() > 0) {
+			// looking for matches:
+			ArrayList<Match> matches = calculateReachabilityNodeMatches(unprocessed.get(0), patterns);
+			// look up the rg-node, that represents the unprocessed graph:
+			Node source = findGraphInReachabilityGraph(rg, unprocessed.get(0));
+			unprocessed.remove(0);
+			// now handle matches:
+			for (Match match: matches) {
+				// construct the graph, that's the result of this match:
+				Graph successor = applyMatch(match);
+				// check if the graph was previously added:
+				int index = -1;
+				int newHash = GraphEngine.generateHash(successor);
+				if (hashMap.containsKey(newHash)) {
+					for (Integer indexToTest: hashMap.get(newHash)) {
+						//Graph graphToTest = GraphEngine.getGson().fromJson((String)rg.getNodes().get(indexToTest).getAttribute("graph"), Graph.class);
+						Graph graphToTest = added.get(indexToTest);
+						if (GraphEngine.isIsomorphTo(successor, graphToTest)) {
+							index = indexToTest;
+							break;
+						}
+					}
+				}
+//				index = indexOf(added, successor);
+				if (index != -1) {
+					// yes, the graph already did exist => just build edge to an existing node
+					Node target = rg.getNodes().get(index);
+					source.addEdge(match.getPattern().toString(), target); // new edge
+				} else {
+//					System.out.println("reached new state with '" + match.getPattern().getName() + "'"); // TODO: remove debug
+					// no, the graph didn't exist before => add a new node
+					if (hashMap.containsKey(newHash)) {
+						hashMap.get(newHash).add(rgNodeCount++);
+					} else {
+						ArrayList<Integer> newList = new ArrayList<Integer>();
+						newList.add(rgNodeCount++);
+						hashMap.put(newHash, newList);
+					}
+					Node target = new Node().setAttribute("graph", successor.toString()); // new node
+					rg.addNode(target);
+					source.addEdge(match.getPattern().toString(), target); // edge to new node
+					added.add(successor);
+					unprocessed.add(successor);
+				}
+			}
+		}
+		// done
+		return rg;
+	}
+	
 	public static Graph calculateReachabilityGraphWithNormalForm(Graph graph, ArrayList<ArrayList<PatternGraph>> patterns) {
 		// the first rg-node is the base-graph:
 		graph = GraphEngine.getMainIsomorphismHandler().normalized(graph);
@@ -137,6 +244,11 @@ public class PatternEngine {
 		ArrayList<Graph> unprocessed = new ArrayList<Graph>(); // a list with currently unprocessed graphs
 		added.add(graph);
 		unprocessed.add(graph);
+		HashMap<Integer, ArrayList<Integer>> hashMap = new HashMap<Integer, ArrayList<Integer>>(); // map hash-code of serialization to node-index within the RG
+		int rgNodeCount = 0;
+		ArrayList<Integer> firstList = new ArrayList<Integer>();
+		firstList.add(rgNodeCount++);
+		hashMap.put(graph.toString().hashCode(), firstList); // add first hash mapped to index
 		// as long as a single graph wasn't checked for successors, the search continues:
 		while (unprocessed.size() > 0) {
 			// looking for matches:
@@ -151,13 +263,28 @@ public class PatternEngine {
 				// check if the graph was previously added:
 				successor = GraphEngine.getMainIsomorphismHandler().normalized(successor);
 				String serializedGraph = successor.toString();
-				int index = normalizedIndexOf(rg.getNodes(), serializedGraph);
+				int index = -1;
+				if (hashMap.containsKey(serializedGraph.hashCode())) { // check for hashes
+					for (int indexToTest: hashMap.get(serializedGraph.hashCode())) { // for each matched hash:
+						if (rg.getNodes().get(indexToTest).getAttribute("graph").equals(serializedGraph)) { // doing the isomorphism check
+							index = indexToTest;
+							break;
+						}
+					}
+				}
 				if (index != -1) {
 					// yes, the graph already did exist => just build edge to an existing node
 					Node target = rg.getNodes().get(index);
 					source.addEdge(match.getPattern().toString(), target); // new edge
 				} else {
 					// no, the graph didn't exist before => add a new node
+					if (hashMap.containsKey(serializedGraph.hashCode())) { // save the new hash
+						hashMap.get(serializedGraph.hashCode()).add(rgNodeCount++);
+					} else {
+						ArrayList<Integer> newList = new ArrayList<Integer>();
+						newList.add(rgNodeCount++);
+						hashMap.put(serializedGraph.hashCode(), newList);
+					}
 					Node target = new Node().setAttribute("graph", serializedGraph); // new node
 					rg.addNode(target);
 					source.addEdge(match.getPattern().toString(), target); // edge to new node

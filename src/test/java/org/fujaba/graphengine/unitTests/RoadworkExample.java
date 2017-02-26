@@ -71,6 +71,59 @@ public class RoadworkExample {
 		
 		return g;
 	}
+	Graph getBiggerStartGraph() {
+		Graph g = new Graph();
+		
+		Node n1 = new Node().setAttribute("type", "road");
+		Node n2 = new Node().setAttribute("type", "road");
+		Node n3 = new Node().setAttribute("type", "road");
+		Node n4 = new Node().setAttribute("type", "road");
+		Node n5 = new Node().setAttribute("type", "road");
+		Node n6 = new Node().setAttribute("type", "road");
+		Node n7 = new Node().setAttribute("type", "road");
+		Node n8 = new Node().setAttribute("type", "road");
+		Node n9 = new Node().setAttribute("type", "road");
+		
+		Node s1 = new Node().setAttribute("type", "road");
+		Node s2 = new Node().setAttribute("type", "road");
+		Node s8 = new Node().setAttribute("type", "road");
+		Node s9 = new Node().setAttribute("type", "road");
+		
+		g.addNode(n1, n2, n3, n4, n5, n6, n7, n8, n9,
+		          s1, s2,                     s8, s9);
+
+		n9.addEdge("west", n8);
+		n8.addEdge("west", n7);
+		n7.addEdge("west", n6);
+		n6.addEdge("west", n5);
+		n5.addEdge("west", n4);
+		n4.addEdge("west", n3);
+		n3.addEdge("west", n2);
+		n2.addEdge("west", n1);
+		
+		s1.addEdge("east", s2);
+		s2.addEdge("east", n3);
+		n3.addEdge("east", n4);
+		n4.addEdge("east", n5);
+		n5.addEdge("east", n6);
+		n6.addEdge("east", n7);
+		n7.addEdge("east", s8);
+		s8.addEdge("east", s9);
+
+		Node signalW = new Node().setAttribute("type", "signal").setAttribute("pass", false);
+		Node signalE = new Node().setAttribute("type", "signal").setAttribute("pass", false);
+		
+		s2.addEdge("signal", signalW);
+		n8.addEdge("signal", signalE);
+		g.addNode(signalW, signalE);
+		
+//		Node map = new Node();
+//		map.setAttribute("type", "map");
+//		map.addEdge("roads", n1, n2, n3, n4, n5, n6, n7, s1, s2, s6, s7);
+//		g.addNode(map);
+		
+		return g;
+	}
 	Graph getMinimalStartGraph() {
 		Graph g = new Graph();
 		
@@ -355,6 +408,18 @@ public class RoadworkExample {
 			    System.out.println("   " + reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
 		    }
 	    }
+	    if (fromLevel <= 4 && toLevel >= 4) {
+		    if (debug) {
+			    System.out.println("\nbuild reachability graph for RoadworkExample (bigger map with 12 pieces of road)...");
+		    }
+		    begin = System.nanoTime();
+		    reachabilityGraph = PatternEngine.calculateReachabilityGraph(getBiggerStartGraph(), patterns);
+		    total += (System.nanoTime() - begin) / 1e6;
+		    if (debug) {
+			    System.out.println("-> done building reachability graph for RoadworkExample after " + ((System.nanoTime() - begin) / 1e9) + " s == " + ((System.nanoTime() - begin) / 1e9 / 60) + " m");
+			    System.out.println("   " + reachabilityGraph.getNodes().size() + " node" + (reachabilityGraph.getNodes().size() != 1 ? "s" : "") + " in the 'reachabilityGraph'");
+		    }
+	    }
 	    
 	    if (drawAlchemyJs) {
 		    new GraphDumper(reachabilityGraph).dumpGraph("roadwork.html");
@@ -386,7 +451,7 @@ public class RoadworkExample {
     	toTest.add(new IsomorphismHandlerParallel());
     	toTest.add(new IsomorphismHandlerSorting());
 
-    	boolean debug = false;
+    	boolean debug = true;
     	int fromLevel = 2;
     	int toLevel = 2;
     	boolean drawSigmaJs = false;
