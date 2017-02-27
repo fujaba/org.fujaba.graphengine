@@ -452,8 +452,8 @@ public class RoadworkExample {
     	toTest.add(new IsomorphismHandlerSorting());
 
     	boolean debug = true;
-    	int fromLevel = 2;
-    	int toLevel = 2;
+    	int fromLevel = 2; // level 3 is the original example
+    	int toLevel = 2; // level 3 is the original example
     	boolean drawSigmaJs = false;
     	boolean drawAlchemyJs = false;
     	

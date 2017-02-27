@@ -215,7 +215,7 @@ public class PatternEngine {
 					Node target = rg.getNodes().get(index);
 					source.addEdge(match.getPattern().toString(), target); // new edge
 				} else {
-//					System.out.println("reached new state with '" + match.getPattern().getName() + "'"); // TODO: remove debug
+//					System.out.println("reached new state (#" + (rgNodeCount + 2) + ") with '" + match.getPattern().getName() + "'"); // TODO: remove debug
 					// no, the graph didn't exist before => add a new node
 					if (hashMap.containsKey(newHash)) {
 						hashMap.get(newHash).add(rgNodeCount++);

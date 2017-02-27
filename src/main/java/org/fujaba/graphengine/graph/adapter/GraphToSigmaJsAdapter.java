@@ -48,7 +48,20 @@ public class GraphToSigmaJsAdapter extends TypeAdapter<Graph> {
 				if (node.getEdges().keySet().size() == 0) {
 					out.name("color").value("#F00");
 				} else {
-					out.name("color").value("#000");
+					boolean isPurelySelfReferential = true;
+					for (String key: node.getEdges().keySet()) {
+						for (Node other: node.getEdges(key)) {
+							if (other != node) {
+								isPurelySelfReferential = false;
+								break;
+							}
+						}
+					}
+					if (isPurelySelfReferential) {
+						out.name("color").value("#F00");
+					} else {
+						out.name("color").value("#000");
+					}
 				}
 			}
 			out.endObject();
