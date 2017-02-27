@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Finished example for a Live Demo.
+ * Template for a Live Demo.
  * 
  * 
  * Intended for programmatically creating
@@ -51,64 +51,42 @@ import org.junit.Test;
  * 
  * @author Philipp Kolodziej
  */
-public class InvoiceExample {
+public class LiveInvoiceExample {
 	
 	
 	
 	private Graph getInvoiceStartGraph() {
 		Graph g = new Graph();
-		Node product1 = new Node()
-				.setAttribute("type", "Product")
-				.setAttribute("name", "P1")
-				.setAttribute("netPrice", 10)
-				.setAttribute("tax", 0.19)
-				.setAttribute("amount", 2)
-				.setAttribute("total", 23.8);
-		Node product2 = new Node()
-				.setAttribute("type", "Product")
-				.setAttribute("name", "P2")
-				.setAttribute("netPrice", 5)
-				.setAttribute("tax", 0.19)
-				.setAttribute("amount", 4)
-				.setAttribute("total", 23.7);
-		Node invoice = new Node()
-				.setAttribute("type", "Invoice")
-				.addEdge("item", product1, product2);
-		g.addNode(invoice, product1, product2);
+		Node n = new Node();
+		g.addNode(n);
 		return g;
 	}
 	
 	private PatternGraph getProductTotalIsWrongPattern() {
 		PatternGraph p = new PatternGraph("wrong");
-		p.addPatternNode(new PatternNode("#{type} == 'Product' && round(100 * (#{netPrice} * (1 + #{tax}) * #{amount})) / 100 != #{total}")
-				.addPatternAttribute(new PatternAttribute().setAction("+").setName("status").setValue("wrong")));
+		PatternNode pn = new PatternNode();
+		p.addPatternNode(pn);
 		return p;
 	}
 	
 	private PatternGraph getProductTotalIsRightPattern() {
 		PatternGraph p = new PatternGraph("right");
-		p.addPatternNode(new PatternNode("#{type} == 'Product' && round(100 * (#{netPrice} * (1 + #{tax}) * #{amount})) / 100 == #{total}")
-				.addPatternAttribute(new PatternAttribute().setAction("+").setName("status").setValue("right")));
+		PatternNode pn = new PatternNode();
+		p.addPatternNode(pn);
 		return p;
 	}
 	
 	private PatternGraph getInvoiceHasErrorPattern() {
 		PatternGraph p = new PatternGraph("error");
-		PatternNode n1 = new PatternNode("#{type} == 'Product' && #{status} == 'wrong'");
-		PatternNode n2 = new PatternNode("#{type} == 'Invoice'")
-				.addPatternAttribute(new PatternAttribute().setAction("+").setName("status").setValue("error"))
-				.addPatternEdge("item", n1);
-		p.addPatternNode(n1, n2);
+		PatternNode pn = new PatternNode();
+		p.addPatternNode(pn);
 		return p;
 	}
 	
 	private PatternGraph getInvoiceHasSuccessPattern() {
 		PatternGraph p = new PatternGraph("success");
-		PatternNode n1 = new PatternNode("#{type} == 'Product' && #{status} == 'wrong'").setAction("!=");
-		PatternNode n2 = new PatternNode("#{type} == 'Invoice'")
-				.addPatternAttribute(new PatternAttribute().setAction("+").setName("status").setValue("success"))
-				.addPatternEdge("item", n1);
-		p.addPatternNode(n1, n2);
+		PatternNode pn = new PatternNode();
+		p.addPatternNode(pn);
 		return p;
 	}
 	
@@ -131,6 +109,6 @@ public class InvoiceExample {
 	    
 	}
 	
-	
 
+	
 }
