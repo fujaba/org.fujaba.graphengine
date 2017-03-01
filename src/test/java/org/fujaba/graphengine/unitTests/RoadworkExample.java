@@ -447,17 +447,17 @@ public class RoadworkExample {
     	toTest.add(new IsomorphismHandlerCSPHighHeuristics());
     	toTest.add(new IsomorphismHandlerCSPLowHeuristics());
     	toTest.add(new IsomorphismHandlerDepthFirstBacktracking());
-    	toTest.add(new IsomorphismHandlerCombinatorial());
-    	toTest.add(new IsomorphismHandlerParallel());
     	toTest.add(new IsomorphismHandlerSorting());
+//    	toTest.add(new IsomorphismHandlerCombinatorial());
+//    	toTest.add(new IsomorphismHandlerParallel());
 
-    	boolean debug = false;
+    	boolean debug = true;
     	int fromLevel = 1; // level 3 is the original example
     	int toLevel = 1; // level 3 is the original example
     	boolean drawSigmaJs = false;
     	boolean drawAlchemyJs = false;
     	
-    	boolean warmUp = false;
+    	boolean warmUp = true;
 
     	if (warmUp) {
         	for (int i = 0; i < 3; ++i) {

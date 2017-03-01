@@ -52,7 +52,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getMainIsomorphismHandler() {
 		if (mainIsomorphismHandler == null) {
-			mainIsomorphismHandler = new IsomorphismHandlerCSPLowHeuristics();
+			mainIsomorphismHandler = new IsomorphismHandlerCSPHighHeuristics();
 		}
 		return mainIsomorphismHandler;
 	}

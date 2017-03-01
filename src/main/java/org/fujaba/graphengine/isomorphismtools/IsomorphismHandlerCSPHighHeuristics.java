@@ -6,9 +6,148 @@ import java.util.HashMap;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.w3c.dom.NodeList;
 
 public class IsomorphismHandlerCSPHighHeuristics extends IsomorphismHandler {
+	
+	@Override
+	public boolean isIsomorphTo(Graph a, Graph b) {
+		if (a.getNodes().size() != b.getNodes().size()) {
+			// different amount of nodes => fail
+			return false;
+		}
+		if (a.getNodes().size() == 0) {
+			// no nodes in sub-graph => empty mapping is the match (success)
+			return true;
+		}
+		// now I'm trying to find 'loosely matched candidates':
+		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
+		for (int i = 0; i < a.getNodes().size(); ++i) {
+			Node nodeFromA = a.getNodes().get(i);
+			couldMatch.add(new ArrayList<Node>());
+nodeMatch:	for (int j = 0; j < b.getNodes().size(); ++j) {
+				Node nodeFromB = b.getNodes().get(j);
+				// check existence of outgoing edges and their count:
+				for (String key: nodeFromA.getEdges().keySet()) {
+					int currentSubNodeEdgeCount = nodeFromA.getEdges(key).size();
+					int currentNodeEdgeCount = (nodeFromB.getEdges(key) == null ? 0 : nodeFromB.getEdges(key).size());
+					if (currentNodeEdgeCount != currentSubNodeEdgeCount) {
+						continue nodeMatch;
+					}
+				}
+				// the other way around:
+				for (String key: nodeFromB.getEdges().keySet()) {
+					int currentSubNodeEdgeCount = nodeFromB.getEdges(key).size();
+					int currentNodeEdgeCount = (nodeFromA.getEdges(key) == null ? 0 : nodeFromA.getEdges(key).size());
+					if (currentNodeEdgeCount != currentSubNodeEdgeCount) {
+						continue nodeMatch;
+					}
+				}
+				// check attributes:
+				for (String key: nodeFromA.getAttributes().keySet()) {
+					if (!nodeFromA.getAttribute(key).equals(nodeFromB.getAttribute(key))) {
+						continue nodeMatch;
+					}
+				}
+				// the other way around:
+				for (String key: nodeFromB.getAttributes().keySet()) {
+					if (!nodeFromB.getAttribute(key).equals(nodeFromA.getAttribute(key))) {
+						continue nodeMatch;
+					}
+				}
+				couldMatch.get(couldMatch.size() - 1).add(nodeFromB);
+			}
+			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
+				return false; // no mapping for this node => fail
+			}
+		}
+		couldMatch = GraphEngine.removeImpossibleCandidates(couldMatch);
+		if (couldMatch == null) {
+			// after removing 'impossible' candidates, there's no match anymore => fail
+			return false;
+		}
+		if (a.getNodes().size() == 1) {
+			// a single node with a candidate is a match => success
+			HashMap<Node, Node> singleNodeMapping = new HashMap<Node, Node>();
+			singleNodeMapping.put(a.getNodes().get(0), couldMatch.get(0).get(0));
+			return true;
+		}
+		ArrayList<Node> nodeList = new ArrayList<Node>(a.getNodes());
+		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
+		ArrayList<Integer> currentTry = new ArrayList<Integer>();
+		for (int i = 0; i < couldMatch.size(); ++i) { // initialize mapping
+			currentTry.add(0);
+			mapping.put(nodeList.get(i), couldMatch.get(i).get(0));
+		}
+		heuristicallyChangeNodeOrder(0, nodeList, couldMatch, currentTry);
+		int checkIndex = 1;
+		int lastIndex = checkIndex - 1;
+loop:	while (checkIndex != -1) { // do a depth-first csp-solver backtracking with heuristics:
+			if (checkIndex > lastIndex && checkIndex + 1 <= nodeList.size() - 1) {
+				heuristicallyChangeNodeOrder(checkIndex + 1, nodeList, couldMatch, currentTry);
+			}
+			lastIndex = checkIndex;
+			for (int i = checkIndex; i < nodeList.size(); ++i) {
+				Node currentSubNode = nodeList.get(i);
+				boolean fail = false;
+match:			for (int j = 0; j < i; ++j) {
+					Node otherSubNode = nodeList.get(j);
+					if (mapping.get(currentSubNode) == mapping.get(otherSubNode)) {
+						fail = true; // found duplicate!
+						break match;
+					}
+					for (String key: currentSubNode.getEdges().keySet()) {
+						if (currentSubNode.getEdges(key).contains(otherSubNode)) {
+							if (!mapping.get(currentSubNode).getEdges(key).contains(mapping.get(otherSubNode))) {
+								fail = true; // missing outgoing edge
+								break match;
+							}
+						}
+					}
+					for (String key: otherSubNode.getEdges().keySet()) {
+						if (otherSubNode.getEdges(key).contains(currentSubNode)) {
+							if (!mapping.get(otherSubNode).getEdges(key).contains(mapping.get(currentSubNode))) {
+								fail = true; // missing incoming edge
+								break match;
+							}
+						}
+					}
+					for (String key: mapping.get(currentSubNode).getEdges().keySet()) {
+						if (mapping.get(currentSubNode).getEdges(key).contains(mapping.get(otherSubNode))) {
+							if (currentSubNode.getEdges(key) == null || !currentSubNode.getEdges(key).contains(otherSubNode)) {
+								fail = true; // missing outgoing edge
+								break match;
+							}
+						}
+					}
+					for (String key: mapping.get(otherSubNode).getEdges().keySet()) {
+						if (mapping.get(otherSubNode).getEdges(key).contains(mapping.get(currentSubNode))) {
+							if (otherSubNode.getEdges(key) == null || !otherSubNode.getEdges(key).contains(currentSubNode)) {
+								fail = true; // missing incoming edge
+								break match;
+							}
+						}
+					}
+				}
+				if (fail) {
+					checkIndex = i;
+					while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatch.get(checkIndex).size() - 1) {
+						--checkIndex;
+					}
+					if (checkIndex >= 0) {
+						currentTry.set(checkIndex, currentTry.get(checkIndex) + 1);
+						mapping.put(nodeList.get(checkIndex), couldMatch.get(checkIndex).get(currentTry.get(checkIndex)));
+						for (int j = checkIndex + 1; j < nodeList.size(); ++j) {
+							currentTry.set(j, 0);
+							mapping.put(nodeList.get(j), couldMatch.get(j).get(0));
+						}
+					}
+					continue loop;
+				}
+			}
+			return true; // it ran through with no errors => success
+		}
+		return false; // nothing left to check => fail
+	}
 
 	@Override
 	/**
@@ -67,9 +206,6 @@ nodeMatch:	for (int j = 0; j < baseGraph.getNodes().size(); ++j) {
 			return singleNodeMapping;
 		}
 		
-		/**
-		 * TODO: implement a true and proper CSP algorithm for this problem
-		 */
 		ArrayList<Node> nodeList = new ArrayList<Node>(subGraph.getNodes());
 		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
 		ArrayList<Integer> currentTry = new ArrayList<Integer>();
@@ -132,7 +268,7 @@ match:			for (int j = 0; j < i; ++j) {
 		return null; // nothing left to check => fail
 	}
 
-	private void heuristicallyChangeNodeOrder(int fromIndex, ArrayList<Node> nodeList, ArrayList<ArrayList<Node>> couldMatch, ArrayList<Integer> currentTry) {
+	protected void heuristicallyChangeNodeOrder(int fromIndex, ArrayList<Node> nodeList, ArrayList<ArrayList<Node>> couldMatch, ArrayList<Integer> currentTry) {
 		
 		/**
 		 * H1 minds the current mapping of earlier nodes, and don't count candidates, that ain't possible right now.
