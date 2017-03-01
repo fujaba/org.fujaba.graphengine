@@ -103,6 +103,14 @@ match:			for (int j = 0; j < i; ++j) {
 							}
 						}
 					}
+					for (String key: mapping.get(currentSubNode).getEdges().keySet()) { // other way
+						if (mapping.get(currentSubNode).getEdges(key).contains(mapping.get(otherSubNode))) {
+							if (currentSubNode.getEdges(key) == null || !currentSubNode.getEdges(key).contains(otherSubNode)) {
+								fail = true; // missing outgoing edge
+								break match;
+							}
+						}
+					}
 					for (String key: otherSubNode.getEdges().keySet()) {
 						if (otherSubNode.getEdges(key).contains(currentSubNode)) {
 							if (!mapping.get(otherSubNode).getEdges(key).contains(mapping.get(currentSubNode))) {
@@ -111,15 +119,7 @@ match:			for (int j = 0; j < i; ++j) {
 							}
 						}
 					}
-					for (String key: mapping.get(currentSubNode).getEdges().keySet()) {
-						if (mapping.get(currentSubNode).getEdges(key).contains(mapping.get(otherSubNode))) {
-							if (currentSubNode.getEdges(key) == null || !currentSubNode.getEdges(key).contains(otherSubNode)) {
-								fail = true; // missing outgoing edge
-								break match;
-							}
-						}
-					}
-					for (String key: mapping.get(otherSubNode).getEdges().keySet()) {
+					for (String key: mapping.get(otherSubNode).getEdges().keySet()) { // other way
 						if (mapping.get(otherSubNode).getEdges(key).contains(mapping.get(currentSubNode))) {
 							if (otherSubNode.getEdges(key) == null || !otherSubNode.getEdges(key).contains(currentSubNode)) {
 								fail = true; // missing incoming edge

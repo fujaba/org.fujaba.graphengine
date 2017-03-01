@@ -19,6 +19,162 @@ public class IsomorphismHandlerDepthFirstBacktracking extends IsomorphismHandler
 		}
 		return nodes;
 	}
+	
+	@Override
+	public boolean isIsomorphTo(Graph a, Graph b) {
+		if (a.getNodes().size() != b.getNodes().size()) {
+			return false;
+		}
+		if (a.getNodes().size() == 0) {
+			return true;
+		}
+		ArrayList<Node> sortedNodes = getDepthFirstSortedNodeList(a);
+		ArrayList<ArrayList<Node>> couldMatch = new ArrayList<ArrayList<Node>>();
+		for (int i = 0; i < sortedNodes.size(); ++i) {
+			Node aNode = sortedNodes.get(i);
+			couldMatch.add(new ArrayList<Node>());
+nodeMatch:	for (int j = 0; j < b.getNodes().size(); ++j) {
+				Node bNode = b.getNodes().get(j);
+				// check existence of outgoing edges and their count:
+				for (String key: aNode.getEdges().keySet()) {
+					int currentSubNodeEdgeCount = aNode.getEdges(key).size();
+					int currentNodeEdgeCount = (bNode.getEdges(key) == null ? 0 : bNode.getEdges(key).size());
+					if (currentNodeEdgeCount != currentSubNodeEdgeCount) {
+						continue nodeMatch;
+					}
+				}
+				// check existence of outgoing edges and their count (oder way around):
+				for (String key: bNode.getEdges().keySet()) {
+					int currentSubNodeEdgeCount = bNode.getEdges(key).size();
+					int currentNodeEdgeCount = (aNode.getEdges(key) == null ? 0 : aNode.getEdges(key).size());
+					if (currentNodeEdgeCount != currentSubNodeEdgeCount) {
+						continue nodeMatch;
+					}
+				}
+				// check attributes:
+				for (String key: aNode.getAttributes().keySet()) {
+					if (!aNode.getAttribute(key).equals(bNode.getAttribute(key))) {
+						continue nodeMatch;
+					}
+				}
+				// check attributes (other way around):
+				for (String key: bNode.getAttributes().keySet()) {
+					if (!bNode.getAttribute(key).equals(aNode.getAttribute(key))) {
+						continue nodeMatch;
+					}
+				}
+				couldMatch.get(couldMatch.size() - 1).add(bNode);
+			}
+			if (couldMatch.get(couldMatch.size() - 1).size() == 0) {
+				return false; // no mapping for this node => fail
+			}
+		}
+		couldMatch = removeImpossibleCandidates(couldMatch);
+		if (couldMatch == null) {
+			return false;
+		}
+		/**
+		 * TODO (optimization):
+		 * - we could check each expected edge between each candidate of one node and each candidate of the other node
+		 *   (removing those candidates who don't match to any opposite candidate)
+		 *   
+		 * - we could now again do things like eliminate candidates that are the only candidate for another node
+		 */
+		// if there's only one node and it has any candidate, that is already a successful match:
+		HashMap<Node, Node> mapping = new HashMap<Node, Node>();
+		if (couldMatch.size() == 1) {
+			mapping.put(sortedNodes.get(0), couldMatch.get(0).get(0));
+			return true;
+		}
+		// now going through all valid combinations (that make sense) of those loosely fitted candidates to find a match:
+		ArrayList<Integer> currentTry = new ArrayList<Integer>();
+		for (int i = 0; i < couldMatch.size(); ++i) {
+			currentTry.add(0);
+			mapping.put(sortedNodes.get(i), couldMatch.get(i).get(0));
+		}
+		/*
+		 * only check this index against previous ones,
+		 * if ok, increment and check only that one, and so on
+		 */
+		int checkIndex = 1;
+loop:	while (checkIndex != -1) {
+			for (int i = checkIndex; i < sortedNodes.size(); ++i) {
+				/*
+				 * check sortedNodes.get(i) only against all previous nodes,
+				 * if it is duplicate, or any edge (outgoing or incoming) is missing.
+				 * if it fails: count this nodes candidate up (++currentTry.get(i)) if possible,
+				 * if it can't be counted up, go one level back (i-1) and try increment there and so on.
+				 * if nothing can't be counted up, return null (or set checkIndex to -1 and break);
+				 * after incrementing a candidate, reset all currentTry-elements after it to 0,
+				 * and set the checkIndex to the index of the increment currentTry-element, finally break
+				 */
+				Node currentSubNode = sortedNodes.get(i);
+				boolean fail = false;
+match:			for (int j = 0; j < i; ++j) {
+					Node otherSubNode = sortedNodes.get(j);
+					if (mapping.get(currentSubNode) == mapping.get(otherSubNode)) {
+						fail = true; // found duplicate!
+						break match;
+					}
+					for (String key: currentSubNode.getEdges().keySet()) {
+						if (currentSubNode.getEdges(key).contains(otherSubNode)) {
+							if (!mapping.get(currentSubNode).getEdges(key).contains(mapping.get(otherSubNode))) {
+								fail = true; // missing outgoing edge
+								break match;
+							}
+						}
+					}
+					for (String key: mapping.get(currentSubNode).getEdges().keySet()) { // other way
+						if (mapping.get(currentSubNode).getEdges(key).contains(otherSubNode)) {
+							if (currentSubNode.getEdges(key) == null || !currentSubNode.getEdges(key).contains(mapping.get(otherSubNode))) {
+								fail = true; // missing outgoing edge
+								break match;
+							}
+						}
+					}
+					for (String key: otherSubNode.getEdges().keySet()) {
+						if (otherSubNode.getEdges(key).contains(currentSubNode)) {
+							if (!mapping.get(otherSubNode).getEdges(key).contains(mapping.get(currentSubNode))) {
+								fail = true; // missing incoming edge
+								break match;
+							}
+						}
+					}
+					for (String key: mapping.get(otherSubNode).getEdges().keySet()) { // other way
+						if (mapping.get(otherSubNode).getEdges(key).contains(currentSubNode)) {
+							if (otherSubNode.getEdges(key) == null || !otherSubNode.getEdges(key).contains(mapping.get(currentSubNode))) {
+								fail = true; // missing incoming edge
+								break match;
+							}
+						}
+					}
+				}
+				if (fail) {
+					// found an error with the 'new' candidate at index i
+					/*
+					 * change candidate of node[i] or if not possible, the next possible earlier one,
+					 * reset the ones after it (also update the mapping)
+					 * and set checkIndex to the new index to check (the one that got incremented)
+					 */
+					checkIndex = i;
+					while (checkIndex >= 0 && currentTry.get(checkIndex) == couldMatch.get(checkIndex).size() - 1) {
+						--checkIndex;
+					}
+					if (checkIndex >= 0) {
+						currentTry.set(checkIndex, currentTry.get(checkIndex) + 1);
+						mapping.put(sortedNodes.get(checkIndex), couldMatch.get(checkIndex).get(currentTry.get(checkIndex)));
+						for (int j = checkIndex + 1; j < sortedNodes.size(); ++j) {
+							currentTry.set(j, 0);
+							mapping.put(sortedNodes.get(j), couldMatch.get(j).get(0));
+						}
+					}
+					continue loop;
+				}
+			}
+			return true; // it ran through with no errors => success
+		}
+		return false; // nothing left to check => fail
+	}
 
 	@Override
 	/**

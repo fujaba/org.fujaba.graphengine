@@ -14,6 +14,7 @@ import org.fujaba.graphengine.graph.adapter.NodeAdapter;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPHighHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
+import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.sort.NodeSortTree;
 import org.fujaba.graphengine.isomorphismtools.sort.adapter.NodeSortTreeAdapter;
@@ -62,7 +63,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getMappingFallback() {
 		if (mappingFallback == null) {
-			mappingFallback = new IsomorphismHandlerCSPLowHeuristics();
+			mappingFallback = new IsomorphismHandlerCSPHighHeuristics();
 		}
 		return mappingFallback;
 	}
@@ -82,7 +83,7 @@ public class GraphEngine {
 	 */
 	public static IsomorphismHandler getSplitGraphFallback() {
 		if (splitGraphFallback == null) {
-			splitGraphFallback = new IsomorphismHandlerCSPLowHeuristics();
+			splitGraphFallback = new IsomorphismHandlerCSPHighHeuristics();
 		}
 		return splitGraphFallback;
 	}
