@@ -129,6 +129,15 @@ public class PatternEngine {
 		return rg;
 	}
 	
+	public static Graph calculateReachabilityGraph(Graph graph, PatternGraph... patterns) {
+		ArrayList<ArrayList<PatternGraph>> patternList = new ArrayList<ArrayList<PatternGraph>>();
+		patternList.add(new ArrayList<PatternGraph>());
+		for (PatternGraph pg: patterns) {
+			patternList.get(0).add(pg);
+		}
+		return calculateReachabilityGraph(graph, patternList);
+	}
+	
 	/**
 	 * Calculates a reachability graph based on a graph of the initial situation
 	 * and a prioritized list of patterns to match and apply on the graph and resulting graphs.
