@@ -38,6 +38,8 @@ public class NodeSortTree implements Comparable<NodeSortTree> {
 		ArrayList<NodeSortTreeNode> closed = new ArrayList<NodeSortTreeNode>();
 		ArrayList<Node> closedNodes = new ArrayList<Node>();
 		open.add(rootNodeSortTreeNode);
+//		System.out.println(); // TODO: remove debug
+//		System.out.println(connectedGraph); // TODO: remove debug
 		while (open.size() > 0 || openNextLevel.size() > 0) {
 			if (open.size() == 0) {
 				open.addAll(openNextLevel);
@@ -46,6 +48,7 @@ public class NodeSortTree implements Comparable<NodeSortTree> {
 				openNextLevelNodes.clear();
 			}
 			NodeSortTreeNode current = open.remove(0);
+//			System.out.println("current: " + current.getNode()); // TODO: remove debug
 			Node currentNode = current.getNode();
 			closed.add(current);
 			closedNodes.add(currentNode);
@@ -56,19 +59,22 @@ public class NodeSortTree implements Comparable<NodeSortTree> {
 					if (!openNodes.contains(outgoingNode) && !closedNodes.contains(outgoingNode) && !succNodes.contains(outgoingNode)) {
 						succ.add(new NodeSortTreeNode(current, outgoingNode));
 						succNodes.add(outgoingNode);
+//						System.out.println("outgoing add"); // TODO: remove debug
 					}
 				}
 			}
 			for (Node ingoingNode: connectedGraph.getNodes()) {
 				for (String edgeName: ingoingNode.getEdges().keySet()) {
-					if (ingoingNode.getEdges(edgeName) != null && ingoingNode.getEdges(edgeName).contains(current.getNode())
+					if (ingoingNode.getEdges(edgeName).contains(current.getNode())
 							&& !openNodes.contains(ingoingNode) && !closedNodes.contains(ingoingNode) && !succNodes.contains(ingoingNode)) {
 						succ.add(new NodeSortTreeNode(current, ingoingNode));
 						succNodes.add(ingoingNode);
+//						System.out.println("ingoing add"); // TODO: remove debug
 						break;
 					}
 				}
 			}
+//			System.out.println("succ: " + succNodes); // TODO: remove debug
 			openNextLevel.addAll(0, succ); // add at the beginning for breadth-first search
 			openNextLevelNodes.addAll(0, succNodes); // add at the beginning for breadth-first search
 		}

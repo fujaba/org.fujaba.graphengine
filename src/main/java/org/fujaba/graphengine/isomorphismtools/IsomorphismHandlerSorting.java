@@ -57,7 +57,10 @@ targetMatch:	for (Node nSorted: g.getNodes()) {
 		for (Graph subGraph: GraphEngine.split(graph)) {
 			// ##### 2.: do the node-sort-tree sort: #####
 			ArrayList<NodeSortTree> nodeSortTrees = new ArrayList<NodeSortTree>();
+//			System.out.println("subGraph:" + subGraph); // TODO: remove debug
+//			System.out.println("nodes:"); // TODO: remove debug
 			for (Node node: subGraph.getNodes()) {
+//				System.out.println("#####" + node); // TODO: remove debug
 				nodeSortTrees.add(new NodeSortTree(subGraph, node));
 			}
 			ArrayList<NodeSortTree> nodeSortTreesCopy = null;
@@ -68,14 +71,24 @@ targetMatch:	for (Node nSorted: g.getNodes()) {
 			ArrayList<String> nodeSortTreesCopyStrings = null;
 			while (!nodeSortTreesStrings.equals(nodeSortTreesCopyStrings)) {
 				nodeSortTreesCopyStrings = (ArrayList<String>)nodeSortTreesStrings.clone();
-				HashMap<String, NodeSortTree> mapping = new HashMap<String, NodeSortTree>();
+				HashMap<String, ArrayList<NodeSortTree>> mapping = new HashMap<String, ArrayList<NodeSortTree>>();
 				for (NodeSortTree nst: nodeSortTrees) { // TODO: shouldn't this be done just once initially???
-					mapping.put(GraphEngine.getGson().toJson(nst), nst);
+					String serialization = GraphEngine.getGson().toJson(nst);
+					if (mapping.get(serialization) == null) {
+						mapping.put(serialization, new ArrayList<NodeSortTree>());
+					}
+					mapping.get(serialization).add(nst);
 				}
 				Collections.sort(nodeSortTreesStrings);
 				nodeSortTreesCopy = new ArrayList<NodeSortTree>();
+				ArrayList<String> used = new ArrayList<String>();
 				for (String s: nodeSortTreesStrings) {
-					nodeSortTreesCopy.add(mapping.get(s));
+					if (!used.contains(s)) {
+						used.add(s);
+						for (NodeSortTree nst: mapping.get(s)) {
+							nodeSortTreesCopy.add(nst);
+						}
+					}
 				}
 				nodeSortTrees = nodeSortTreesCopy;
 				for (NodeSortTree nodeSortTree: nodeSortTrees) {
@@ -121,6 +134,7 @@ targetMatch:	for (Node nSorted: g.getNodes()) {
 	}
 
 	private ArrayList<Node> getSortedNodes(NodeSortTree baseNST, ArrayList<Node> nodes) {
+//		System.out.println(); // TODO: remove debug
 		ArrayList<Node> result = new ArrayList<Node>();
 		ArrayList<NodeSortTreeNode> open = new ArrayList<NodeSortTreeNode>();
 		ArrayList<NodeSortTreeNode> closed = new ArrayList<NodeSortTreeNode>();
@@ -137,6 +151,7 @@ targetMatch:	for (Node nSorted: g.getNodes()) {
 			Node node = current.getNode();
 			if (!result.contains(node)) {
 				result.add(node);
+//				System.out.println("node: " + node + "; edges: " + node.getEdges()); // TODO: remove debug
 			}
 		}
 		return result;

@@ -449,7 +449,7 @@ public class RoadworkExample {
     	toTest.add(new IsomorphismHandlerSorting());
 //    	toTest.add(new IsomorphismHandlerCombinatorial());
 
-    	boolean debug = false;
+    	boolean debug = true;
     	int fromLevel = 1; // level 3 is the original example
     	int toLevel = 1; // level 3 is the original example
     	boolean drawSigmaJs = false;
