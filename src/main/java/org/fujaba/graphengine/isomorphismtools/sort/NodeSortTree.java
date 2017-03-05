@@ -103,5 +103,10 @@ public class NodeSortTree implements Comparable<NodeSortTree> {
 	public int compareTo(NodeSortTree o) {
 		return GraphEngine.getGson().toJson(this).compareTo(GraphEngine.getGson().toJson(o));
 	}
+	
+	@Override
+	public String toString() {
+		return GraphEngine.getGson().toJson(this);
+	}
 
 }

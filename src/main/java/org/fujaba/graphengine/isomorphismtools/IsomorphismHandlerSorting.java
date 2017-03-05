@@ -3,6 +3,7 @@ package org.fujaba.graphengine.isomorphismtools;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
@@ -69,7 +70,26 @@ targetMatch:	for (Node nSorted: g.getNodes()) {
 				nodeSortTreesStrings.add(GraphEngine.getGson().toJson(nst));
 			}
 			ArrayList<String> nodeSortTreesCopyStrings = null;
+			ArrayList<ArrayList<NodeSortTree>> history = new ArrayList<ArrayList<NodeSortTree>>();
 			while (!nodeSortTreesStrings.equals(nodeSortTreesCopyStrings)) {
+				int loopCycleIndex = history.indexOf(nodeSortTrees);
+				if (loopCycleIndex == -1) {
+					history.add(nodeSortTrees);
+				} else {
+					// loop detected
+					// TODO: GET A SPECIFIC ONE!!!!
+					ArrayList<NodeSortTree> minList = null;
+					String minString = "";
+					for (ArrayList<NodeSortTree> currentList: history) {
+//						System.out.println(currentList.toString());
+						if (minList == null || currentList.toString().compareTo(minString) < 0) {
+							minList = currentList;
+							minString = currentList.toString();
+						}
+					}
+					nodeSortTrees = minList;
+					break;
+				}
 				nodeSortTreesCopyStrings = (ArrayList<String>)nodeSortTreesStrings.clone();
 				HashMap<String, ArrayList<NodeSortTree>> mapping = new HashMap<String, ArrayList<NodeSortTree>>();
 				for (NodeSortTree nst: nodeSortTrees) { // TODO: shouldn't this be done just once initially???

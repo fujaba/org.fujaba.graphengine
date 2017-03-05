@@ -557,7 +557,7 @@ public class GraphTest {
 	    hell12.addEdge("c", hell3);
 	    hell.addNode(hell1, hell2, hell3, hell4, hell5, hell6, hell7, hell8, hell9, hell10, hell11, hell12);
 	    ArrayList<Graph> hellishSubGraphs = new ArrayList<Graph>();
-	    for (int i = 0; i < 1; ++i) {
+	    for (int i = 0; i < 3; ++i) {
 	    	hellishSubGraphs.add(hell.clone());
 	    }
 	    hell.getNodes().clear();
@@ -566,49 +566,62 @@ public class GraphTest {
 	    }
 
 //	    System.out.println();
-//	    String lastSerialization = null;
-//	    for (int i = 0; i < 100; ++i) {
-//	    	Collections.shuffle(a.getNodes());
-//	    	a = GraphEngine.normalized(a);
-//	    	if (lastSerialization == null) {
-//	    		lastSerialization = GraphEngine.getGson().toJson(a);
-//	    	} else {
-//	    		String currentSerialization = GraphEngine.getGson().toJson(a);
-//	    		Assert.assertEquals(lastSerialization, currentSerialization);
-//	    		lastSerialization = currentSerialization;
-//	    	}
+	    String lastSerialization = null;
+	    for (int i = 0; i < 100; ++i) {
+	    	Collections.shuffle(a.getNodes());
+	    	for (Node n: a.getNodes()) {
+	    		for (String key: n.getEdges().keySet()) {
+	    			Collections.shuffle(n.getEdges(key));
+	    		}
+	    	}
+	    	a = GraphEngine.normalized(a);
+	    	if (lastSerialization == null) {
+	    		lastSerialization = GraphEngine.getGson().toJson(a);
+	    	} else {
+	    		String currentSerialization = GraphEngine.getGson().toJson(a);
+	    		Assert.assertEquals(lastSerialization, currentSerialization);
+	    		lastSerialization = currentSerialization;
+	    	}
 //		    System.out.println(lastSerialization);
-//	    }
+	    }
 //	    System.out.println();
-//	    lastSerialization = null;
-//	    for (int i = 0; i < 100; ++i) {
-//	    	Collections.shuffle(b.getNodes());
-//	    	b = GraphEngine.normalized(b);
-//	    	if (lastSerialization == null) {
-//	    		lastSerialization = GraphEngine.getGson().toJson(b);
-//	    	} else {
-//	    		String currentSerialization = GraphEngine.getGson().toJson(b);
-//	    		Assert.assertEquals(lastSerialization, currentSerialization);
-//	    		lastSerialization = currentSerialization;
-//	    	}
+	    lastSerialization = null;
+	    for (int i = 0; i < 100; ++i) {
+	    	Collections.shuffle(b.getNodes());
+	    	for (Node n: b.getNodes()) {
+	    		for (String key: n.getEdges().keySet()) {
+	    			Collections.shuffle(n.getEdges(key));
+	    		}
+	    	}
+	    	b = GraphEngine.normalized(b);
+	    	if (lastSerialization == null) {
+	    		lastSerialization = GraphEngine.getGson().toJson(b);
+	    	} else {
+	    		String currentSerialization = GraphEngine.getGson().toJson(b);
+	    		Assert.assertEquals(lastSerialization, currentSerialization);
+	    		lastSerialization = currentSerialization;
+	    	}
 //		    System.out.println(lastSerialization);
-//	    }
-////	    System.out.println(GraphEngine.getGson().toJson(hell));
-////	    GraphEngine.prepareGraphAsJsonFileForSigmaJs(hell, "data.json");
+	    }
 //	    System.out.println();
-//	    String lastSerialization = null;
-//	    for (int i = 0; i < 1; ++i) {
-//	    	Collections.shuffle(hell.getNodes());
-//	    	hell = GraphEngine.normalized(hell);
-//	    	if (lastSerialization == null) {
-//	    		lastSerialization = GraphEngine.getGson().toJson(hell);
-//	    	} else {
-//	    		String currentSerialization = GraphEngine.getGson().toJson(hell);
-////	    		Assert.assertEquals(lastSerialization, currentSerialization);
-//	    		lastSerialization = currentSerialization;
-//	    	}
+	    lastSerialization = null;
+	    for (int i = 0; i < 10; ++i) {
+	    	Collections.shuffle(hell.getNodes());
+	    	for (Node n: hell.getNodes()) {
+	    		for (String key: n.getEdges().keySet()) {
+	    			Collections.shuffle(n.getEdges(key));
+	    		}
+	    	}
+	    	hell = GraphEngine.normalized(hell);
+	    	if (lastSerialization == null) {
+	    		lastSerialization = GraphEngine.getGson().toJson(hell);
+	    	} else {
+	    		String currentSerialization = GraphEngine.getGson().toJson(hell);
+	    		Assert.assertEquals(lastSerialization, currentSerialization);
+	    		lastSerialization = currentSerialization;
+	    	}
 //		    System.out.println(lastSerialization);
-//	    }
+	    }
 	    
 	}
 	
