@@ -2,6 +2,7 @@ package org.fujaba.graphengine.unitTests;
 
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
@@ -488,6 +489,70 @@ public class GraphTest {
 		// ok, after splitting, the second splitted part is the original graph, that was added 3 times
 		GraphEngine.isIsomorphTo(a, splitted.get(2));
 		// ok, after splitting, the third splitted part is the original graph, that was added 3 times
+	}
+
+	/* 
+	 * A: 				 B:	__
+	 * (1)--(2) 	vs   (1)  (2)
+	 *    \/                ¯¯
+	 *    /\                __
+	 * (3)--(4)          (3)  (4)
+	 * 						¯¯
+	 */
+	@Test
+	public void testNormalizationNotDoingWickedStuff() {
+		
+	    Graph a = new Graph();
+	    Node a1 = new Node();
+	    Node a2 = new Node();
+	    Node a3 = new Node();
+	    Node a4 = new Node();
+	    a1.addEdge("a", a2);
+	    a1.addEdge("b", a4);
+	    a3.addEdge("a", a4);
+	    a3.addEdge("b", a2);
+	    a.addNode(a1, a2, a3, a4);
+	    
+	    Graph b = new Graph();
+	    Node b1 = new Node();
+	    Node b2 = new Node();
+	    Node b3 = new Node();
+	    Node b4 = new Node();
+	    b1.addEdge("a", b2);
+	    b1.addEdge("b", b2);
+	    b3.addEdge("a", b4);
+	    b3.addEdge("b", b4);
+	    b.addNode(b1, b2, b3, b4);
+
+//	    System.out.println();
+	    String lastSerialization = null;
+	    for (int i = 0; i < 100; ++i) {
+	    	Collections.shuffle(a.getNodes());
+	    	a = GraphEngine.normalized(a);
+	    	if (lastSerialization == null) {
+	    		lastSerialization = GraphEngine.getGson().toJson(a);
+	    	} else {
+	    		String currentSerialization = GraphEngine.getGson().toJson(a);
+	    		Assert.assertEquals(lastSerialization, currentSerialization);
+	    		lastSerialization = currentSerialization;
+	    	}
+		    //System.out.println(GraphEngine.getGson().toJson(a));
+	    }
+//	    System.out.println();
+	    lastSerialization = null;
+	    for (int i = 0; i < 100; ++i) {
+	    	Collections.shuffle(b.getNodes());
+	    	b = GraphEngine.normalized(b);
+	    	if (lastSerialization == null) {
+	    		lastSerialization = GraphEngine.getGson().toJson(b);
+	    	} else {
+	    		String currentSerialization = GraphEngine.getGson().toJson(b);
+	    		Assert.assertEquals(lastSerialization, currentSerialization);
+	    		lastSerialization = currentSerialization;
+	    	}
+		    //System.out.println(GraphEngine.getGson().toJson(b));
+	    }
+	    
 	}
 	
 	/**

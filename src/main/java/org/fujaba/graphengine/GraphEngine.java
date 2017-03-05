@@ -280,6 +280,10 @@ public class GraphEngine {
 		return couldMatch;
 	}
 	
+	public static Graph normalized(Graph g) {
+		return getNormalizationFallback().normalized(g);
+	}
+	
 	public static int generateHash(Graph g) {
 		int hash = ((Integer)g.getNodes().size()).hashCode();
 		for (Node n: g.getNodes()) {
