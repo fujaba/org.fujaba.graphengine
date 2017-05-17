@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/ExperimentalData/src" modelPluginID="ExperimentalData"
+    modelName="TransitionGraph" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="8.0" copyrightFields="false"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>TransitionGraph.ecore</foreignModel>
+  <genPackages prefix="Transitiongraph" disposableProviderFactory="true" ecorePackage="TransitionGraph.ecore#/">
+    <genClasses ecoreClass="TransitionGraph.ecore#//TransitionGraph">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TransitionGraph.ecore#//TransitionGraph/states"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TransitionGraph.ecore#//TransitionGraph/transitions"/>
+    </genClasses>
+    <genClasses ecoreClass="TransitionGraph.ecore#//State">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TransitionGraph.ecore#//State/id"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TransitionGraph.ecore#//State/outgoing"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TransitionGraph.ecore#//State/incoming"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TransitionGraph.ecore#//State/isFinal"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TransitionGraph.ecore#//State/isInitial"/>
+    </genClasses>
+    <genClasses ecoreClass="TransitionGraph.ecore#//Transition">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TransitionGraph.ecore#//Transition/label"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TransitionGraph.ecore#//Transition/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TransitionGraph.ecore#//Transition/target"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TransitionGraph.ecore#//Transition/probability"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
