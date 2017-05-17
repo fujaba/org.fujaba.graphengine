@@ -41,7 +41,8 @@ public class TTCStateCaseGraphLoader {
                    String qName = startElement.getName().getLocalPart();
                    if (qName.equalsIgnoreCase("states")) {
                 	   Node node = new Node();
-                	   Iterator<Attribute> attributes = startElement.getAttributes();
+                	   @SuppressWarnings("unchecked")
+					   Iterator<Attribute> attributes = startElement.getAttributes();
                 	   while (attributes.hasNext()) {
                 		   Attribute currentAttribute = attributes.next();
                 		   String attributeName = currentAttribute.getName().toString();
@@ -69,11 +70,12 @@ public class TTCStateCaseGraphLoader {
                 	   }
                 	   graph.addNode(node);
                    } else if (qName.equalsIgnoreCase("transitions")) {
-                	   Iterator<Attribute> attributes = startElement.getAttributes();
+                	   @SuppressWarnings("unchecked")
+					   Iterator<Attribute> attributes = startElement.getAttributes();
                 	   String label = "";
                 	   long sourceId = -1;
                 	   long targetId = -1;
-                	   double probability = -1;
+//                	   double probability = -1;
                 	   while (attributes.hasNext()) {
                 		   Attribute currentAttribute = attributes.next();
                 		   String attributeName = currentAttribute.getName().toString();
@@ -89,7 +91,7 @@ public class TTCStateCaseGraphLoader {
                 			   targetId = Long.parseLong(attributeValue.substring(attributeValue.lastIndexOf('.') + 1));
                 		   } else if (attributeName.equalsIgnoreCase("probability")) {
                 			   // the probability (not used for now)
-                			   probability = Double.parseDouble(attributeValue); // TODO: also use the probability
+//                			   probability = Double.parseDouble(attributeValue); // TODO: also use the probability
 	            		   }
                 	   }
                 	   ((Node)idManager.getObject(sourceId)).addEdge(label, ((Node)idManager.getObject(targetId)));
