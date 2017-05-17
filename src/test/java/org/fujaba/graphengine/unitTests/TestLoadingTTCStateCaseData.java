@@ -1,7 +1,5 @@
 package org.fujaba.graphengine.unitTests;
 
-import java.io.File;
-
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.stateelimination.TTCStateCaseGraphLoader;
 import org.junit.Assert;
@@ -13,6 +11,10 @@ public class TestLoadingTTCStateCaseData {
 	public void testLoadingTTCStateCaseData() {
 		String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
 		Graph g;
+		
+		/*
+		 * just loading models and count nodes:
+		 */
 		
 		g = TTCStateCaseGraphLoader.load(taskMainPath + "leader3_2.xmi");
 		Assert.assertEquals(26, g.getNodes().size());
