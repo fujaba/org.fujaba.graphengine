@@ -476,7 +476,15 @@ public class PatternEngine {
 						// TODO verify: we shouldn't mind edges from positive to negative nodes here (yet):
 						boolean dontMind = !"!=".equals(patternEdge.getSource().getAction()) && "!=".equals(patternEdge.getTarget().getAction());
 						if (!dontMind) {
+							
 							boolean exists = !(node.getEdges(patternEdge.getName()) == null || node.getEdges(patternEdge.getName()).size() == 0);
+							
+							//##### NEW TTC2017 FEATURE:
+							if (patternEdge.getName() == null) {
+								exists = node.getEdges().keySet().size() > 0;
+							}
+							//#####
+							
 							if (("!=".equals(patternEdge.getAction()) && exists) || !"!=".equals(patternEdge.getAction()) && !exists) {
 								continue nodeMatch;
 							}
@@ -554,7 +562,25 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == otherSubNode) {
-								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null && mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+								
+								boolean exists = false;
+								
+								if (mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null) {
+									exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null && mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+								}
+								
+								//##### NEW TTC2017 FEATURE:
+								if (patternEdge.getName() == null) {
+									exists = false;
+									for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
+										if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(otherSubNode))) {
+											exists = true;
+											break;
+										}
+									}
+								}
+								//#####
+								
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at outgoing edge
 									break match;
@@ -567,7 +593,25 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == currentSubNode) {
-								boolean exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()) != null && mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+
+								boolean exists = false;
+								
+								if (mapping.get(otherSubNode).getEdges(patternEdge.getName()) != null) {
+									exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()) != null && mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+								}
+								
+								//##### NEW TTC2017 FEATURE:
+								if (patternEdge.getName() == null) {
+									exists = false;
+									for (String ttcTestString: mapping.get(otherSubNode).getEdges().keySet()) {
+										if (mapping.get(otherSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
+											exists = true;
+											break;
+										}
+									}
+								}
+								//#####
+								
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at incoming edge
 									break match;
@@ -589,7 +633,25 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == nodeMatchLists.get(0).get(k)) {
-								boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null && mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(nodeMatchLists.get(0).get(k)));
+
+								boolean exists = false;
+								
+								if (mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null) {
+									exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null && mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(nodeMatchLists.get(0).get(k)));
+								}
+								
+								//##### NEW TTC2017 FEATURE:
+								if (patternEdge.getName() == null) {
+									exists = false;
+									for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
+										if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(nodeMatchLists.get(0).get(k)))) {
+											exists = true;
+											break;
+										}
+									}
+								}
+								//#####
+								
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at outgoing edge
 									break;
@@ -604,7 +666,25 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								continue;
 							}
 							if (patternEdge.getTarget() == currentSubNode) {
-								boolean exists = mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()) != null && mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+
+								boolean exists = false;
+								
+								if (mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()) != null) {
+									exists = mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()) != null && mapping.get(nodeMatchLists.get(0).get(k)).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+								}
+								
+								//##### NEW TTC2017 FEATURE:
+								if (patternEdge.getName() == null) {
+									exists = false;
+									for (String ttcTestString: mapping.get(nodeMatchLists.get(0).get(k)).getEdges().keySet()) {
+										if (mapping.get(nodeMatchLists.get(0).get(k)).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
+											exists = true;
+											break;
+										}
+									}
+								}
+								//#####
+								
 								if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 									fail = true; // failure at incoming edge
 									break;
@@ -680,7 +760,25 @@ match:			for (int j = 0; j < i; ++j) {
 							continue;
 						}
 						if (patternEdge.getTarget() == otherSubNode) {
-							boolean exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+							
+							boolean exists = false;
+							
+							if (mapping.get(currentSubNode).getEdges(patternEdge.getName()) != null) {
+								exists = mapping.get(currentSubNode).getEdges(patternEdge.getName()).contains(mapping.get(otherSubNode));
+							}
+							
+							//##### NEW TTC2017 FEATURE:
+							if (patternEdge.getName() == null) {
+								exists = false;
+								for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
+									if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(otherSubNode))) {
+										exists = true;
+										break;
+									}
+								}
+							}
+							//#####
+							
 							if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 								fail = true; // failure at outgoing edge
 								break match;
@@ -692,7 +790,25 @@ match:			for (int j = 0; j < i; ++j) {
 							continue;
 						}
 						if (patternEdge.getTarget() == currentSubNode) {
-							boolean exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+							
+							boolean exists = false;
+							
+							if (mapping.get(otherSubNode).getEdges(patternEdge.getName()) != null) {
+								exists = mapping.get(otherSubNode).getEdges(patternEdge.getName()).contains(mapping.get(currentSubNode));
+							}
+							
+							//##### NEW TTC2017 FEATURE:
+							if (patternEdge.getName() == null) {
+								exists = false;
+								for (String ttcTestString: mapping.get(otherSubNode).getEdges().keySet()) {
+									if (mapping.get(otherSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
+										exists = true;
+										break;
+									}
+								}
+							}
+							//#####
+							
 							if (("!=".equals(patternEdge.getAction()) && exists) || (!"!=".equals(patternEdge.getAction()) && !exists)) {
 								fail = true; // failure at incoming edge
 								break match;
