@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.naming.spi.DirStateFactory.Result;
@@ -1233,7 +1234,20 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 			for (PatternEdge patternEdge: patternNode.getPatternEdges()) {
 				switch (patternEdge.getAction()) {
 				case "-": // remove
-					matchedNode.removeEdge(patternEdge.getName(), clonedNodeMatch.get(patternEdge.getTarget()));
+					if (patternEdge.getName() == null) {
+
+						//##### NEW TTC2017 FEATURE:
+						
+						Set<String> oldKeys = new HashSet<String>(matchedNode.getEdges().keySet());
+						for (String s: oldKeys) { // TODO: this is experimental - too many edges could be removed...
+							matchedNode.removeEdge(s, clonedNodeMatch.get(patternEdge.getTarget()));
+						}
+						
+						//#####
+						
+					} else {
+						matchedNode.removeEdge(patternEdge.getName(), clonedNodeMatch.get(patternEdge.getTarget()));
+					}
 					break;
 				case "+": // create
 					matchedNode.addEdge(patternEdge.getName(), clonedNodeMatch.get(patternEdge.getTarget()));
