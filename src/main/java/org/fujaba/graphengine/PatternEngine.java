@@ -22,6 +22,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import net.sourceforge.jeval.EvaluationException;
 import net.sourceforge.jeval.Evaluator;
 
 /**
@@ -1302,13 +1303,24 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 			return true;
 		}
 		boolean matched = false;
-		try {
-			// the expression must yield a boolean value, so "1.0" means true, "0.0" means false:
-			matched = "1.0".equals(evaluator.evaluate(expression)); // calls the expression library
-		} catch (Throwable t) {
-			// error means, the condition isn't fulfulled:
-			matched = false;
-		}
+		boolean catched = false;
+		do {
+			try {
+				catched = false;
+				// the expression must yield a boolean value, so "1.0" means true, "0.0" means false:
+				matched = "1.0".equals(evaluator.evaluate(expression)); // calls the expression library
+			} catch (EvaluationException e) {
+				// error means, the condition isn't fulfilled:
+				String toParse = e.toString();
+				String searchFor = "Can not resolve variable with name equal to \"";
+				if (toParse.indexOf(searchFor) != -1) {
+					catched = true;
+				}
+				toParse = toParse.substring(toParse.indexOf(searchFor) + searchFor.length());
+				toParse = toParse.substring(0, toParse.length() - 2);
+				evaluator.putVariable(toParse, "0.0");
+			}
+		} while (catched == true);
 		return matched;
 	}
 	

@@ -69,7 +69,7 @@ public class TestLoadingTTCStateCaseData {
 		PatternNode newInitialNode = new PatternNode().setAction("+").addPatternAttribute(new PatternAttribute().setAction("+").setName("newInitial").setValue(true));
 		PatternNode noExistingNewInitialNode = new PatternNode("#{newInitial} == 1").setAction("!=");
 		gtrInitial.addPatternNode(initialNode, newInitialNode, noExistingNewInitialNode);
-		newInitialNode.addPatternEdge("+", "", initialNode);
+		newInitialNode.addPatternEdge("+", "this_is_no_real_edge", initialNode);
 		ArrayList<Match> matches = PatternEngine.matchPattern(g, gtrInitial, true); // just a single match
 		Assert.assertEquals(1, matches.size());
 		g = PatternEngine.applyMatch(matches.get(0));
@@ -81,7 +81,7 @@ public class TestLoadingTTCStateCaseData {
 		PatternNode newFinalNode = new PatternNode().setAction("+").addPatternAttribute(new PatternAttribute().setAction("+").setName("newFinal").setValue(true));
 		PatternNode noExistingNewFinalNode = new PatternNode("#{newFinal} == 1").setAction("!=");
 		gtrFinal.addPatternNode(finalNode, newFinalNode, noExistingNewFinalNode);
-		finalNode.addPatternEdge("+", "", newFinalNode);
+		finalNode.addPatternEdge("+", "this_is_no_real_edge", newFinalNode);
 		matches = PatternEngine.matchPattern(g, gtrFinal, true); // just a single match
 		Assert.assertEquals(1, matches.size());
 		g = PatternEngine.applyMatch(matches.get(0));
@@ -89,10 +89,10 @@ public class TestLoadingTTCStateCaseData {
 		
 		// gtr for adding to new final state:
 		PatternGraph gtrOtherFinal = new PatternGraph("adding to the existing new final state");
-		PatternNode otherFinalNode = new PatternNode("#{final == 1}").addPatternAttribute(new PatternAttribute().setAction("-").setName("final"));
+		PatternNode otherFinalNode = new PatternNode("#{final} == 1").addPatternAttribute(new PatternAttribute().setAction("-").setName("final"));
 		PatternNode existingNewFinalNode = new PatternNode("#{newFinal} == 1");
 		gtrOtherFinal.addPatternNode(otherFinalNode, existingNewFinalNode);
-		otherFinalNode.addPatternEdge("+", "", existingNewFinalNode);
+		otherFinalNode.addPatternEdge("+", "this_is_no_real_edge", existingNewFinalNode);
 		do {
 			matches = PatternEngine.matchPattern(g, gtrOtherFinal, true); // just a single match (each time)
 			if (matches != null && matches.size() > 0) {
@@ -133,24 +133,74 @@ public class TestLoadingTTCStateCaseData {
 		for (int i = 0; i < sources.size(); ++i) {
 			sources.get(i).removeEdge(firstLabels.get(i), targets.get(i));
 			sources.get(i).removeEdge(secondLabels.get(i), targets.get(i));
-			sources.get(i).addEdge("[(" + firstLabels.get(i) + ")(" + secondLabels.get(i) + ")]", targets.get(i));
+			if (firstLabels.get(i) != null && firstLabels.get(i) != "" && firstLabels.get(i) != "this_is_no_real_edge" && secondLabels.get(i) != null && secondLabels.get(i) != "" && secondLabels.get(i) != "this_is_no_real_edge") {
+				sources.get(i).addEdge("(" + firstLabels.get(i) + ")(" + secondLabels.get(i) + ")]", targets.get(i));
+			} else if (firstLabels.get(i) != null && firstLabels.get(i) != "" && firstLabels.get(i) != "this_is_no_real_edge") {
+				sources.get(i).addEdge(firstLabels.get(i), targets.get(i));
+			} else if (secondLabels.get(i) != null && secondLabels.get(i) != "" && secondLabels.get(i) != "this_is_no_real_edge") {
+				sources.get(i).addEdge(secondLabels.get(i), targets.get(i));
+			}
 		}
 		System.out.println("after joining multiple labels with the same sources and same targets:\n" + g + "\n");
 		
 		// gtr for state elimination itself (the q->k->p to q->p case)
 		PatternGraph gtrEliminate = new PatternGraph("eliminate state");
 		PatternNode p = new PatternNode();
-		PatternNode k = new PatternNode().setAction("-");
+		PatternNode k = new PatternNode("!(#{newFinal} == 1 || #{newInitial} == 1)");
 		PatternNode q = new PatternNode();
 		gtrEliminate.addPatternNode(p, k, q);
-		p.addPatternEdge("-", (String)null, k);
-		k.addPatternEdge("-", (String)null, q);
-		p.addPatternEdge("+", "calculated", q);
+		p.addPatternEdge("==", (String)null, k);
+		k.addPatternEdge("==", (String)null, q);
+		k.addPatternEdge("!=", "this_is_no_real_edge", q);
 		
 		do {
-			matches = PatternEngine.matchPattern(g, gtrEliminate, true); // just a single match (each time)
+			matches = PatternEngine.matchPattern(g, gtrEliminate, true);
 			if (matches != null && matches.size() > 0) {
-				g = PatternEngine.applyMatch(matches.get(0));
+				Match match = matches.get(0);
+				// do even more things by hand :(
+				Node pNode = match.getNodeMatch().get(p);
+				Node kNode = match.getNodeMatch().get(k);
+				Node qNode = match.getNodeMatch().get(q);
+				// there's at most one edge between any two nodes;
+				String pqLabel = "";
+				for (String s: pNode.getEdges().keySet()) {
+					if (pNode.getEdges(s).contains(qNode)) {
+						pqLabel = s;
+					}
+				}
+				Boolean pqb = false;
+				if (pqLabel != null && pqLabel != "" && pqLabel != "this_is_no_real_edge") {
+					pqb = true;
+				}
+//				System.out.println("    pqLabel: " + pqLabel);
+				String pkLabel = ""; 
+				for (String s: pNode.getEdges().keySet()) {
+					if (pNode.getEdges(s).contains(kNode)) {
+						pkLabel = s;
+					}
+				}
+//				System.out.println("(+) pkLabel: " + pkLabel);
+				String kkLabel = "";
+				for (String s: kNode.getEdges().keySet()) {
+					if (kNode.getEdges(s).contains(kNode)) {
+						kkLabel = s;
+					}
+				}
+				Boolean kkb = false;
+				if (kkLabel != null && kkLabel != "" && kkLabel != "this_is_no_real_edge") {
+					kkb = true;
+				}
+//				System.out.println("    kkLabel: " + kkLabel);
+				String kqLabel = "";
+				for (String s: kNode.getEdges().keySet()) {
+					if (kNode.getEdges(s).contains(qNode)) {
+						kqLabel = s;
+					}
+				}
+//				System.out.println("(+) kqLabel: " + kqLabel);
+				g.removeNode(kNode);
+				pNode.removeEdge(pqLabel, qNode);
+				pNode.addEdge((pqb ? "[(" + pqLabel + ")" : "") + "(" + pkLabel + ")" + (kkb ? "(" + kkLabel + ")*" : "") + "(" + kqLabel + ")" + (pqb ? "]" : ""), qNode);
 				System.out.println("eliminated a state (q->k->p to q->p):\n" + g + "\n");
 			} else {
 				break;
