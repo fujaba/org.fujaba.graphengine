@@ -1318,7 +1318,7 @@ fix:				for (int k = currentTry.size() - 1; k >= 0; --k) {
 				}
 				toParse = toParse.substring(toParse.indexOf(searchFor) + searchFor.length());
 				toParse = toParse.substring(0, toParse.length() - 2);
-				evaluator.putVariable(toParse, "0.0");
+				evaluator.putVariable(toParse, "0");
 			}
 		} while (catched == true);
 		return matched;

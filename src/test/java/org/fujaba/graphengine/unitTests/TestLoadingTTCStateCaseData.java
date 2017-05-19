@@ -143,6 +143,14 @@ public class TestLoadingTTCStateCaseData {
 		}
 		System.out.println("after joining multiple labels with the same sources and same targets:\n" + g + "\n");
 		
+		
+		
+		
+		/**
+		 * TODO: really just randomly find a 'k' and then find all matching 'p's and 'q's for it, to work with them in a 'batch'
+		 */
+		
+		
 		// gtr for state elimination itself (the q->k->p to q->p case)
 		PatternGraph gtrEliminate = new PatternGraph("eliminate state");
 		PatternNode p = new PatternNode();
@@ -151,7 +159,6 @@ public class TestLoadingTTCStateCaseData {
 		gtrEliminate.addPatternNode(p, k, q);
 		p.addPatternEdge("==", (String)null, k);
 		k.addPatternEdge("==", (String)null, q);
-		k.addPatternEdge("!=", "this_is_no_real_edge", q);
 		
 		do {
 			matches = PatternEngine.matchPattern(g, gtrEliminate, true);
@@ -169,7 +176,7 @@ public class TestLoadingTTCStateCaseData {
 					}
 				}
 				Boolean pqb = false;
-				if (pqLabel != null && pqLabel != "" && pqLabel != "this_is_no_real_edge") {
+				if (pqLabel != null && pqLabel != "") {
 					pqb = true;
 				}
 //				System.out.println("    pqLabel: " + pqLabel);
@@ -187,7 +194,7 @@ public class TestLoadingTTCStateCaseData {
 					}
 				}
 				Boolean kkb = false;
-				if (kkLabel != null && kkLabel != "" && kkLabel != "this_is_no_real_edge") {
+				if (kkLabel != null && kkLabel != "") {
 					kkb = true;
 				}
 //				System.out.println("    kkLabel: " + kkLabel);
