@@ -183,6 +183,22 @@ public class TestLoadingTTCStateCaseData {
 //		p.addPatternEdge("-", "#{pq}", q);
 //		p.addPatternEdge("+", "'(' + #{pq} + ')+(' + #{pk} + ')(' + #{kk} + ')*(' + #{kq} + ')'", q);
 		
+		
+		/*
+		 * just trying to build some experimental GTR:
+		 */
+		// gtr for merging multiple edges between the same two nodes:
+		PatternGraph gtrMerge = new PatternGraph("merge multiple labels between the same two nodes");
+		PatternNode a = new PatternNode();
+		PatternNode b = new PatternNode();
+		gtrMerge.addPatternNode(a, b);
+		a.addPatternEdge("-", "#{x}, #{y}", b);
+		a.addPatternEdge("+", "#{x} + '+' + #{y}", b);
+		/*
+		 * done with the experimental GTR
+		 */
+		
+		
 		do {
 			matches = PatternEngine.matchPattern(g, gtrEliminate, true);
 			if (matches != null && matches.size() > 0) {

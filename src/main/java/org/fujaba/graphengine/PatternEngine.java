@@ -482,8 +482,9 @@ public class PatternEngine {
 							boolean exists = !(node.getEdges(patternEdge.getName()) == null || node.getEdges(patternEdge.getName()).size() == 0);
 							
 							//##### NEW TTC2017 FEATURE:
-							if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
-								exists = node.getEdges().keySet().size() > 0;
+							ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+							if (extractedVariableNames.size() > 0) {
+								exists = node.getEdges().keySet().size() >= extractedVariableNames.size();
 							}
 							//#####
 							
@@ -572,12 +573,17 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								}
 								
 								//##### NEW TTC2017 FEATURE:
-								if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+								ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+								if (extractedVariableNames.size() > 0) {
 									exists = false;
+									int numberOfEdgesFound = 0;
 									for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
 										if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(otherSubNode))) {
-											exists = true;
-											break;
+											++numberOfEdgesFound;
+											if (numberOfEdgesFound >= extractedVariableNames.size()) {
+												exists = true;
+												break;
+											}
 										}
 									}
 								}
@@ -603,12 +609,17 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								}
 								
 								//##### NEW TTC2017 FEATURE:
-								if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+								ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+								if (extractedVariableNames.size() > 0) {
 									exists = false;
+									int numberOfEdgesFound = 0;
 									for (String ttcTestString: mapping.get(otherSubNode).getEdges().keySet()) {
 										if (mapping.get(otherSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
-											exists = true;
-											break;
+											++numberOfEdgesFound;
+											if (numberOfEdgesFound >= extractedVariableNames.size()) {
+												exists = true;
+												break;
+											}
 										}
 									}
 								}
@@ -643,12 +654,17 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								}
 								
 								//##### NEW TTC2017 FEATURE:
-								if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+								ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+								if (extractedVariableNames.size() > 0) {
 									exists = false;
+									int numberOfEdgesFound = 0;
 									for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
 										if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(nodeMatchLists.get(0).get(k)))) {
-											exists = true;
-											break;
+											++numberOfEdgesFound;
+											if (numberOfEdgesFound >= extractedVariableNames.size()) {
+												exists = true;
+												break;
+											}
 										}
 									}
 								}
@@ -676,12 +692,17 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 								}
 								
 								//##### NEW TTC2017 FEATURE:
-								if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+								ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+								if (extractedVariableNames.size() > 0) {
 									exists = false;
+									int numberOfEdgesFound = 0;
 									for (String ttcTestString: mapping.get(nodeMatchLists.get(0).get(k)).getEdges().keySet()) {
 										if (mapping.get(nodeMatchLists.get(0).get(k)).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
-											exists = true;
-											break;
+											++numberOfEdgesFound;
+											if (numberOfEdgesFound >= extractedVariableNames.size()) {
+												exists = true;
+												break;
+											}
 										}
 									}
 								}
@@ -772,13 +793,18 @@ match:			for (int j = 0; j < i; ++j) {
 							}
 							
 							//##### NEW TTC2017 FEATURE:
-							if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+							ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+							if (extractedVariableNames.size() > 0) {
 								exists = false;
+								int numberOfEdgesFound = 0;
 								for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
 									if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(otherSubNode))) {
-										exists = true;
-										labelMatches.put(patternEdge.getName().substring(2, patternEdge.getName().length() - 1), "'" + ttcTestString + "'");
-										break;
+										labelMatches.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
+										++numberOfEdgesFound;
+										if (numberOfEdgesFound >= extractedVariableNames.size()) {
+											exists = true;
+											break;
+										}
 									}
 								}
 							}
@@ -803,13 +829,18 @@ match:			for (int j = 0; j < i; ++j) {
 							}
 							
 							//##### NEW TTC2017 FEATURE:
-							if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+							ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
+							if (extractedVariableNames.size() > 0) {
 								exists = false;
+								int numberOfEdgesFound = 0;
 								for (String ttcTestString: mapping.get(otherSubNode).getEdges().keySet()) {
 									if (mapping.get(otherSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
-										exists = true;
-										labelMatches.put(patternEdge.getName().substring(2, patternEdge.getName().length() - 1), "'" + ttcTestString + "'");
-										break;
+										labelMatches.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
+										++numberOfEdgesFound;
+										if (numberOfEdgesFound >= extractedVariableNames.size()) {
+											exists = true;
+											break;
+										}
 									}
 								}
 							}
@@ -872,6 +903,28 @@ match:			for (int j = 0; j < i; ++j) {
 //			System.out.println("found " + matches.size() + " matches for '" + pattern.getName() + "'"); // TODO: remove debug
 //		} // TODO: remove debug
 		return matches;
+	}
+	
+	public static ArrayList<String> extractVariableNames(String s) {
+		ArrayList<String> result = new ArrayList<String>();
+		if (s == null) {
+			return result;
+		}
+		String openingSequence = "#{";
+		String closingSequence = "}";
+		while (true) {
+			int beginIndex = s.indexOf(openingSequence);
+			if (beginIndex < 0) {
+				break;
+			}
+			s = s.substring(beginIndex + openingSequence.length());
+			int endIndex = s.indexOf(closingSequence);
+			if (endIndex < 0) {
+				break;
+			}
+			result.add(s.substring(0, endIndex));
+		}
+		return result;
 	}
 
 	/**
@@ -1237,14 +1290,14 @@ match:			for (int j = 0; j < i; ++j) {
 				}
 			}
 			for (PatternEdge patternEdge: patternNode.getPatternEdges()) {
+				ArrayList<String> extractedVariableNames = extractVariableNames(patternEdge.getName());
 				switch (patternEdge.getAction()) {
 				case "-": // remove
-					if (patternEdge.getName().startsWith("#{") && patternEdge.getName().endsWith("}")) {
+					if (extractedVariableNames.size() > 0) {
 
 						//##### NEW TTC2017 FEATURE:
 						
-						Set<String> oldKeys = new HashSet<String>(matchedNode.getEdges().keySet());
-						for (String s: oldKeys) { // TODO: this is experimental - too many edges could be removed...
+						for (String s: extractedVariableNames) {
 							matchedNode.removeEdge(s, clonedNodeMatch.get(patternEdge.getTarget()));
 						}
 						
@@ -1256,7 +1309,7 @@ match:			for (int j = 0; j < i; ++j) {
 					break;
 				case "+": // create
 					String label = patternEdge.getName();
-					if (label.contains("#{") && label.contains("}")) {
+					if (extractedVariableNames.size() > 0) {
 						try {
 							label = match.getLabelEvaluator().evaluate(("'' + (" + label + ")")); // convert to String to be sure
 							label = label.substring(1, label.length() - 1); // now remove those single quote-characters ("'result'")
