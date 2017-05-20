@@ -13,6 +13,8 @@ import org.fujaba.graphengine.stateelimination.TTCStateCaseGraphLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.sourceforge.jeval.EvaluationException;
+
 public class TestLoadingTTCStateCaseData {
 	
 	@Test
@@ -151,19 +153,51 @@ public class TestLoadingTTCStateCaseData {
 		 */
 		
 		
-		// gtr for state elimination itself (the q->k->p to q->p case)
+		// gtr for adding new calculated labels
 		PatternGraph gtrEliminate = new PatternGraph("eliminate state");
 		PatternNode p = new PatternNode();
 		PatternNode k = new PatternNode("!(#{newFinal} == 1 || #{newInitial} == 1)");
 		PatternNode q = new PatternNode();
 		gtrEliminate.addPatternNode(p, k, q);
-		p.addPatternEdge("==", (String)null, k);
-		k.addPatternEdge("==", (String)null, q);
+		/* CASE 1: there's just pk and kq */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kq}", q);
+		p.addPatternEdge("+", "'(' + #{pk} + ')(' + #{kq} + ')'", q);
+
+//		/* CASE 2: there's just pq, pk and kq */
+//		p.addPatternEdge("==", "#{pk}", k);
+//		k.addPatternEdge("==", "#{kq}", q);
+//		p.addPatternEdge("-", "#{pq}", q);
+//		p.addPatternEdge("+", "'(' + #{pq} + ')+(' + #{pk} + ')(' + #{kq} + ')'", q);
+//
+//		/* CASE 3: there's just pk, kk and kq */
+//		p.addPatternEdge("==", "#{pk}", k);
+//		k.addPatternEdge("==", "#{kq}", q);
+//		k.addPatternEdge("==", "#{kk}", k);
+//		p.addPatternEdge("+", "'(' + #{pk} + ')(' + #{kk} + ')*(' + #{kq} + ')'", q);
+//
+//		/* CASE 4: there's pq, pk, kk and kq */
+//		p.addPatternEdge("==", "#{pk}", k);
+//		k.addPatternEdge("==", "#{kq}", q);
+//		k.addPatternEdge("==", "#{kk}", k);
+//		p.addPatternEdge("-", "#{pq}", q);
+//		p.addPatternEdge("+", "'(' + #{pq} + ')+(' + #{pk} + ')(' + #{kk} + ')*(' + #{kq} + ')'", q);
 		
 		do {
 			matches = PatternEngine.matchPattern(g, gtrEliminate, true);
 			if (matches != null && matches.size() > 0) {
 				Match match = matches.get(0);
+				
+				try {
+					String toEvaluate = "'(' + #{pk} + ')(' + #{kq} + ')'";
+					String test = match.getLabelEvaluator().evaluate("'' + (" + toEvaluate + ")");
+					test = test.substring(1, test.length() - 1);
+					System.err.println(test);
+				} catch (EvaluationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				// do even more things by hand :(
 				Node pNode = match.getNodeMatch().get(p);
 				Node kNode = match.getNodeMatch().get(k);

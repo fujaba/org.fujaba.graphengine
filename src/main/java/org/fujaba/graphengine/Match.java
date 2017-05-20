@@ -7,6 +7,8 @@ import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
 
+import net.sourceforge.jeval.Evaluator;
+
 /**
  * A Match is a single match of a PatternGraph in a Graph.
  * Every PatternNode, PatternEdge and PatternAttribute is mapped to a Node,
@@ -28,6 +30,19 @@ public class Match {
 	 * the mapping from pattern nodes to graph nodes
 	 */
 	private HashMap<PatternNode, Node> nodeMatch;
+	
+	/**
+	 * the evaluator that's used for wildcard labels within the GTR
+	 */
+	private Evaluator labelEvaluator;
+
+	public static Evaluator buildLabelEvaluator(HashMap<String, String> labelMatches) {
+		Evaluator evaluator = new Evaluator();
+		for (String key: labelMatches.keySet()) {
+			evaluator.putVariable(key, "" + labelMatches.get(key));
+		}
+		return evaluator;
+	}
 
 	/**
 	 * the constructor for this Match.
@@ -35,10 +50,11 @@ public class Match {
 	 * @param pattern the pattern that was matched
 	 * @param nodeMatch the mapping from pattern nodes to graph nodes
 	 */
-	public Match(Graph graph, PatternGraph pattern, HashMap<PatternNode, Node> nodeMatch) {
+	public Match(Graph graph, PatternGraph pattern, HashMap<PatternNode, Node> nodeMatch, HashMap<String, String> labelMatches) {
 		this.graph = graph;
 		this.pattern = pattern;
 		this.nodeMatch = nodeMatch;
+		this.labelEvaluator = buildLabelEvaluator(labelMatches);
 	}
 	
 	public Graph getGraph() {
@@ -58,6 +74,14 @@ public class Match {
 	}
 	public void setNodeMatch(HashMap<PatternNode, Node> nodeMatch) {
 		this.nodeMatch = nodeMatch;
+	}
+	
+	public Evaluator getLabelEvaluator() {
+		return labelEvaluator;
+	}
+
+	public void setLabelEvaluator(Evaluator labelEvaluator) {
+		this.labelEvaluator = labelEvaluator;
 	}
 	
 }
