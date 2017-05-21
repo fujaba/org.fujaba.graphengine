@@ -31,12 +31,14 @@ public class Match {
 	 */
 	private HashMap<PatternNode, Node> nodeMatch;
 	
+	private HashMap<String, String> edgeMatch;
+
 	/**
 	 * the evaluator that's used for wildcard labels within the GTR
 	 */
-	private Evaluator labelEvaluator;
+	private Evaluator edgeEvaluator;
 
-	public static Evaluator buildLabelEvaluator(HashMap<String, String> labelMatches) {
+	public static Evaluator buildEdgeEvaluator(HashMap<String, String> labelMatches) {
 		Evaluator evaluator = new Evaluator();
 		for (String key: labelMatches.keySet()) {
 			evaluator.putVariable(key, "" + labelMatches.get(key));
@@ -50,11 +52,12 @@ public class Match {
 	 * @param pattern the pattern that was matched
 	 * @param nodeMatch the mapping from pattern nodes to graph nodes
 	 */
-	public Match(Graph graph, PatternGraph pattern, HashMap<PatternNode, Node> nodeMatch, HashMap<String, String> labelMatches) {
+	public Match(Graph graph, PatternGraph pattern, HashMap<PatternNode, Node> nodeMatch, HashMap<String, String> edgeMatch) {
 		this.graph = graph;
 		this.pattern = pattern;
 		this.nodeMatch = nodeMatch;
-		this.labelEvaluator = buildLabelEvaluator(labelMatches);
+		this.edgeEvaluator = buildEdgeEvaluator(edgeMatch);
+		this.edgeMatch = edgeMatch;
 	}
 	
 	public Graph getGraph() {
@@ -75,13 +78,17 @@ public class Match {
 	public void setNodeMatch(HashMap<PatternNode, Node> nodeMatch) {
 		this.nodeMatch = nodeMatch;
 	}
-	
-	public Evaluator getLabelEvaluator() {
-		return labelEvaluator;
+	public Evaluator getEdgeEvaluator() {
+		return edgeEvaluator;
 	}
-
-	public void setLabelEvaluator(Evaluator labelEvaluator) {
-		this.labelEvaluator = labelEvaluator;
+	public void setEdgeEvaluator(Evaluator labelEvaluator) {
+		this.edgeEvaluator = labelEvaluator;
+	}
+	public HashMap<String, String> getEdgeMatch() {
+		return edgeMatch;
+	}
+	public void setEdgeMatch(HashMap<String, String> edgeMatch) {
+		this.edgeMatch = edgeMatch;
 	}
 	
 }

@@ -744,7 +744,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 	}
 	
 	public static ArrayList<Match> matchPattern(Graph graph, PatternGraph pattern, boolean single, ArrayList<ArrayList<PatternNode>> nodeMatchLists, ArrayList<ArrayList<ArrayList<Node>>> couldMatch) {
-		HashMap<String, String> labelMatches = new HashMap<String, String>();
+		HashMap<String, String> edgeMatch = new HashMap<String, String>();
 		
 		ArrayList<Match> matches = new ArrayList<Match>();
 		
@@ -757,12 +757,13 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 		}
 		/*
 		 * only check this index against previous ones,
-		 * if ok, increment and check only that one, and so on
+		 * if okay, increment and check only that one, and so on
 		 */
 		ArrayList<HashMap<PatternNode, Node>> mappings = new ArrayList<HashMap<PatternNode, Node>>();
 		int checkIndex = 1;
 loop:	while (checkIndex > -1) {
 			for (int i = checkIndex; i < nodeMatchLists.get(0).size(); ++i) {
+				
 				/*
 				 * check nodeMatchLists.get(0).get(i) only against all previous nodes,
 				 * if it is duplicate, or any edge (outgoing or incoming) is missing.
@@ -774,7 +775,44 @@ loop:	while (checkIndex > -1) {
 				 */
 				PatternNode currentSubNode = nodeMatchLists.get(0).get(i);
 				boolean fail = false;
+
+				/* ##### also check for edges to self */
+				for (PatternEdge p: currentSubNode.getPatternEdges()) {
+					if (p.getTarget() != currentSubNode) {
+						continue;
+					}
+					boolean exists = false;
+					if (mapping.get(currentSubNode).getEdges(p.getName()) != null) {
+						exists = mapping.get(currentSubNode).getEdges(p.getName()).contains(mapping.get(currentSubNode));
+					}
+					//##### NEW TTC2017 FEATURE:
+					ArrayList<String> extractedVariableNames = extractVariableNames(p.getName());
+					if (extractedVariableNames.size() > 0) {
+						exists = false;
+						int numberOfEdgesFound = 0;
+						for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
+							if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
+								edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
+								++numberOfEdgesFound;
+								if (numberOfEdgesFound >= extractedVariableNames.size()) {
+									exists = true;
+									break;
+								}
+							}
+						}
+					}
+					//#####
+					if (("!=".equals(p.getAction()) && exists) || (!"!=".equals(p.getAction()) && !exists)) {
+						fail = true; // failure at incoming edge
+						break;
+					}
+				}
+				/* ##### */
+				
 match:			for (int j = 0; j < i; ++j) {
+					if (fail == true) {
+						break match;
+					}
 					PatternNode otherSubNode = nodeMatchLists.get(0).get(j);
 					if (mapping.get(currentSubNode) == mapping.get(otherSubNode)) {
 						fail = true; // found duplicate!
@@ -799,7 +837,7 @@ match:			for (int j = 0; j < i; ++j) {
 								int numberOfEdgesFound = 0;
 								for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
 									if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(otherSubNode))) {
-										labelMatches.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
+										edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 										++numberOfEdgesFound;
 										if (numberOfEdgesFound >= extractedVariableNames.size()) {
 											exists = true;
@@ -835,7 +873,7 @@ match:			for (int j = 0; j < i; ++j) {
 								int numberOfEdgesFound = 0;
 								for (String ttcTestString: mapping.get(otherSubNode).getEdges().keySet()) {
 									if (mapping.get(otherSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
-										labelMatches.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
+										edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 										++numberOfEdgesFound;
 										if (numberOfEdgesFound >= extractedVariableNames.size()) {
 											exists = true;
@@ -897,7 +935,7 @@ match:			for (int j = 0; j < i; ++j) {
 		}
 		// nothing left to check => return results
 		for (HashMap<PatternNode, Node> successfulMapping: mappings) {
-			matches.add(new Match(graph, pattern, successfulMapping, labelMatches));
+			matches.add(new Match(graph, pattern, successfulMapping, edgeMatch));
 		}
 //		if (matches.size() > 0 && pattern.getName().startsWith("signalTo")) { // TODO: remove debug
 //			System.out.println("found " + matches.size() + " matches for '" + pattern.getName() + "'"); // TODO: remove debug
@@ -1248,18 +1286,32 @@ match:			for (int j = 0; j < i; ++j) {
 //		return matches;
 //	}
 	
+
+	public static Graph applyMatch(Match match) {
+		return applyMatch(match, false);
+	}
+	
 	/**
 	 * applies a pattern to a match, applying all 'create'- and 'delete'-actions specified in the pattern to the graph.
 	 * 
 	 * @param match the match that was previously found
 	 * @return the resulting graph
 	 */
-	public static Graph applyMatch(Match match) {
+	public static Graph applyMatch(Match match, boolean keepGraph) {
 //		System.out.println("applying match for '" + match.getPattern().getName() + "'"); // TODO: remove debug
-		Graph clonedGraph = match.getGraph().clone();
-		HashMap<PatternNode, Node> clonedNodeMatch = new HashMap<PatternNode, Node>();
-		for (PatternNode patternNode: match.getNodeMatch().keySet()) {
-			clonedNodeMatch.put(patternNode, clonedGraph.getNodes().get(match.getGraph().getNodes().indexOf(match.getNodeMatch().get(patternNode))));
+		
+		Graph clonedGraph;
+		HashMap<PatternNode, Node> clonedNodeMatch;
+		
+		if (!keepGraph) {
+			clonedGraph = match.getGraph().clone();
+			clonedNodeMatch = new HashMap<PatternNode, Node>();
+			for (PatternNode patternNode: match.getNodeMatch().keySet()) {
+				clonedNodeMatch.put(patternNode, clonedGraph.getNodes().get(match.getGraph().getNodes().indexOf(match.getNodeMatch().get(patternNode))));
+			}
+		} else {
+			clonedGraph = match.getGraph();
+			clonedNodeMatch = match.getNodeMatch();
 		}
 		
 		// first create new nodes, so it can be used for targets of new edges from other nodes and so on:
@@ -1298,7 +1350,9 @@ match:			for (int j = 0; j < i; ++j) {
 						//##### NEW TTC2017 FEATURE:
 						
 						for (String s: extractedVariableNames) {
-							matchedNode.removeEdge(s, clonedNodeMatch.get(patternEdge.getTarget()));
+							String edgeName = match.getEdgeMatch().get(s);
+							edgeName = edgeName.substring(1, edgeName.length() - 1);
+							matchedNode.removeEdge(edgeName, clonedNodeMatch.get(patternEdge.getTarget()));
 						}
 						
 						//#####
@@ -1311,7 +1365,7 @@ match:			for (int j = 0; j < i; ++j) {
 					String label = patternEdge.getName();
 					if (extractedVariableNames.size() > 0) {
 						try {
-							label = match.getLabelEvaluator().evaluate(("'' + (" + label + ")")); // convert to String to be sure
+							label = match.getEdgeEvaluator().evaluate(("'' + (" + label + ")")); // convert to String to be sure
 							label = label.substring(1, label.length() - 1); // now remove those single quote-characters ("'result'")
 						} catch (Throwable t) {
 							t.printStackTrace();
@@ -1341,7 +1395,7 @@ match:			for (int j = 0; j < i; ++j) {
 			}
 		}
 		return clonedGraph;
-	}
+	}	
 	
 	public static boolean evaluate(Node node, String expression) {
 		//return evaluate(buildNodeEvaluator(node), expression); // uncached
