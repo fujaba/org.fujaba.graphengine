@@ -776,38 +776,43 @@ loop:	while (checkIndex > -1) {
 				PatternNode currentSubNode = nodeMatchLists.get(0).get(i);
 				boolean fail = false;
 
-				/* ##### also check for edges to self */
-				for (PatternEdge p: currentSubNode.getPatternEdges()) {
-					if (p.getTarget() != currentSubNode) {
-						continue;
-					}
-					boolean exists = false;
-					if (mapping.get(currentSubNode).getEdges(p.getName()) != null) {
-						exists = mapping.get(currentSubNode).getEdges(p.getName()).contains(mapping.get(currentSubNode));
-					}
-					//##### NEW TTC2017 FEATURE:
-					ArrayList<String> extractedVariableNames = extractVariableNames(p.getName());
-					if (extractedVariableNames.size() > 0) {
-						exists = false;
-						int numberOfEdgesFound = 0;
-						for (String ttcTestString: mapping.get(currentSubNode).getEdges().keySet()) {
-							if (mapping.get(currentSubNode).getEdges(ttcTestString).contains(mapping.get(currentSubNode))) {
-								edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
-								++numberOfEdgesFound;
-								if (numberOfEdgesFound >= extractedVariableNames.size()) {
-									exists = true;
-									break;
+				for (int j = i == 1 ? i - 1 : i; j <= i; ++j) {
+					/* ##### also check for edges to self */
+					for (PatternEdge p: nodeMatchLists.get(0).get(j).getPatternEdges()) {
+						if (p.getAction() == "+" || p.getTarget() != nodeMatchLists.get(0).get(j)) {
+							continue;
+						}
+						boolean exists = false;
+						if (mapping.get(nodeMatchLists.get(0).get(j)).getEdges(p.getName()) != null) {
+							exists = mapping.get(nodeMatchLists.get(0).get(j)).getEdges(p.getName()).contains(mapping.get(nodeMatchLists.get(0).get(j)));
+						}
+						//##### NEW TTC2017 FEATURE:
+						ArrayList<String> extractedVariableNames = extractVariableNames(p.getName());
+						if (extractedVariableNames.size() > 0) {
+							exists = false;
+							int numberOfEdgesFound = 0;
+							for (String ttcTestString: mapping.get(nodeMatchLists.get(0).get(j)).getEdges().keySet()) {
+								if (mapping.get(nodeMatchLists.get(0).get(j)).getEdges(ttcTestString).contains(mapping.get(nodeMatchLists.get(0).get(j)))) {
+									edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
+									++numberOfEdgesFound;
+									if (numberOfEdgesFound >= extractedVariableNames.size()) {
+//										for (String foundEdge: extractedVariableNames) { // TODO ##### remove debug
+//											System.err.println(foundEdge + " == " + edgeMatch.get(foundEdge));
+//										}
+										exists = true;
+										break;
+									}
 								}
 							}
 						}
+						//#####
+						if (("!=".equals(p.getAction()) && exists) || (!"!=".equals(p.getAction()) && !exists)) {
+							fail = true; // failure at incoming edge
+							break;
+						}
 					}
-					//#####
-					if (("!=".equals(p.getAction()) && exists) || (!"!=".equals(p.getAction()) && !exists)) {
-						fail = true; // failure at incoming edge
-						break;
-					}
+					/* ##### */
 				}
-				/* ##### */
 				
 match:			for (int j = 0; j < i; ++j) {
 					if (fail == true) {
@@ -840,6 +845,9 @@ match:			for (int j = 0; j < i; ++j) {
 										edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 										++numberOfEdgesFound;
 										if (numberOfEdgesFound >= extractedVariableNames.size()) {
+//											for (String foundEdge: extractedVariableNames) { // TODO ##### remove debug
+//												System.err.println(foundEdge + " == " + edgeMatch.get(foundEdge));
+//											}
 											exists = true;
 											break;
 										}
@@ -876,6 +884,9 @@ match:			for (int j = 0; j < i; ++j) {
 										edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 										++numberOfEdgesFound;
 										if (numberOfEdgesFound >= extractedVariableNames.size()) {
+//											for (String foundEdge: extractedVariableNames) { // TODO ##### remove debug
+//												System.err.println(foundEdge + " == " + edgeMatch.get(foundEdge));
+//											}
 											exists = true;
 											break;
 										}
