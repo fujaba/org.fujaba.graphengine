@@ -24,25 +24,30 @@ public class TestTTCStateCase {
 
 		String[] fileNames = {
 				"leader3_2.xmi",
+				"leader4_2.xmi",
 				"leader3_3.xmi",
+				"leader5_2.xmi",
 				"leader3_4.xmi",
 				"leader3_5.xmi",
-				"leader3_6.xmi",
-				"leader3_8.xmi",
-				"leader4_2.xmi",
 				"leader4_3.xmi",
+				"leader6_2.xmi",
+				"leader3_6.xmi",
 				"leader4_4.xmi",
-				"leader4_5.xmi",
-				"leader4_6.xmi",
-				"leader5_2.xmi",
 				"leader5_3.xmi",
+				"leader3_8.xmi",
+				"leader4_5.xmi",
+				"leader6_3.xmi",
+				"leader4_6.xmi",
 				"leader5_4.xmi",
 				"leader5_5.xmi",
-				"leader6_2.xmi",
-				"leader6_3.xmi",
 				"leader6_4.xmi",
 				"leader6_5.xmi"
 		};
+		
+		for (int i = 0; i < 10; ++i) {
+			// warm up
+			solveGraph(TTCStateCaseGraphLoader.load(taskMainPath + fileNames[0]));
+		}
 		
 		for (String fileName: fileNames) {
 			System.out.println("TTC2017 State Elimination: " + fileName + "...");
@@ -52,7 +57,39 @@ public class TestTTCStateCase {
 			Graph result = solveGraph(g); // solve problem
 			long endTime = System.nanoTime();
 			
-			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds");
+			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.");
+//			System.out.println("Finished graph:\n" + result + "\n");
+			String resultStringRaw = "";
+			for (String s: result.getNodes().get(0).getEdges().keySet()) {
+				resultStringRaw = s;
+			}
+			
+			String resultString = resultStringRaw.replaceAll(Pattern.quote("(ε)"), "");
+//			System.out.println("Extracted string:");
+			System.out.println(resultString + "\n");
+			
+		}
+		
+	}
+	
+	@Test
+	public void testSolvingTTC2017StateEliminationCaseExtension1() {
+		
+		String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-extension1/";
+
+		String[] fileNames = {
+				"zeroconf.xmi"
+		};
+		
+		for (String fileName: fileNames) {
+			System.out.println("TTC2017 State Elimination (Extension 1): " + fileName + "...");
+			long beginTime = System.nanoTime();
+			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName); // get data
+//			System.out.println("Loaded graph:\n" + g + "\n");
+			Graph result = solveGraph(g); // solve problem
+			long endTime = System.nanoTime();
+			
+			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.");
 //			System.out.println("Finished graph:\n" + result + "\n");
 			String resultStringRaw = "";
 			for (String s: result.getNodes().get(0).getEdges().keySet()) {
@@ -69,6 +106,7 @@ public class TestTTCStateCase {
 	
 	private Graph solveGraph(Graph g) {
 		PatternGraph gtr_1_1 = getNewInitialPattern();
+		PatternGraph gtr_1_1_b = getAddToInitialPattern();
 		PatternGraph gtr_1_2 = getNewFinalPattern();
 		PatternGraph gtr_1_3 = getAddToFinalPattern();
 		PatternGraph gtr_1_4 = getMergeEdgesPattern();
@@ -115,6 +153,7 @@ public class TestTTCStateCase {
 		
 		
 		g = applyGTR(g, gtr_1_1, true);
+		g = applyGTR(g, gtr_1_1_b, true);
 		g = applyGTR(g, gtr_1_2, true);
 		g = applyGTR(g, gtr_1_3);
 		g = applyGTR(g, gtr_1_4);
@@ -156,12 +195,38 @@ public class TestTTCStateCase {
 	
 	@Test
 	public void testLoadingTTCStateCaseData() {
-		String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
 		Graph g;
-		
 		/*
 		 * just loading models and count nodes:
 		 */
+		String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
+
+		String[] fileNames = {
+				"leader3_2.xmi",
+				"leader4_2.xmi",
+				"leader3_3.xmi",
+				"leader5_2.xmi",
+				"leader3_4.xmi",
+				"leader3_5.xmi",
+				"leader4_3.xmi",
+				"leader6_2.xmi",
+				"leader3_6.xmi",
+				"leader4_4.xmi",
+				"leader5_3.xmi",
+				"leader3_8.xmi",
+				"leader4_5.xmi",
+				"leader6_3.xmi",
+				"leader4_6.xmi",
+				"leader5_4.xmi",
+				"leader5_5.xmi",
+				"leader6_4.xmi",
+				"leader6_5.xmi"
+		};
+		
+		for (String fileName: fileNames) {
+			g = TTCStateCaseGraphLoader.load(taskMainPath + fileName);
+			System.out.println(fileName + ": " + g.getNodes().size());
+		}
 		
 		g = TTCStateCaseGraphLoader.load(taskMainPath + "leader3_2.xmi");
 		Assert.assertEquals(26, g.getNodes().size());
@@ -312,6 +377,16 @@ public class TestTTCStateCase {
 		PatternNode noExistingNewInitialNode = new PatternNode("#{newInitial}").setAction("!=");
 		gtr.addPatternNode(initialNode, newInitialNode, noExistingNewInitialNode);
 		newInitialNode.addPatternEdge("+", "ε", initialNode);
+		return gtr;
+	}
+
+	private static PatternGraph getAddToInitialPattern() { // #1.1b (single match; do repeat)
+		// gtr for adding to new initial state:
+		PatternGraph gtr = new PatternGraph("adding to the existing new initial state");
+		PatternNode otherInitialNode = new PatternNode("#{initial}").addPatternAttribute(new PatternAttribute().setAction("-").setName("initial"));
+		PatternNode existingNewInitialNode = new PatternNode("#{newInitial}");
+		gtr.addPatternNode(otherInitialNode, existingNewInitialNode);
+		existingNewInitialNode.addPatternEdge("+", "ε", otherInitialNode);
 		return gtr;
 	}
 
