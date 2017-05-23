@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.naming.spi.DirStateFactory.Result;
 
+import org.fujaba.graphengine.algorithm.Algorithm;
+import org.fujaba.graphengine.algorithm.Application;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;

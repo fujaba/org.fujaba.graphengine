@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
+import org.fujaba.graphengine.algorithm.Algorithm;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.pattern.PatternAttribute;
@@ -16,92 +17,129 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestTTCStateCase {
-	
-	@Test
-	public void testSolvingTTC2017StateEliminationCase() {
-		
-		String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
 
-		String[] fileNames = {
-				"leader3_2.xmi",
-				"leader4_2.xmi",
-				"leader3_3.xmi",
-				"leader5_2.xmi",
-				"leader3_4.xmi",
-				"leader3_5.xmi",
-				"leader4_3.xmi",
-				"leader6_2.xmi",
-				"leader3_6.xmi",
-				"leader4_4.xmi",
-				"leader5_3.xmi",
-				"leader3_8.xmi",
-				"leader4_5.xmi",
-				"leader6_3.xmi",
-				"leader4_6.xmi",
-				"leader5_4.xmi",
-				"leader5_5.xmi",
-				"leader6_4.xmi",
-				"leader6_5.xmi"
-		};
-		
-		for (int i = 0; i < 10; ++i) {
-			// warm up
-			solveGraph(TTCStateCaseGraphLoader.load(taskMainPath + fileNames[0]));
-		}
-		
-		for (String fileName: fileNames) {
+	private static final String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
+	private static final String[] fileNamesTaskMain = {
+			"leader3_2.xmi",
+			"leader4_2.xmi",
+			"leader3_3.xmi",
+			"leader5_2.xmi",
+			"leader3_4.xmi",
+			"leader3_5.xmi",
+			"leader4_3.xmi",
+			"leader6_2.xmi",
+			"leader3_6.xmi",
+			"leader4_4.xmi",
+			"leader5_3.xmi",
+			"leader3_8.xmi",
+			"leader4_5.xmi",
+			"leader6_3.xmi",
+			"leader4_6.xmi",
+			"leader5_4.xmi",
+			"leader5_5.xmi",
+			"leader6_4.xmi",
+			"leader6_5.xmi"
+	};
+
+	private static final String taskExtension1Path = "src/main/resources/ExperimentalData/testdata/emf/task-extension1/";
+	private static final String[] fileNamesTaskExtension1 = {
+			"zeroconf.xmi"
+	};
+
+	@Test
+	public void testSolvingTTC2017StateEliminationCaseWithAlgorithm() {
+		Algorithm algorithmStateCaseTTC2017 = getStateCaseAlgorithmTTC2017();
+		String[] fileNamesTaskMain = {"leader3_2.xmi"};
+		for (String fileName: fileNamesTaskMain) {
 			System.out.println("TTC2017 State Elimination: " + fileName + "...");
 			long beginTime = System.nanoTime();
 			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName); // get data
-//			System.out.println("Loaded graph:\n" + g + "\n");
-			Graph result = solveGraph(g); // solve problem
+//			System.err.println(g);
+			Graph result = algorithmStateCaseTTC2017.process(g).getOutput();
 			long endTime = System.nanoTime();
-			
+//			System.err.println(result);
 			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.");
-//			System.out.println("Finished graph:\n" + result + "\n");
 			String resultStringRaw = "";
 			for (String s: result.getNodes().get(0).getEdges().keySet()) {
 				resultStringRaw = s;
 			}
-			
 			String resultString = resultStringRaw.replaceAll(Pattern.quote("(ε)"), "");
-//			System.out.println("Extracted string:");
 			System.out.println(resultString + "\n");
-			
 		}
-		
+	}
+	
+	@Test
+	public void testSolvingTTC2017StateEliminationCase() {
+		for (String fileName: fileNamesTaskMain) {
+			System.out.println("TTC2017 State Elimination: " + fileName + "...");
+			long beginTime = System.nanoTime();
+			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName); // get data
+			Graph result = solveGraph(g); // solve problem
+			long endTime = System.nanoTime();
+			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.");
+			String resultStringRaw = "";
+			for (String s: result.getNodes().get(0).getEdges().keySet()) {
+				resultStringRaw = s;
+			}
+			String resultString = resultStringRaw.replaceAll(Pattern.quote("(ε)"), "");
+			System.out.println(resultString + "\n");
+		}
 	}
 	
 	@Test
 	public void testSolvingTTC2017StateEliminationCaseExtension1() {
-		
-		String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-extension1/";
-
-		String[] fileNames = {
-				"zeroconf.xmi"
-		};
-		
-		for (String fileName: fileNames) {
+		for (String fileName: fileNamesTaskExtension1) {
 			System.out.println("TTC2017 State Elimination (Extension 1): " + fileName + "...");
 			long beginTime = System.nanoTime();
-			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName); // get data
-//			System.out.println("Loaded graph:\n" + g + "\n");
+			Graph g = TTCStateCaseGraphLoader.load(taskExtension1Path + fileName); // get data
 			Graph result = solveGraph(g); // solve problem
 			long endTime = System.nanoTime();
-			
 			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.");
-//			System.out.println("Finished graph:\n" + result + "\n");
 			String resultStringRaw = "";
 			for (String s: result.getNodes().get(0).getEdges().keySet()) {
 				resultStringRaw = s;
 			}
-			
 			String resultString = resultStringRaw.replaceAll(Pattern.quote("(ε)"), "");
-//			System.out.println("Extracted string:");
 			System.out.println(resultString + "\n");
-			
 		}
 		
+	}
+	
+	private static Algorithm getStateCaseAlgorithmTTC2017() {
+		
+		Algorithm stateCaseTTC2017 = new Algorithm("# TTC 2017 State Case").setRepeating(false); // one time (each)
+		
+		Algorithm prepareData = new Algorithm("# prepare data").setRepeating(false); // one time (each)
+		Algorithm eliminateState = new Algorithm("# eliminate state");
+		Algorithm handleSourceNode = new Algorithm("# handle source node");
+		Algorithm redirectRoute = new Algorithm("# redirect route");
+		
+		stateCaseTTC2017.addAlgorithmStep(prepareData);
+			prepareData.addAlgorithmStep(getNewInitialPattern(), false); // one time (each)
+			prepareData.addAlgorithmStep(getAddToInitialPattern());
+			prepareData.addAlgorithmStep(getNewFinalPattern(), false); // one time (each)
+			prepareData.addAlgorithmStep(getAddToFinalPattern());
+			prepareData.addAlgorithmStep(getMergeEdgesPattern());
+		stateCaseTTC2017.addAlgorithmStep(eliminateState);
+			eliminateState.addAlgorithmStep(getMarkStateForEliminationPattern(), false); // one time (each)
+			eliminateState.addAlgorithmStep(handleSourceNode);
+				handleSourceNode.addAlgorithmStep(getMarkWithCurrentPattern(), false); // one time (each)
+				handleSourceNode.addAlgorithmStep(getMarkFallbackWithCurrentPattern(), false); // one time (each)
+				handleSourceNode.addAlgorithmStep(redirectRoute);
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPqPkKkKqPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKqPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPqPkKqPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKqPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKkKpPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKpPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKpPattern());
+					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKpPattern());
+				handleSourceNode.addAlgorithmStep(getUnmarkCurrentPattern(), false); // one time (each)
+				handleSourceNode.addAlgorithmStep(getRemoveMarksPattern());
+			eliminateState.addAlgorithmStep(getEliminateMarkedStatePattern(), false); // one time (each)
+			eliminateState.addAlgorithmStep(getUnmarkPastPattern(), false); // one time (each)
+	
+		return stateCaseTTC2017;
 	}
 	
 	private Graph solveGraph(Graph g) {
@@ -130,6 +168,7 @@ public class TestTTCStateCase {
 		 * How to loop:
 		 * 
 		 * #1.1
+		 * #1.1 b)
 		 * #1.2
 		 * #1.3
 		 * #1.4
@@ -153,19 +192,22 @@ public class TestTTCStateCase {
 		
 		
 		g = applyGTR(g, gtr_1_1, true);
-		g = applyGTR(g, gtr_1_1_b, true);
+		g = applyGTR(g, gtr_1_1_b);
 		g = applyGTR(g, gtr_1_2, true);
 		g = applyGTR(g, gtr_1_3);
 		g = applyGTR(g, gtr_1_4);
 		while (true) {
-			Graph copy1 = g.clone();
+//			Graph copy1 = g.clone();
+			Graph ref1 = g;
 			g = applyGTR(g, gtr_2_1, true);
 			while (true) {
-				Graph copy2 = g.clone();
+//				Graph copy2 = g.clone();
+				Graph ref2 = g;
 				g = applyGTR(g, gtr_2_2_1, true);
 				g = applyGTR(g, gtr_2_2_2, true);
 				while (true) {
-					Graph copy3 = g.clone();
+//					Graph copy3 = g.clone();
+					Graph ref3 = g;
 					g = applyGTR(g, gtr_2_3_1);
 					g = applyGTR(g, gtr_2_3_2);
 					g = applyGTR(g, gtr_2_3_3);
@@ -174,19 +216,22 @@ public class TestTTCStateCase {
 					g = applyGTR(g, gtr_2_3_6);
 					g = applyGTR(g, gtr_2_3_7);
 					g = applyGTR(g, gtr_2_3_8);
-					if (GraphEngine.isIsomorphTo(g, copy3)) {
+//					if (GraphEngine.isIsomorphTo(g, copy3)) {
+					if (g == ref3) {
 						break;
 					}
 				}
 				g = applyGTR(g, gtr_2_4, true);
 				g = applyGTR(g, gtr_2_5);
-				if (GraphEngine.isIsomorphTo(g, copy2)) {
+//				if (GraphEngine.isIsomorphTo(g, copy2)) {
+				if (g == ref2) {
 					break;
 				}
 			}
 			g = applyGTR(g, gtr_2_6, true);
 			g = applyGTR(g, gtr_2_7);
-			if (GraphEngine.isIsomorphTo(g, copy1)) {
+//			if (GraphEngine.isIsomorphTo(g, copy1)) {
+			if (g == ref1) {
 				break;
 			}
 		}
@@ -428,10 +473,10 @@ public class TestTTCStateCase {
 		PatternNode p = new PatternNode();
 		PatternNode k = new PatternNode("!(#{newFinal} || #{newInitial} || #{eliminate})");
 		PatternNode q = new PatternNode();
-		PatternNode noOtherMarkedOne = new PatternNode("#{eliminate}").setAction("!="); // with this, it can also be repeated
+		PatternNode noOtherMarkedOne = new PatternNode("#{eliminate}").setAction("!=");
 		k.addPatternAttribute(new PatternAttribute().setAction("+").setName("eliminate").setValue(true));
 		gtr.addPatternNode(p, k, q);
-		gtr.addPatternNode(noOtherMarkedOne); // with this, it can also be repeated
+		gtr.addPatternNode(noOtherMarkedOne);
 		return gtr;
 	}
 
@@ -551,7 +596,7 @@ public class TestTTCStateCase {
 
 	private static PatternGraph getPrepareStateWithPkKkKpPattern() { // #2.3.7 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
-		PatternGraph gtr = new PatternGraph("##### prepare elimination of state (with just pk, kk, kp)");
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kk, kp)");
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
 		PatternNode k = new PatternNode("#{eliminate}");
 		gtr.addPatternNode(p, k);
