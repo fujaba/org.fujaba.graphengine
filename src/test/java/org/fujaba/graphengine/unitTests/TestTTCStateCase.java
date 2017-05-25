@@ -18,8 +18,8 @@ import org.junit.Test;
 
 public class TestTTCStateCase {
 
-	private static final String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
-	private static final String[] fileNamesTaskMain = {
+	public static final String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
+	public static final String[] fileNamesTaskMain = {
 			"leader3_2.xmi",
 			"leader4_2.xmi",
 			"leader3_3.xmi",
@@ -41,8 +41,8 @@ public class TestTTCStateCase {
 			"leader6_5.xmi"
 	};
 
-	private static final String taskExtension1Path = "src/main/resources/ExperimentalData/testdata/emf/task-extension1/";
-	private static final String[] fileNamesTaskExtension1 = {
+	public static final String taskExtension1Path = "src/main/resources/ExperimentalData/testdata/emf/task-extension1/";
+	public static final String[] fileNamesTaskExtension1 = {
 			"zeroconf.xmi"
 	};
 
@@ -105,7 +105,7 @@ public class TestTTCStateCase {
 		
 	}
 	
-	private static Algorithm getStateCaseAlgorithmTTC2017() {
+	public static Algorithm getStateCaseAlgorithmTTC2017() {
 		
 		Algorithm stateCaseTTC2017 = new Algorithm("# TTC 2017 State Case").setRepeating(false); // one time (each)
 		
@@ -142,7 +142,7 @@ public class TestTTCStateCase {
 		return stateCaseTTC2017;
 	}
 	
-	private Graph solveGraph(Graph g) {
+	public static Graph solveGraph(Graph g) {
 		PatternGraph gtr_1_1 = getNewInitialPattern();
 		PatternGraph gtr_1_1_b = getAddToInitialPattern();
 		PatternGraph gtr_1_2 = getNewFinalPattern();
@@ -396,11 +396,11 @@ public class TestTTCStateCase {
 		Assert.assertTrue(!GraphEngine.isIsomorphTo(g, result));
 	}
 	
-	Graph applyGTR(Graph g, PatternGraph gtr) {
+	public static Graph applyGTR(Graph g, PatternGraph gtr) {
 		return applyGTR(g, gtr, false);
 	}
 
-	Graph applyGTR(Graph g, PatternGraph gtr, boolean single) {
+	public static Graph applyGTR(Graph g, PatternGraph gtr, boolean single) {
 		boolean foundOne = false;
 		do {
 			foundOne = false;
@@ -414,7 +414,7 @@ public class TestTTCStateCase {
 		return g;
 	}
 	
-	private static PatternGraph getNewInitialPattern() { // #1.1 (single match; don't repeat) - could also be repeated
+	public static PatternGraph getNewInitialPattern() { // #1.1 (single match; don't repeat) - could also be repeated
 		// gtr for new initial state:
 		PatternGraph gtr = new PatternGraph("new initial state");
 		PatternNode initialNode = new PatternNode("#{initial}").addPatternAttribute(new PatternAttribute().setAction("-").setName("initial"));
@@ -425,7 +425,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getAddToInitialPattern() { // #1.1b (single match; do repeat)
+	public static PatternGraph getAddToInitialPattern() { // #1.1b (single match; do repeat)
 		// gtr for adding to new initial state:
 		PatternGraph gtr = new PatternGraph("adding to the existing new initial state");
 		PatternNode otherInitialNode = new PatternNode("#{initial}").addPatternAttribute(new PatternAttribute().setAction("-").setName("initial"));
@@ -435,7 +435,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getNewFinalPattern() { // #1.2 (single match; don't repeat) - could also be repeated
+	public static PatternGraph getNewFinalPattern() { // #1.2 (single match; don't repeat) - could also be repeated
 		// gtr for new final state:
 		PatternGraph gtr = new PatternGraph("new final state");
 		PatternNode finalNode = new PatternNode("#{final}").addPatternAttribute(new PatternAttribute().setAction("-").setName("final"));
@@ -446,7 +446,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getAddToFinalPattern() { // #1.3 (single match; do repeat)
+	public static PatternGraph getAddToFinalPattern() { // #1.3 (single match; do repeat)
 		// gtr for adding to new final state:
 		PatternGraph gtr = new PatternGraph("adding to the existing new final state");
 		PatternNode otherFinalNode = new PatternNode("#{final}").addPatternAttribute(new PatternAttribute().setAction("-").setName("final"));
@@ -456,7 +456,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 	
-	private static PatternGraph getMergeEdgesPattern() { // #1.4 (single match; do repeat)
+	public static PatternGraph getMergeEdgesPattern() { // #1.4 (single match; do repeat)
 		// gtr for merging multiple edges between the same two nodes:
 		PatternGraph gtr = new PatternGraph("merge multiple labels between the same two nodes");
 		PatternNode a = new PatternNode();
@@ -467,7 +467,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 	
-	private static PatternGraph getMarkStateForEliminationPattern() { // #2.1 (single match; don't repeat) - could also be repeated
+	public static PatternGraph getMarkStateForEliminationPattern() { // #2.1 (single match; don't repeat) - could also be repeated
 		// gtr for marking a state for elimination
 		PatternGraph gtr = new PatternGraph("mark state for elimination");
 		PatternNode p = new PatternNode();
@@ -480,7 +480,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getMarkWithCurrentPattern() { // #2.2.1
+	public static PatternGraph getMarkWithCurrentPattern() { // #2.2.1
 		// gtr for marking the current state for elimination preparation
 		PatternGraph gtr = new PatternGraph("mark current working state (p->k->q)");
 		PatternNode noAlreadyMarkedAsCurrentState = new PatternNode("#{current}").setAction("!=");
@@ -493,7 +493,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getMarkFallbackWithCurrentPattern() { // #2.2.1
+	public static PatternGraph getMarkFallbackWithCurrentPattern() { // #2.2.1
 		// gtr for marking the current state for elimination preparation
 		PatternGraph gtr = new PatternGraph("mark current working state (p<->k)");
 		PatternNode noAlreadyMarkedAsCurrentState = new PatternNode("#{current}").setAction("!=");
@@ -505,7 +505,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPqPkKkKqPattern() { // #2.3.1 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPqPkKkKqPattern() { // #2.3.1 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with pq, pk, kk, kq)");
 		PatternNode p = new PatternNode("#{current}");
@@ -521,7 +521,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPkKkKqPattern() { // #2.3.2 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPkKkKqPattern() { // #2.3.2 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kk, kq)");
 		PatternNode p = new PatternNode("#{current}");
@@ -536,7 +536,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPqPkKqPattern() { // #2.3.3 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPqPkKqPattern() { // #2.3.3 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pq, pk, kq)");
 		PatternNode p = new PatternNode("#{current}");
@@ -551,7 +551,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPkKqPattern() { // #2.3.4 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPkKqPattern() { // #2.3.4 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kq)");
 		PatternNode p = new PatternNode("#{current}");
@@ -565,7 +565,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPpPkKkKpPattern() { // #2.3.5 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPpPkKkKpPattern() { // #2.3.5 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with pp, pk, kk, kp)");
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
@@ -580,7 +580,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPpPkKpPattern() { // #2.3.6 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPpPkKpPattern() { // #2.3.6 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pp, pk, kp)");
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
@@ -594,7 +594,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPkKkKpPattern() { // #2.3.7 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPkKkKpPattern() { // #2.3.7 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kk, kp)");
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
@@ -608,7 +608,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getPrepareStateWithPkKpPattern() { // #2.3.8 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getPrepareStateWithPkKpPattern() { // #2.3.8 (all matches; don't repeat) - could also be repeated
 		// gtr for adding new calculated labels
 		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kp)");
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
@@ -621,7 +621,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 
-	private static PatternGraph getUnmarkCurrentPattern() { // #2.4
+	public static PatternGraph getUnmarkCurrentPattern() { // #2.4
 		PatternGraph gtr = new PatternGraph("remove mark of current working state");
 		PatternNode n = new PatternNode("#{current}");
 		n.addPatternAttribute(new PatternAttribute().setAction("-").setName("current"));
@@ -630,7 +630,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 	
-	private static PatternGraph getRemoveMarksPattern() { // #2.5 (all matches; don't repeat) - could also be repeated
+	public static PatternGraph getRemoveMarksPattern() { // #2.5 (all matches; don't repeat) - could also be repeated
 		// gtr for removing marks
 		PatternGraph gtr = new PatternGraph("remove mark of used state");
 		PatternNode n = new PatternNode("#{used}").addPatternAttribute(new PatternAttribute().setAction("-").setName("used"));
@@ -638,7 +638,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 	
-	private static PatternGraph getEliminateMarkedStatePattern() { // #2.6 (single match; don't repeat) - could also be repeated
+	public static PatternGraph getEliminateMarkedStatePattern() { // #2.6 (single match; don't repeat) - could also be repeated
 		// gtr for eliminating the previously marked state
 		PatternGraph gtr = new PatternGraph("eliminate state itself");
 		PatternNode k = new PatternNode("#{eliminate}").setAction("-");
@@ -646,7 +646,7 @@ public class TestTTCStateCase {
 		return gtr;
 	}
 	
-	private static PatternGraph getUnmarkPastPattern() { // #2.7
+	public static PatternGraph getUnmarkPastPattern() { // #2.7
 		PatternGraph gtr = new PatternGraph("remove mark of past working state");
 		PatternNode n = new PatternNode("#{past}");
 		n.addPatternAttribute(new PatternAttribute().setAction("-").setName("past"));
