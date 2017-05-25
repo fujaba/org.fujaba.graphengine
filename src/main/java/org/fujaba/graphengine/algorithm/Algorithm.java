@@ -18,7 +18,7 @@ public class Algorithm {
 		this.name = name;
 		this.algorithmSteps = new ArrayList<Algorithm>();
 		this.atomicAlgorithm = null;
-		this.repeating = true;
+		this.repeating = false;
 	}
 	
 	public Application process(Graph input) {
@@ -44,9 +44,9 @@ public class Algorithm {
 					Application subAlgorithmApplication = algo.process(subAlgorithmInput);
 					if (subAlgorithmInput != subAlgorithmApplication.getOutput()) {
 						output = subAlgorithmApplication.getOutput();
-						System.err.println("\n" + subAlgorithmApplication.getAlgorithm().getName());
-						System.err.println(output);
-						if (!repeating) {
+//						System.err.println("\n" + subAlgorithmApplication.getAlgorithm().getName());
+//						System.err.println(output);
+						if (!algo.isRepeating()) {
 							break;
 						}
 					} else {
@@ -76,11 +76,16 @@ public class Algorithm {
 		this.algorithmSteps.add(step);
 		return this;
 	}
+	public Algorithm addAlgorithmStep(Algorithm step, boolean repeating) {
+		step.setRepeating(repeating);
+		this.algorithmSteps.add(step);
+		return this;
+	}
 	public Algorithm addAlgorithmStep(PatternGraph step) {
-		return addAlgorithmStep(step, true);
+		return addAlgorithmStep(step, false);
 	}
 	public Algorithm addAlgorithmStep(PatternGraph step, boolean repeating) {
-		Algorithm newStep = new Algorithm(step.getName());
+		Algorithm newStep = new Algorithm("GTR: " + step.getName());
 		newStep.setAtomicAlgorithm(step);
 		newStep.setRepeating(repeating);
 		this.algorithmSteps.add(newStep);
@@ -96,8 +101,8 @@ public class Algorithm {
 	public boolean isRepeating() {
 		return repeating;
 	}
-	public Algorithm setRepeating(boolean repeat) {
-		this.repeating = repeat;
+	public Algorithm setRepeating(boolean repeating) {
+		this.repeating = repeating;
 		return this;
 	}
 

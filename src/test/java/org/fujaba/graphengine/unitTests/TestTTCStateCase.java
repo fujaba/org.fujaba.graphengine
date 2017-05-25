@@ -49,7 +49,6 @@ public class TestTTCStateCase {
 	@Test
 	public void testSolvingTTC2017StateEliminationCaseWithAlgorithm() {
 		Algorithm algorithmStateCaseTTC2017 = getStateCaseAlgorithmTTC2017();
-		String[] fileNamesTaskMain = {"leader3_2.xmi"};
 		for (String fileName: fileNamesTaskMain) {
 			System.out.println("TTC2017 State Elimination: " + fileName + "...");
 			long beginTime = System.nanoTime();
@@ -107,37 +106,37 @@ public class TestTTCStateCase {
 	
 	public static Algorithm getStateCaseAlgorithmTTC2017() {
 		
-		Algorithm stateCaseTTC2017 = new Algorithm("# TTC 2017 State Case").setRepeating(false); // one time (each)
+		Algorithm stateCaseTTC2017 = new Algorithm("TTC 2017 State Case");
 		
-		Algorithm prepareData = new Algorithm("# prepare data").setRepeating(false); // one time (each)
-		Algorithm eliminateState = new Algorithm("# eliminate state");
-		Algorithm handleSourceNode = new Algorithm("# handle source node");
-		Algorithm redirectRoute = new Algorithm("# redirect route");
+		Algorithm prepareData = new Algorithm("prepare data");
+		Algorithm eliminateState = new Algorithm("eliminate state");
+		Algorithm handleSourceNode = new Algorithm("handle source node");
+		Algorithm redirectRoute = new Algorithm("redirect route");
 		
 		stateCaseTTC2017.addAlgorithmStep(prepareData);
-			prepareData.addAlgorithmStep(getNewInitialPattern(), false); // one time (each)
-			prepareData.addAlgorithmStep(getAddToInitialPattern());
-			prepareData.addAlgorithmStep(getNewFinalPattern(), false); // one time (each)
-			prepareData.addAlgorithmStep(getAddToFinalPattern());
-			prepareData.addAlgorithmStep(getMergeEdgesPattern());
-		stateCaseTTC2017.addAlgorithmStep(eliminateState);
-			eliminateState.addAlgorithmStep(getMarkStateForEliminationPattern(), false); // one time (each)
-			eliminateState.addAlgorithmStep(handleSourceNode);
-				handleSourceNode.addAlgorithmStep(getMarkWithCurrentPattern(), false); // one time (each)
-				handleSourceNode.addAlgorithmStep(getMarkFallbackWithCurrentPattern(), false); // one time (each)
-				handleSourceNode.addAlgorithmStep(redirectRoute);
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPqPkKkKqPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKqPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPqPkKqPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKqPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKkKpPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKpPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKpPattern());
-					redirectRoute.addAlgorithmStep(getPrepareStateWithPkKpPattern());
-				handleSourceNode.addAlgorithmStep(getUnmarkCurrentPattern(), false); // one time (each)
-				handleSourceNode.addAlgorithmStep(getRemoveMarksPattern());
-			eliminateState.addAlgorithmStep(getEliminateMarkedStatePattern(), false); // one time (each)
-			eliminateState.addAlgorithmStep(getUnmarkPastPattern(), false); // one time (each)
+		prepareData.addAlgorithmStep(getNewInitialPattern());
+		prepareData.addAlgorithmStep(getAddToInitialPattern(), true);
+		prepareData.addAlgorithmStep(getNewFinalPattern());
+		prepareData.addAlgorithmStep(getAddToFinalPattern(), true);
+		prepareData.addAlgorithmStep(getMergeEdgesPattern(), true);
+		stateCaseTTC2017.addAlgorithmStep(eliminateState, true);
+		eliminateState.addAlgorithmStep(getMarkStateForEliminationPattern());
+		eliminateState.addAlgorithmStep(handleSourceNode, true);
+		handleSourceNode.addAlgorithmStep(getMarkWithCurrentPattern());
+		handleSourceNode.addAlgorithmStep(getMarkFallbackWithCurrentPattern());
+		handleSourceNode.addAlgorithmStep(redirectRoute, true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPqPkKkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPqPkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKkKpPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKpPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKpPattern(), true);
+		redirectRoute.addAlgorithmStep(getPrepareStateWithPkKpPattern(), true);
+		handleSourceNode.addAlgorithmStep(getUnmarkCurrentPattern());
+		handleSourceNode.addAlgorithmStep(getRemoveMarksPattern(), true);
+		eliminateState.addAlgorithmStep(getEliminateMarkedStatePattern());
+		eliminateState.addAlgorithmStep(getUnmarkPastPattern(), true);
 	
 		return stateCaseTTC2017;
 	}
@@ -469,7 +468,7 @@ public class TestTTCStateCase {
 	
 	public static PatternGraph getMarkStateForEliminationPattern() { // #2.1 (single match; don't repeat) - could also be repeated
 		// gtr for marking a state for elimination
-		PatternGraph gtr = new PatternGraph("mark state for elimination");
+		PatternGraph gtr = new PatternGraph("mark state for elimination");  
 		PatternNode p = new PatternNode();
 		PatternNode k = new PatternNode("!(#{newFinal} || #{newInitial} || #{eliminate})");
 		PatternNode q = new PatternNode();
