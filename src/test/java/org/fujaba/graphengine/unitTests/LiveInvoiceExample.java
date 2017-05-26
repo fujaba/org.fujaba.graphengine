@@ -1,15 +1,10 @@
 package org.fujaba.graphengine.unitTests;
 
-import java.util.ArrayList;
-
 import org.fujaba.graphengine.GraphEngine;
-import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -55,34 +50,39 @@ public class LiveInvoiceExample {
 	
 	
 	
+	@SuppressWarnings("unused")
 	private Graph getInvoiceStartGraph() {
 		Graph g = new Graph();
 		Node n = new Node();
 		g.addNode(n);
 		return g;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private PatternGraph getProductTotalIsWrongPattern() {
 		PatternGraph p = new PatternGraph("wrong");
 		PatternNode pn = new PatternNode();
 		p.addPatternNode(pn);
 		return p;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private PatternGraph getProductTotalIsRightPattern() {
 		PatternGraph p = new PatternGraph("right");
 		PatternNode pn = new PatternNode();
 		p.addPatternNode(pn);
 		return p;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private PatternGraph getInvoiceHasErrorPattern() {
 		PatternGraph p = new PatternGraph("error");
 		PatternNode pn = new PatternNode();
 		p.addPatternNode(pn);
 		return p;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private PatternGraph getInvoiceHasSuccessPattern() {
 		PatternGraph p = new PatternGraph("success");
 		PatternNode pn = new PatternNode();

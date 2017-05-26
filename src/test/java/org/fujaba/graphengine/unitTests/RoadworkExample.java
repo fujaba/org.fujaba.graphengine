@@ -1,11 +1,9 @@
 package org.fujaba.graphengine.unitTests;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.fujaba.graphengine.GraphDumper;
 import org.fujaba.graphengine.GraphEngine;
-import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
@@ -14,12 +12,10 @@ import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerDepthFirstBackt
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPHighHeuristics;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
 import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.PatternNode;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class RoadworkExample {

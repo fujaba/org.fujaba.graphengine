@@ -1,7 +1,5 @@
 package org.fujaba.graphengine.unitTests;
 
-import java.util.ArrayList;
-
 import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;

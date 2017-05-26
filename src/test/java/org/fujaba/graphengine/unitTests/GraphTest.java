@@ -8,9 +8,7 @@ import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.junit.Assert;
 import org.junit.Test;
 

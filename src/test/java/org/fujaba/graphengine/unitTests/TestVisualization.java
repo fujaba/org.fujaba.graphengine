@@ -1,11 +1,6 @@
 package org.fujaba.graphengine.unitTests;
 
-import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.gson.stream.JsonReader;
-
-import java.io.FileReader;
 import java.util.ArrayList;
 
 import org.fujaba.graphengine.GraphEngine;

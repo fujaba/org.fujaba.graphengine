@@ -2,9 +2,7 @@ package org.fujaba.graphengine.algorithm.adapter;
 
 import java.io.IOException;
 
-import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.algorithm.Algorithm;
-import org.fujaba.graphengine.pattern.PatternGraph;
 import org.fujaba.graphengine.pattern.adapter.PatternGraphAdapter;
 
 import com.google.gson.TypeAdapter;
@@ -22,7 +20,6 @@ public class AlgorithmAdapter extends TypeAdapter<Algorithm> {
 			out.name("repeating").value(algorithm.isRepeating());
 		}
 		if (algorithm.getAtomicAlgorithm() != null) {
-//			out.name("atomic").value(GraphEngine.getGson().toJson(algorithm.getAtomicAlgorithm()));
 			out.name("atomic");
 			patternGraphAdapter.write(out, algorithm.getAtomicAlgorithm());
 		}
@@ -51,7 +48,6 @@ public class AlgorithmAdapter extends TypeAdapter<Algorithm> {
 				algorithm.setRepeating(in.nextBoolean());
 				break;
 			case "atomic":
-//				algorithm.setAtomicAlgorithm(GraphEngine.getGson().fromJson(in.nextString(), PatternGraph.class));
 				algorithm.setAtomicAlgorithm(patternGraphAdapter.read(in));
 				break;
 			case "steps":

@@ -1,6 +1,5 @@
 package org.fujaba.graphengine.unitTests;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -17,8 +16,6 @@ import org.fujaba.graphengine.stateelimination.TTCStateCaseGraphLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.gson.JsonIOException;
-
 public class TestTTCStateCase {
 
 	public static final String taskMainPath = "src/main/resources/ExperimentalData/testdata/emf/task-main/";
@@ -26,22 +23,22 @@ public class TestTTCStateCase {
 			"leader3_2.xmi",
 			"leader4_2.xmi",
 			"leader3_3.xmi",
-			"leader5_2.xmi",
-			"leader3_4.xmi",
-			"leader3_5.xmi",
-			"leader4_3.xmi",
-			"leader6_2.xmi",
-			"leader3_6.xmi",
-			"leader4_4.xmi",
-			"leader5_3.xmi",
-			"leader3_8.xmi",
-			"leader4_5.xmi",
-			"leader6_3.xmi",
-			"leader4_6.xmi",
-			"leader5_4.xmi",
-			"leader5_5.xmi",
-			"leader6_4.xmi",
-			"leader6_5.xmi"
+//			"leader5_2.xmi",
+//			"leader3_4.xmi",
+//			"leader3_5.xmi",
+//			"leader4_3.xmi",
+//			"leader6_2.xmi",
+//			"leader3_6.xmi",
+//			"leader4_4.xmi",
+//			"leader5_3.xmi",
+//			"leader3_8.xmi",
+//			"leader4_5.xmi",
+//			"leader6_3.xmi",
+//			"leader4_6.xmi",
+//			"leader5_4.xmi",
+//			"leader5_5.xmi",
+//			"leader6_4.xmi",
+//			"leader6_5.xmi"
 	};
 
 	public static final String taskExtension1Path = "src/main/resources/ExperimentalData/testdata/emf/task-extension1/";
@@ -389,7 +386,6 @@ public class TestTTCStateCase {
 		result = PatternEngine.applyMatch(matches.get(0));
 		System.out.println(g_2_3_2);
 		System.out.println(result);
-		// TODO
 		
 	}
 	

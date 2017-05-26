@@ -44,19 +44,10 @@ public class Algorithm {
 	public Application process(Graph input) {
 		Graph output = input;
 		if (atomicAlgorithm != null) {
-			
-//			String test = GraphEngine.getGson().toJson(atomicAlgorithm);
-//			System.err.println(test);
-//			PatternGraph testPG = GraphEngine.getGson().fromJson(test, PatternGraph.class);
-//			test = GraphEngine.getGson().toJson(testPG);
-//			System.err.println(test + "\n");
-		
 			while (true) {
 				ArrayList<Match> matches = PatternEngine.matchPattern(output, atomicAlgorithm, true);
 				if (matches.size() > 0) {
 					output = PatternEngine.applyMatch(matches.get(0));
-//					System.err.println("\n" + atomicAlgorithm.getName());
-//					System.err.println(output);
 					if (!repeating) {
 						break;
 					}
@@ -71,8 +62,6 @@ public class Algorithm {
 					Application subAlgorithmApplication = algo.process(subAlgorithmInput);
 					if (subAlgorithmInput != subAlgorithmApplication.getOutput()) {
 						output = subAlgorithmApplication.getOutput();
-//						System.err.println("\n" + subAlgorithmApplication.getAlgorithm().getName());
-//						System.err.println(output);
 						if (!algo.isRepeating()) {
 							break;
 						}

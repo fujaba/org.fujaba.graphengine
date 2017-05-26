@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.stateelimination.TTCStateCaseGraphLoader;
-import org.junit.Test;
 
 public class Evalution {
 	
