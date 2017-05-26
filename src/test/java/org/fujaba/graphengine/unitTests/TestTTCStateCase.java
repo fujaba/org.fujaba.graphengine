@@ -1,5 +1,6 @@
 package org.fujaba.graphengine.unitTests;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,8 @@ import org.fujaba.graphengine.pattern.PatternNode;
 import org.fujaba.graphengine.stateelimination.TTCStateCaseGraphLoader;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.gson.JsonIOException;
 
 public class TestTTCStateCase {
 
@@ -48,22 +51,30 @@ public class TestTTCStateCase {
 
 	@Test
 	public void testSolvingTTC2017StateEliminationCaseWithAlgorithm() {
-		Algorithm algorithmStateCaseTTC2017 = getStateCaseAlgorithmTTC2017();
+//		Algorithm algorithmStateCaseTTC2017 = getStateCaseAlgorithmTTC2017();
+		Algorithm algorithmStateCaseTTC2017 = null;
+		try {
+			String path = "src/main/resources/ttc2017-state-task-main.algorithm.yage.json";
+			getStateCaseAlgorithmTTC2017().saveTo(path);
+			algorithmStateCaseTTC2017 = Algorithm.loadFrom(path);
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 		for (String fileName: fileNamesTaskMain) {
 			System.out.println("TTC2017 State Elimination: " + fileName + "...");
 			long beginTime = System.nanoTime();
 			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName); // get data
 //			System.err.println(g);
 			Graph result = algorithmStateCaseTTC2017.process(g).getOutput();
-			long endTime = System.nanoTime();
-//			System.err.println(result);
-			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.");
 			String resultStringRaw = "";
 			for (String s: result.getNodes().get(0).getEdges().keySet()) {
 				resultStringRaw = s;
 			}
 			String resultString = resultStringRaw.replaceAll(Pattern.quote("(ε)"), "");
-			System.out.println(resultString + "\n");
+			System.out.println(resultString);
+			long endTime = System.nanoTime();
+//			System.err.println(result);
+			System.out.println("Done after " + ((endTime - beginTime) / 1e9) + " seconds.\n");
 		}
 	}
 	

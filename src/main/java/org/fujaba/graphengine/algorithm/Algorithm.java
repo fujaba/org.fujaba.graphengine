@@ -1,11 +1,19 @@
 package org.fujaba.graphengine.algorithm;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.Match;
 import org.fujaba.graphengine.PatternEngine;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.pattern.PatternGraph;
+
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
 public class Algorithm {
 	
@@ -21,9 +29,28 @@ public class Algorithm {
 		this.repeating = false;
 	}
 	
+	public static Algorithm loadFrom(String path) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
+		return GraphEngine.getGson().fromJson(new FileReader(path), Algorithm.class);
+	}
+	
+	public Algorithm saveTo(String path) throws JsonIOException, IOException {
+		FileWriter fw = new FileWriter(path);
+		GraphEngine.getGson().toJson(this, fw);
+		fw.flush();
+		fw.close();
+		return this;
+	}
+	
 	public Application process(Graph input) {
 		Graph output = input;
 		if (atomicAlgorithm != null) {
+			
+//			String test = GraphEngine.getGson().toJson(atomicAlgorithm);
+//			System.err.println(test);
+//			PatternGraph testPG = GraphEngine.getGson().fromJson(test, PatternGraph.class);
+//			test = GraphEngine.getGson().toJson(testPG);
+//			System.err.println(test + "\n");
+		
 			while (true) {
 				ArrayList<Match> matches = PatternEngine.matchPattern(output, atomicAlgorithm, true);
 				if (matches.size() > 0) {
@@ -104,6 +131,10 @@ public class Algorithm {
 	public Algorithm setRepeating(boolean repeating) {
 		this.repeating = repeating;
 		return this;
+	}
+	
+	public String toString() {
+		return GraphEngine.getGson().toJson(this);
 	}
 
 }

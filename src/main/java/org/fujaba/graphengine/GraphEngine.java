@@ -6,6 +6,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.fujaba.graphengine.algorithm.Algorithm;
+import org.fujaba.graphengine.algorithm.adapter.AlgorithmAdapter;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.graph.adapter.GraphAdapter;
@@ -102,7 +104,8 @@ public class GraphEngine {
 					.registerTypeAdapter(PatternNode.class, new PatternNodeAdapter())
 					.registerTypeAdapter(PatternGraph.class, new PatternGraphAdapter())
 					.registerTypeAdapter(NodeSortTree.class, new NodeSortTreeAdapter())
-//					.setPrettyPrinting()
+					.registerTypeAdapter(Algorithm.class, new AlgorithmAdapter())
+					.setPrettyPrinting()
 //					.serializeNulls()
 					.create();
 		}
