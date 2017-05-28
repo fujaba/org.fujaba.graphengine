@@ -4,8 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.regex.Pattern;
 
+import org.fujaba.graphengine.algorithm.Algorithm;
 import org.fujaba.graphengine.graph.Graph;
+import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.pattern.PatternAttribute;
+import org.fujaba.graphengine.pattern.PatternGraph;
+import org.fujaba.graphengine.pattern.PatternNode;
 import org.fujaba.graphengine.stateelimination.TTCStateCaseGraphLoader;
+import org.junit.Test;
 
 public class Evalution {
 	
@@ -76,6 +82,49 @@ public class Evalution {
 			
 		}
 		return passed + "/" + totalWords;
+	}
+	
+	@Test
+	public void testStuff() {
+		// TODO: remove debug
+		PatternGraph pattern = getStochasticPrepareStateWithPqPkKkKqPattern();
+		Graph graph = new Graph();
+		Node p = new Node().setAttribute("current", true);
+		Node k = new Node().setAttribute("eliminate", true);
+		Node q = new Node();
+		graph.addNode(p, k, q);
+		p.addEdge("a[0.2]", q);
+		p.addEdge("b[0.3]", k);
+		k.addEdge("c[0.5]", k);
+		k.addEdge("d[0.7]", q);
+		
+		Algorithm alg = new Algorithm("test");
+		alg.addAlgorithmStep(pattern, false);
+		
+		graph = alg.process(graph).getOutput();
+		
+		System.out.println(graph);
+		
+	}
+	
+	public static PatternGraph getStochasticPrepareStateWithPqPkKkKqPattern() { // #2.3.1 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with pq, pk, kk, kq)");
+		PatternNode p = new PatternNode("#{current}");
+		PatternNode k = new PatternNode("#{eliminate}");
+		PatternNode q = new PatternNode("!(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		gtr.addPatternNode(p, k, q);
+		/* CASE 1: there's pq, pk, kk and kq */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kq}", q);
+		k.addPatternEdge("==", "#{kk}", k);
+		p.addPatternEdge("-", "#{pq}", q);
+		
+		String extractedEdge = "substring(#{pq}, 0, indexOf(#{pq}, '[', length(#{pq}) - 5))";
+		String extractedProb = "substring(#{pq}, indexOf(#{pq}, '[', length(#{pq}) - 5) + 1, length(#{pq}) - 1)";
+		
+		p.addPatternEdge("+", "'(' + substring(#{pq}, 0, indexOf(#{pq}, '[', length(#{pq}) - 5)) + '[500])+((' + substring(#{pk}, 0, indexOf(#{pk}, '[', length(#{pk}) - 5)) + ')(' + substring(#{kk}, 0, indexOf(#{kk}, '[', length(#{kk}) - 5)) + ')*[' + substring(#{kk}, indexOf(#{kk}, '[', length(#{kk}) - 5) + 1, length(#{kk}) - 1) + '](' + substring(#{kq}, 0, indexOf(#{kq}, '[', length(#{kq}) - 5)) + ')[500])'", q);
+		return gtr;
 	}
 	
 }

@@ -60,7 +60,7 @@ public class TestTTCStateCase {
 		for (String fileName: fileNamesTaskMain) {
 			System.out.println("TTC2017 State Elimination: " + fileName + "...");
 			long beginTime = System.nanoTime();
-			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName); // get data
+			Graph g = TTCStateCaseGraphLoader.load(taskMainPath + fileName, false); // get data
 //			System.err.println(g);
 			Graph result = algorithmStateCaseTTC2017.process(g).getOutput();
 			String resultStringRaw = "";
@@ -141,6 +141,43 @@ public class TestTTCStateCase {
 		redirectRoute.addAlgorithmStep(getPrepareStateWithPpPkKpPattern(), true);
 		redirectRoute.addAlgorithmStep(getPrepareStateWithPkKkKpPattern(), true);
 		redirectRoute.addAlgorithmStep(getPrepareStateWithPkKpPattern(), true);
+		handleSourceNode.addAlgorithmStep(getUnmarkCurrentPattern());
+		handleSourceNode.addAlgorithmStep(getRemoveMarksPattern(), true);
+		eliminateState.addAlgorithmStep(getEliminateMarkedStatePattern());
+		eliminateState.addAlgorithmStep(getUnmarkPastPattern(), true);
+	
+		return stateCaseTTC2017;
+	}
+	
+	public static Algorithm getStochasticStateCaseAlgorithmTTC2017() {
+		
+		Algorithm stateCaseTTC2017 = new Algorithm("TTC 2017 State Case");
+		
+		Algorithm prepareData = new Algorithm("prepare data");
+		Algorithm eliminateState = new Algorithm("eliminate state");
+		Algorithm handleSourceNode = new Algorithm("handle source node");
+		Algorithm redirectRoute = new Algorithm("redirect route");
+		
+		stateCaseTTC2017.addAlgorithmStep(prepareData);
+		prepareData.addAlgorithmStep(getNewInitialPattern());
+		prepareData.addAlgorithmStep(getAddToInitialPattern(), true);
+		prepareData.addAlgorithmStep(getNewFinalPattern());
+		prepareData.addAlgorithmStep(getAddToFinalPattern(), true);
+		prepareData.addAlgorithmStep(getMergeEdgesPattern(), true);
+		stateCaseTTC2017.addAlgorithmStep(eliminateState, true);
+		eliminateState.addAlgorithmStep(getMarkStateForEliminationPattern());
+		eliminateState.addAlgorithmStep(handleSourceNode, true);
+		handleSourceNode.addAlgorithmStep(getMarkWithCurrentPattern());
+		handleSourceNode.addAlgorithmStep(getMarkFallbackWithCurrentPattern());
+		handleSourceNode.addAlgorithmStep(redirectRoute, true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPqPkKkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPkKkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPqPkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPkKqPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPpPkKkKpPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPpPkKpPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPkKkKpPattern(), true);
+		redirectRoute.addAlgorithmStep(getStochasticPrepareStateWithPkKpPattern(), true);
 		handleSourceNode.addAlgorithmStep(getUnmarkCurrentPattern());
 		handleSourceNode.addAlgorithmStep(getRemoveMarksPattern(), true);
 		eliminateState.addAlgorithmStep(getEliminateMarkedStatePattern());
@@ -592,7 +629,7 @@ public class TestTTCStateCase {
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
 		PatternNode k = new PatternNode("#{eliminate}");
 		gtr.addPatternNode(p, k);
-		/* CASE 5: there's pp, pk, kk and kp */
+		/* CASE 6: there's just pp, pk and kp */
 		p.addPatternEdge("-", "#{pp}", p);
 		p.addPatternEdge("==", "#{pk}", k);
 		k.addPatternEdge("==", "#{kp}", p);
@@ -606,7 +643,7 @@ public class TestTTCStateCase {
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
 		PatternNode k = new PatternNode("#{eliminate}");
 		gtr.addPatternNode(p, k);
-		/* CASE 5: there's pp, pk, kk and kp */
+		/* CASE 7: there's just pk, kk and kp */
 		p.addPatternEdge("==", "#{pk}", k);
 		k.addPatternEdge("==", "#{kk}", k);
 		k.addPatternEdge("==", "#{kp}", p);
@@ -620,7 +657,7 @@ public class TestTTCStateCase {
 		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
 		PatternNode k = new PatternNode("#{eliminate}");
 		gtr.addPatternNode(p, k);
-		/* CASE 5: there's pp, pk, kk and kp */
+		/* CASE 8: there's just pk and kp */
 		p.addPatternEdge("==", "#{pk}", k);
 		k.addPatternEdge("==", "#{kp}", p);
 		p.addPatternEdge("+", "'((' + #{pk} + ')(' + #{kp} + '))*'", p);
@@ -657,6 +694,129 @@ public class TestTTCStateCase {
 		PatternNode n = new PatternNode("#{past}");
 		n.addPatternAttribute(new PatternAttribute().setAction("-").setName("past"));
 		gtr.addPatternNode(n);
+		return gtr;
+	}
+
+	private static String extrEdge(String name) {
+		return "substring(#{" + name + "}, 0, indexOf(#{" + name + "}, '[', length(#{" + name + "}) - 5))";
+	}
+	private static String extrProb(String name) {
+		return "substring(#{" + name + "}, indexOf(#{" + name + "}, '[', length(#{" + name + "}) - 5) + 1, length(#{" + name + "}) - 1)";
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPqPkKkKqPattern() { // #2.3.1 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with pq, pk, kk, kq)");
+		PatternNode p = new PatternNode("#{current}");
+		PatternNode k = new PatternNode("#{eliminate}");
+		PatternNode q = new PatternNode("!(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		gtr.addPatternNode(p, k, q);
+		/* CASE 1: there's pq, pk, kk and kq */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kq}", q);
+		k.addPatternEdge("==", "#{kk}", k);
+		p.addPatternEdge("-", "#{pq}", q);
+		p.addPatternEdge("+", "'(' + " + extrEdge("pq") + " + ')[500]+((' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kk") + " + ')*[" + extrProb("kk") + "](' + " + extrEdge("kq") + " + '))[500]'", q);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPkKkKqPattern() { // #2.3.2 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kk, kq)");
+		PatternNode p = new PatternNode("#{current}");
+		PatternNode k = new PatternNode("#{eliminate}");
+		PatternNode q = new PatternNode("!(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		gtr.addPatternNode(p, k, q);
+		/* CASE 2: there's just pk, kk and kq */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kk}", k);
+		k.addPatternEdge("==", "#{kq}", q);
+		p.addPatternEdge("+", "'(' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kk") + " + ')*[" + extrEdge("kk") + "](' + " + extrEdge("kq") + " + ')[500]'", q);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPqPkKqPattern() { // #2.3.3 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pq, pk, kq)");
+		PatternNode p = new PatternNode("#{current}");
+		PatternNode k = new PatternNode("#{eliminate}");
+		PatternNode q = new PatternNode("!(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		gtr.addPatternNode(p, k, q);
+		/* CASE 3: there's just pq, pk and kq */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kq}", q);
+		p.addPatternEdge("-", "#{pq}", q);
+		p.addPatternEdge("+", "'(' + " + extrEdge("pq") + " + ')[500]+((' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kq") + " + '))[500]'", q);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPkKqPattern() { // #2.3.4 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kq)");
+		PatternNode p = new PatternNode("#{current}");
+		PatternNode k = new PatternNode("#{eliminate}");
+		PatternNode q = new PatternNode("!(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		gtr.addPatternNode(p, k, q);
+		/* CASE 4: there's just pk and kq */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kq}", q);
+		p.addPatternEdge("+", "'(' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kq") + " + ')[500]'", q);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPpPkKkKpPattern() { // #2.3.5 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with pp, pk, kk, kp)");
+		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		PatternNode k = new PatternNode("#{eliminate}");
+		gtr.addPatternNode(p, k);
+		/* CASE 5: there's pp, pk, kk and kp */
+		p.addPatternEdge("-", "#{pp}", p);
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kk}", k);
+		k.addPatternEdge("==", "#{kp}", p);
+		p.addPatternEdge("+", "'((' + " + extrEdge("pp") + " + ')*[" + extrProb("pp") + "]((' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kk") + " + ')*[" + extrProb("kk") + "](' + " + extrEdge("kp") + " + '))*[1.0])*[1.0]'", p);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPpPkKpPattern() { // #2.3.6 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pp, pk, kp)");
+		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		PatternNode k = new PatternNode("#{eliminate}");
+		gtr.addPatternNode(p, k);
+		/* CASE 6: there's just pp, pk and kp */
+		p.addPatternEdge("-", "#{pp}", p);
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kp}", p);
+		p.addPatternEdge("+", "'((' + " + extrEdge("pp") + " + ')*[" + extrProb("pp") + "]((' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kp") + " + '))*[1.0])*[1.0]'", p);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPkKkKpPattern() { // #2.3.7 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kk, kp)");
+		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		PatternNode k = new PatternNode("#{eliminate}");
+		gtr.addPatternNode(p, k);
+		/* CASE 7: there's just pk, kk and kp */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kk}", k);
+		k.addPatternEdge("==", "#{kp}", p);
+		p.addPatternEdge("+", "'((' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kk") + " + ')*[" + extrProb("kk") + "](' + " + extrEdge("kp") + " + '))*[1.0]'", p);
+		return gtr;
+	}
+
+	public static PatternGraph getStochasticPrepareStateWithPkKpPattern() { // #2.3.8 (all matches; don't repeat) - could also be repeated
+		// gtr for adding new calculated labels
+		PatternGraph gtr = new PatternGraph("prepare elimination of state (with just pk, kp)");
+		PatternNode p = new PatternNode("#{current} && !(#{used})").addPatternAttribute(new PatternAttribute().setAction("+").setName("used").setValue(true));
+		PatternNode k = new PatternNode("#{eliminate}");
+		gtr.addPatternNode(p, k);
+		/* CASE 8: there's just pk and kp */
+		p.addPatternEdge("==", "#{pk}", k);
+		k.addPatternEdge("==", "#{kp}", p);
+		p.addPatternEdge("+", "'((' + " + extrEdge("pk") + " + ')(' + " + extrEdge("kp") + " + '))*[1.0]'", p);
 		return gtr;
 	}
 	
