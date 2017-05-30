@@ -103,7 +103,7 @@ public class GraphEngine {
 					.registerTypeAdapter(PatternGraph.class, new PatternGraphAdapter())
 					.registerTypeAdapter(NodeSortTree.class, new NodeSortTreeAdapter())
 					.registerTypeAdapter(Algorithm.class, new AlgorithmAdapter())
-					.setPrettyPrinting()
+//					.setPrettyPrinting()
 //					.serializeNulls()
 					.create();
 		}
