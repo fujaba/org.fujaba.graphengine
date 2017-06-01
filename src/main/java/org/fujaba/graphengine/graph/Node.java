@@ -3,12 +3,17 @@ package org.fujaba.graphengine.graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.fujaba.graphengine.GraphEngine;
+
 /**
  * This is a Node for use in graph transformation systems.
  * 
  * @author Philipp Kolodziej
  */
-public class Node implements Cloneable {
+public class Node implements Cloneable
+{
+   public static final String TYPE_ATTRIBUTE = "_____TYPE_____";
+
     /**
      * the attributes of this node
      */
@@ -131,14 +136,24 @@ public class Node implements Cloneable {
         return this;
     }
 
+
     @Override
-    public Node clone() {
+   public Node clone()
+   {
         HashMap<String, Object> clonedAttributes = new HashMap<String, Object>();
-        for (String key : attributes.keySet()) {
+      for (String key : attributes.keySet())
+      {
             clonedAttributes.put(key, attributes.get(key)); // attribute value won't be duplicated
         }
         Node clone = new Node(clonedAttributes);
         return clone;
     }
+
+
+   @Override
+   public String toString()
+   {
+      return GraphEngine.getGson().toJson(this);
+   }
 
 }

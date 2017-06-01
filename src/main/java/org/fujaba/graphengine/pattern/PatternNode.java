@@ -92,32 +92,59 @@ public class PatternNode extends PatternElement {
 		}
 		return this;
 	}
-	public ArrayList<PatternEdge> getPatternEdges() {
+
+
+   public ArrayList<PatternEdge> getPatternEdges()
+   {
 		return patternEdges;
 	}
-	public PatternNode setPatternEdges(ArrayList<PatternEdge> patternEdges) {
+
+
+   public PatternNode setPatternEdges(ArrayList<PatternEdge> patternEdges)
+   {
 		this.patternEdges = patternEdges;
 		return this;
 	}
-	public PatternNode addPatternEdge(PatternEdge... patternEdges) {
-		for (PatternEdge patternEdge: patternEdges) {
+
+
+   public PatternNode addPatternEdge(PatternEdge... patternEdges)
+   {
+      for (PatternEdge patternEdge : patternEdges)
+      {
 			this.patternEdges.add(patternEdge);
 		}
 		return this;
 	}
-	public PatternNode addPatternEdge(String name, PatternNode... targets) {
+
+
+   public PatternNode addPatternEdge(String name, PatternNode... targets)
+   {
 		return addPatternEdge("==", name, targets);
 	}
-	public PatternNode addPatternEdge(String action, String name, PatternNode... targets) {
-		for (PatternNode target: targets) {
+
+
+   public PatternNode addPatternEdge(String action, String name, PatternNode... targets)
+   {
+      for (PatternNode target : targets)
+      {
 			this.patternEdges.add(new PatternEdge().setSource(this).setName(name).setTarget(target).setAction(action));
 		}
 		return this;
 	}
+
+
 	@Override
-	public PatternNode setAction(String action) {
+   public PatternNode setAction(String action)
+   {
 		super.setAction(action);
 		return this;
 	}
+
+
+   @Override
+   public String toString()
+   {
+      return GraphEngine.getGson().toJson(this);
+   }
 
 }

@@ -7,23 +7,25 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
+import org.fujaba.graphengine.pattern.PatternEdge;
+import org.fujaba.graphengine.pattern.PatternGraph;
+import org.fujaba.graphengine.pattern.PatternNode;
 
 /**
  * This dumper is heavily inspired by Christoph Eickhoff's master thesis' graph dumper.
  * 
  * @author Philipp Kolodziej
  */
-public class GraphDumper
+public class PatternDumper
 {
 
-   private Graph graph;
+   private PatternGraph graph;
 
 
-   public GraphDumper(Graph graph)
+   public PatternDumper(PatternGraph patternGraph)
    {
-      this.graph = graph;
+      this.graph = patternGraph;
    }
 
 
@@ -32,54 +34,57 @@ public class GraphDumper
       try
       {
          BufferedWriter writer = Files.newBufferedWriter(Paths.get(targetFileName));
-         ArrayList<Node> states = graph.getNodes();
-         ArrayList<Node> edgeSources = new ArrayList<Node>();
+         ArrayList<PatternNode> states = graph.getPatternNodes();
+         ArrayList<PatternNode> edgeSources = new ArrayList<PatternNode>();
          ArrayList<String> edgeNames = new ArrayList<String>();
-         ArrayList<Node> edgeTargets = new ArrayList<Node>();
+         ArrayList<String> edgeTypes = new ArrayList<String>();
+         ArrayList<PatternNode> edgeTargets = new ArrayList<PatternNode>();
          writer.write(ALCHEMY_START.replaceAll("<<folder>>", "../"));
          writer.write("\nvar data= {\n" +
             "  \"nodes\": [\n");
          for (int i = 0; i < states.size(); ++i)
          {
-            Node currentNode = states.get(i);
+            PatternNode currentNode = states.get(i);
             writer.write('{');
-            if (currentNode.getEdges().keySet().size() == 0)
+            if (currentNode.getAction() == "!=")
             {
-               writer.write("type:\"finalstate\",");
+               writer.write("type:\"nac\",");
             }
-            else if (i == 0)
+            else if (currentNode.getAction() == "+")
             {
-               writer.write("type:\"startstate\",");
+               writer.write("type:\"add\",");
             }
-            else
+            else if (currentNode.getAction() == "-")
             {
-               writer.write("type:\"state\",");
+               writer.write("type:\"minus\",");
+            }
+            else if (currentNode.getAction() == "==")
+            {
+               writer.write("type:\"equals\",");
             }
             writer.write("id:" + i + "");
 
-            if (currentNode.getAttribute("name") != null)
+            if (currentNode.getPatternAttribute("name") != null)
             {
-               writer.write(",caption:\"" + currentNode.getAttribute("name") + "\"");
+               writer.write(",caption:\"" + currentNode.getPatternAttribute("name") + "     " + currentNode.getAction() + "\"");
             }
-            else if (currentNode.getAttribute(Node.TYPE_ATTRIBUTE) != null)
+            else if (currentNode.getPatternAttribute(Node.TYPE_ATTRIBUTE) != null)
             {
-               writer.write(",caption:\"" + currentNode.getAttribute(Node.TYPE_ATTRIBUTE) + "\"");
+               writer.write(",caption:\"" + currentNode.getPatternAttribute(Node.TYPE_ATTRIBUTE).getValue() + "     " + currentNode.getAction() + "\"");
             }
             else
             {
-               writer.write(",caption:\"state\"");
+               writer.write(",caption:\"" + "     " + currentNode.getAction() + "\"");
             }
 
             writer.write('}');
-            for (String key : currentNode.getEdges().keySet())
+            for (PatternEdge edge : currentNode.getPatternEdges())
             {
-               for (Node target : currentNode.getEdges(key))
-               {
-                  edgeSources.add(currentNode);
-                  // edgeNames.add("edge"); // TODO
-                  edgeNames.add(key); // TODO
-                  edgeTargets.add(target);
-               }
+               edgeSources.add(currentNode);
+               // edgeNames.add("edge"); // TODO
+               edgeTypes.add(edge.getAction());
+               edgeNames.add(edge.getName() + "     " + edge.getAction()); // TODO
+               edgeTargets.add(edge.getTarget());
             }
             if (i < states.size() - 1)
             {
@@ -97,7 +102,7 @@ public class GraphDumper
             }
             String source = "source:" + states.indexOf(edgeSources.get(i)) + ",";
             String target = "target:" + states.indexOf(edgeTargets.get(i)) + ",";
-            String edgestring = source + target;
+            String edgestring = source + target + edgeNames.get(i);
             if (!edgeStrings.contains(edgestring))
             {
                if (!first)
@@ -109,9 +114,26 @@ public class GraphDumper
                writer.write('{');
                writer.write(source);
                writer.write(target);
-               writer.write("nr:" + i + ",");
+               // writer.write("nr:" + i + ",");
                writer.write("caption:\"" + edgeNames.get(i) + "\",");
-               writer.write("type:\"normal\"");
+
+               if (edgeTypes.get(i) == "!=")
+               {
+                  writer.write("type:\"nac\"");
+               }
+               else if (edgeTypes.get(i) == "+")
+               {
+                  writer.write("type:\"add\"");
+               }
+               else if (edgeTypes.get(i) == "==")
+               {
+                  writer.write("type:\"equals\"");
+               }
+               else if (edgeTypes.get(i) == "-")
+               {
+                  writer.write("type:\"minus\"");
+               }
+
                writer.write("}");
             }
          }
@@ -138,7 +160,6 @@ public class GraphDumper
       " <link rel=\"stylesheet\" type=\"text/css\" href=\"includes/vendor.css\">\n" +
       "<script type=\"text/javascript\" src=\"includes/vendor.js\"></script>\n" +
       "<script type=\"text/javascript\" src=\"includes/alchemy.js\"></script>\n" + "\n" +
-      "\n" +
       "</head>\n" +
       "<body>\n" +
       "\n" +
@@ -146,46 +167,58 @@ public class GraphDumper
       "  <script type=\"text/javascript\">";
 
    private static final String ALCHEMY_CONFIG_STATEGRAPH = "   var config = {\n" + "            dataSource: data,\n" +
-      "        directedEdges:true,\n" +
-      "        initialScale: 1, \n" +
-      "        initialTranslate: [200,200],\n" +
-      "        curvedEdges:true,\n" +
-      "        edgeCaptionsOnByDefault: true,\n" +
-      "        nodeTypes: {\"type\":[\"failure\",\"state\",\"startstate\",\"finalstate\"]},\n" +
+      " directedEdges:true,\n" +
+      // " initialScale: 1, \n" +
+      // " initialTranslate: [200,200],\n" +
+      " curvedEdges:false,\n"
+      + "backgroundColor: \"#ffffff\",\n" +
+      " edgeCaptionsOnByDefault: true,\n" +
+      " nodeCaptionsOnByDefault: true,\n" +
+      "        nodeTypes: {\"type\":[\"minus\",\"nac\",\"equals\",\"add\"]},\n" +
       "         \"nodeStyle\": {\n" +
-      "         \"failure\": {\n" +
-      "               color: \"#FE3E3E\",\n" +
-      "            },\n" +
-      "         \"finalstate\": {\n" +
-      "               color: \"#0000FF\",\n" +
+      "         \"minus\": {\n" +
+      "               color: \"#FE0000\",\n" +
       "               radius: 15, \n" +
-      "            borderColor: \"#127DC1\"" +
+      "            borderColor: \"#99000\"" +
       "            },\n" +
-      "         \"startstate\": {\n" +
-      "               color: \"#FFFFFF\",\n" +
+      "         \"nac\": {\n" +
+      "               color: \"#ff794d\",\n" +
       "               radius: 15, \n" +
-      "            borderColor: \"#127DC1\"" +
+      "            borderColor: \"#aa7070\"" +
       "            },\n" +
-      "         \"state\":{\n" +
+      "         \"equals\": {\n" +
+      "               color: \"#6196ed\",\n" +
+      "               radius: 15, \n" +
+      "            borderColor: \"#4080aa\"" +
+      "            },\n" +
+      "         \"add\":{\n" +
       "               color: \"#00ff0e\",\n" +
-      "               borderColor: \"#00ffda\"\n" +
+      "               borderColor: \"#00aa06\",\n" +
+      "               radius: 15 \n" +
       "         }\n" +
       "      },\n" +
-      "          \"edgeTypes\": {\"type\": [\"failure\",\"normal\"]},\n" +
+      "          \"edgeTypes\": {\"type\": [\"add\",\"minus\",\"equals\",\"nac\"]},\n" +
       "      \"edgeStyle\": {\n" +
-      "            \"failure\": {\n" +
+      "            \"add\": {\n" +
+      "               color: \"#00ff0e\",\n" +
+      "            width: 3,\n" +
+      "               opacity: 1\n" +
+      "         },\n" +
+      "            \"equals\": {\n" +
+      "               color: \"#6196ed\",\n" +
+      "            width: 3,\n" +
+      "               opacity: 1\n" +
+      "         },\n" +
+      "            \"minus\": {\n" +
+      "               color: \"#FE0000\",\n" +
+      "            width: 3,\n" +
+      "               opacity: 1\n" +
+      "         },\n" +
+      "            \"nac\": {\n" +
       "               color: \"#ff794d\",\n" +
-      "            width: 7,\n" +
+      "            width: 3,\n" +
       "               opacity: 1\n" +
       "         },\n" +
-      "            \"greenpath\": {\n" +
-      "               color: \"#00FF00\",\n" +
-      "            width: 7,\n" +
-      "               opacity: 1\n" +
-      "         },\n" +
-      "         \"normal\": {\n" +
-      "            opacity: .9\n" +
-      "         }\n" +
       "      }" +
       ",     \n" +
       // " nodeClick: function OpenInNewTab(node) {\n" +
