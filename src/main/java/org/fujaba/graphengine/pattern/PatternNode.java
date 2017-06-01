@@ -2,6 +2,8 @@ package org.fujaba.graphengine.pattern;
 
 import java.util.ArrayList;
 
+import org.fujaba.graphengine.GraphEngine;
+
 /**
  * The PatternNode is a node of the PatternGraph.
  * 
