@@ -3,15 +3,10 @@ package org.fujaba.graphengine;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import javax.naming.spi.DirStateFactory.Result;
 
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.pattern.PatternAttribute;
 import org.fujaba.graphengine.pattern.PatternEdge;
@@ -117,7 +112,6 @@ public class PatternEngine {
 					Node target = findGraphInReachabilityGraph(rg, successor);
 					source.addEdge(match.getPattern().toString(), target); // new edge
 				} else {
-//					System.out.println("reached new state with '" + match.getPattern().getName() + "'"); // TODO: remove debug
 					// no, the graph didn't exist before => add a new node
 					Node target = new Node().setAttribute("graph", successor.toString()); // new node
 					rg.addNode(target);
@@ -226,7 +220,6 @@ public class PatternEngine {
 					Node target = rg.getNodes().get(index);
 					source.addEdge(match.getPattern().toString(), target); // new edge
 				} else {
-//					System.out.println("reached new state (#" + (rgNodeCount + 2) + ") with '" + match.getPattern().getName() + "'"); // TODO: remove debug
 					// no, the graph didn't exist before => add a new node
 					if (hashMap.containsKey(newHash)) {
 						hashMap.get(newHash).add(rgNodeCount++);
@@ -366,7 +359,8 @@ public class PatternEngine {
 		}
 		return -1;
 	}
-	
+
+	@SuppressWarnings("unused")
 	private static int normalizedIndexOf(ArrayList<Node> nodes, String serializedGraph) {
        	for (int i = 0; i < nodes.size(); ++i) {
 			Node n = nodes.get(i);
@@ -475,7 +469,6 @@ public class PatternEngine {
 						if ("+".equals(patternEdge.getAction())) {
 							continue;
 						}
-						// TODO verify: we shouldn't mind edges from positive to negative nodes here (yet):
 						boolean dontMind = !"!=".equals(patternEdge.getSource().getAction()) && "!=".equals(patternEdge.getTarget().getAction());
 						if (!dontMind) {
 							
@@ -524,6 +517,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 			 * until a match for these negative nodes is found => return false!
 			 * or all level were completed without matching negative nodes => return true!
 			 */
+			@SuppressWarnings("unchecked")
 			HashMap<PatternNode, Node> mapping = (HashMap<PatternNode, Node>)map.clone();
 			ArrayList<Integer> currentTry = new ArrayList<Integer>();
 			for (int i = 0; i < couldMatch.get(level).size(); ++i) {
@@ -743,6 +737,7 @@ level:	for (int level = 1; level < nodeMatchLists.size(); ++level) {
 		return true;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static ArrayList<Match> matchPattern(Graph graph, PatternGraph pattern, boolean single, ArrayList<ArrayList<PatternNode>> nodeMatchLists, ArrayList<ArrayList<ArrayList<Node>>> couldMatch) {
 		HashMap<String, String> edgeMatch = new HashMap<String, String>();
 		
@@ -796,9 +791,6 @@ loop:	while (checkIndex > -1) {
 									edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 									++numberOfEdgesFound;
 									if (numberOfEdgesFound >= extractedVariableNames.size()) {
-//										for (String foundEdge: extractedVariableNames) { // TODO ##### remove debug
-//											System.err.println(foundEdge + " == " + edgeMatch.get(foundEdge));
-//										}
 										exists = true;
 										break;
 									}
@@ -845,9 +837,6 @@ match:			for (int j = 0; j < i; ++j) {
 										edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 										++numberOfEdgesFound;
 										if (numberOfEdgesFound >= extractedVariableNames.size()) {
-//											for (String foundEdge: extractedVariableNames) { // TODO ##### remove debug
-//												System.err.println(foundEdge + " == " + edgeMatch.get(foundEdge));
-//											}
 											exists = true;
 											break;
 										}
@@ -884,9 +873,6 @@ match:			for (int j = 0; j < i; ++j) {
 										edgeMatch.put(extractedVariableNames.get(numberOfEdgesFound), "'" + ttcTestString + "'");
 										++numberOfEdgesFound;
 										if (numberOfEdgesFound >= extractedVariableNames.size()) {
-//											for (String foundEdge: extractedVariableNames) { // TODO ##### remove debug
-//												System.err.println(foundEdge + " == " + edgeMatch.get(foundEdge));
-//											}
 											exists = true;
 											break;
 										}
@@ -948,9 +934,6 @@ match:			for (int j = 0; j < i; ++j) {
 		for (HashMap<PatternNode, Node> successfulMapping: mappings) {
 			matches.add(new Match(graph, pattern, successfulMapping, edgeMatch));
 		}
-//		if (matches.size() > 0 && pattern.getName().startsWith("signalTo")) { // TODO: remove debug
-//			System.out.println("found " + matches.size() + " matches for '" + pattern.getName() + "'"); // TODO: remove debug
-//		} // TODO: remove debug
 		return matches;
 	}
 	
@@ -1309,8 +1292,7 @@ match:			for (int j = 0; j < i; ++j) {
 	 * @return the resulting graph
 	 */
 	public static Graph applyMatch(Match match, boolean keepGraph) {
-//		System.out.println("applying match for '" + match.getPattern().getName() + "'"); // TODO: remove debug
-		
+
 		Graph clonedGraph;
 		HashMap<PatternNode, Node> clonedNodeMatch;
 		

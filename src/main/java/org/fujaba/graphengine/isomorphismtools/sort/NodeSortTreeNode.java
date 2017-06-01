@@ -2,7 +2,6 @@ package org.fujaba.graphengine.isomorphismtools.sort;
 
 import java.util.ArrayList;
 
-import org.fujaba.graphengine.GraphEngine;
 import org.fujaba.graphengine.graph.Node;
 
 public class NodeSortTreeNode {

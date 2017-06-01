@@ -6,6 +6,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.fujaba.graphengine.algorithm.Algorithm;
+import org.fujaba.graphengine.algorithm.adapter.AlgorithmAdapter;
 import org.fujaba.graphengine.graph.Graph;
 import org.fujaba.graphengine.graph.Node;
 import org.fujaba.graphengine.graph.adapter.GraphAdapter;
@@ -13,8 +15,6 @@ import org.fujaba.graphengine.graph.adapter.GraphToSigmaJsAdapter;
 import org.fujaba.graphengine.graph.adapter.NodeAdapter;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandler;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPHighHeuristics;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCSPLowHeuristics;
-import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerCombinatorial;
 import org.fujaba.graphengine.isomorphismtools.IsomorphismHandlerSorting;
 import org.fujaba.graphengine.isomorphismtools.sort.NodeSortTree;
 import org.fujaba.graphengine.isomorphismtools.sort.adapter.NodeSortTreeAdapter;
@@ -102,6 +102,7 @@ public class GraphEngine {
 					.registerTypeAdapter(PatternNode.class, new PatternNodeAdapter())
 					.registerTypeAdapter(PatternGraph.class, new PatternGraphAdapter())
 					.registerTypeAdapter(NodeSortTree.class, new NodeSortTreeAdapter())
+					.registerTypeAdapter(Algorithm.class, new AlgorithmAdapter())
 //					.setPrettyPrinting()
 //					.serializeNulls()
 					.create();

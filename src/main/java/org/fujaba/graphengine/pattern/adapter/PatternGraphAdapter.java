@@ -149,7 +149,7 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 							    	    		}
 						    	    		}
 					    	    		}
-					    	    		attribute.setValue(in.nextString());
+//					    	    		attribute.setValue(in.nextString());
 					    	    		break;
 					    	    	}
 					    	    }
@@ -165,26 +165,28 @@ public class PatternGraphAdapter extends TypeAdapter<PatternGraph> {
 		    	    		edgesToBuildAction.put(sourceId, new HashMap<String, ArrayList<String>>());
 				    	    while (in.hasNext()) {
 				    	    	in.beginObject();
-				    	    	PatternEdge edge = new PatternEdge().setSource(node);
+				    	    	String action = "==";
+				    	    	String name = "";
+				    	    	Long target = (long)-1;
 					    	    while (in.hasNext()) {
 					    	    	switch (in.nextName()) {
 					    	    	case "action":
-					    	    		edge.setAction(in.nextString());
+					    	    		action = in.nextString();
 					    	    		break;
 					    	    	case "name":
-					    	    		edge.setName(in.nextString());
+					    	    		name = in.nextString();
 					    	    		break;
 					    	    	case "target":
-					    	    		edge.setTarget((PatternNode)idManager.getObject(in.nextLong()));
+					    	    		target = in.nextLong();
 					    	    		break;
 					    	    	}
 					    	    }
-					    	    if (!edgesToBuild.get(sourceId).containsKey(edge.getName())) {
-					    	    	edgesToBuild.get(sourceId).put(edge.getName(), new ArrayList<Long>());
-					    	    	edgesToBuildAction.get(sourceId).put(edge.getName(), new ArrayList<String>());
+					    	    if (!edgesToBuild.get(sourceId).containsKey(name)) {
+					    	    	edgesToBuild.get(sourceId).put(name, new ArrayList<Long>());
+					    	    	edgesToBuildAction.get(sourceId).put(name, new ArrayList<String>());
 					    	    }
-					    	    edgesToBuild.get(sourceId).get(edge.getName()).add(idManager.getId(edge.getTarget()));
-					    	    edgesToBuildAction.get(sourceId).get(edge.getName()).add(edge.getAction());
+					    	    edgesToBuild.get(sourceId).get(name).add(target);
+					    	    edgesToBuildAction.get(sourceId).get(name).add(action);
 				    	    	in.endObject();
 				    	    }
 		    	    		in.endArray();

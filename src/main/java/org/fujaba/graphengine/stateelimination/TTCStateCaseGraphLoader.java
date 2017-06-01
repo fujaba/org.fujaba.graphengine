@@ -27,6 +27,9 @@ import org.fujaba.graphengine.graph.Node;
  */
 public class TTCStateCaseGraphLoader {
     public static Graph load(String path) {
+    	return load(path, false);
+    }
+    public static Graph load(String path, boolean loadProbabilities) {
 	   Graph graph = new Graph();
        try {
            XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -75,7 +78,7 @@ public class TTCStateCaseGraphLoader {
                 	   String label = "";
                 	   long sourceId = -1;
                 	   long targetId = -1;
-//                	   double probability = -1;
+                	   double probability = -1;
                 	   while (attributes.hasNext()) {
                 		   Attribute currentAttribute = attributes.next();
                 		   String attributeName = currentAttribute.getName().toString();
@@ -91,10 +94,16 @@ public class TTCStateCaseGraphLoader {
                 			   targetId = Long.parseLong(attributeValue.substring(attributeValue.lastIndexOf('.') + 1));
                 		   } else if (attributeName.equalsIgnoreCase("probability")) {
                 			   // the probability (not used for now)
-//                			   probability = Double.parseDouble(attributeValue); // TODO: also use the probability
+                			   if (loadProbabilities) {
+                				   probability = Double.parseDouble(attributeValue);
+                			   }
 	            		   }
                 	   }
-                	   ((Node)idManager.getObject(sourceId)).addEdge(label, ((Node)idManager.getObject(targetId)));
+                	   if (loadProbabilities) {
+                    	   ((Node)idManager.getObject(sourceId)).addEdge(label + "[" + probability + "]", ((Node)idManager.getObject(targetId)));
+                	   } else {
+                    	   ((Node)idManager.getObject(sourceId)).addEdge(label, ((Node)idManager.getObject(targetId)));
+                	   }
                    }		        
                    break;
                case XMLStreamConstants.CHARACTERS:
