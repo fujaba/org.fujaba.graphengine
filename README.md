@@ -1,5 +1,5 @@
-Author: Philipp Kolodziej
-# graph engine
-This project's aim is to build a graph engine, that is able to build and compare graphs - and to match patterns and apply actions on the graph, to effectively use it as a graph-transformation framework.
-
-[![Build Status](https://travis-ci.org/fujaba/org.fujaba.graphengine.svg?branch=master)](https://travis-ci.org/fujaba/org.fujaba.graphengine)
+Steps necessary to run this graph engine's ttc'17 solution to the State Elimination Case:
+1. Clone this repository
+2. Switch to branch ttc-state
+3. Import in Eclipse
+4. Run /org.fujaba.graphengine/src/test/java/org/fujaba/graphengine/unitTests/TestTTCStateCase.java for test results.
